@@ -11,6 +11,7 @@ afterEach(() => {
 	server.resetHandlers()
 	resetMockState()
 	window.localStorage.clear()
+	window.sessionStorage.clear()
 })
 
 afterAll(() => {

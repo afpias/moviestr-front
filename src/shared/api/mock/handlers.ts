@@ -4,7 +4,7 @@ import { getPointsForFrame, normalizeMovieTitle } from '@shared/lib/game-rules'
 import { isRecord, isString } from '@shared/lib/type-guards'
 
 import { MOCK_COLLECTIONS, MOCK_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
-import { createMockSession, getMockSession } from './data/sessions'
+import { createMockSession, getMockSession, saveMockSession } from './data/sessions'
 
 async function mockDelay(): Promise<void> {
 	await delay(import.meta.env.MODE === 'test' ? 0 : 280)
@@ -125,6 +125,7 @@ export const handlers = [
 		if (isCorrect) {
 			session.status = 'won'
 			session.points = getPointsForFrame(session.currentFrameIndex)
+			saveMockSession()
 
 			return HttpResponse.json({
 				correct: true,
@@ -136,6 +137,7 @@ export const handlers = [
 
 		if (session.currentFrameIndex === movie.frames.length - 1) {
 			session.status = 'lost'
+			saveMockSession()
 
 			return HttpResponse.json({
 				correct: false,
@@ -146,6 +148,7 @@ export const handlers = [
 		}
 
 		session.currentFrameIndex += 1
+		saveMockSession()
 
 		return HttpResponse.json({
 			correct: false,
