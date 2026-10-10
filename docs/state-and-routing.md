@@ -20,6 +20,8 @@
 
 Используются только Setup Stores:
 
+Все Pinia stores располагаются в `shared/stores`. Для MVP там находятся как минимум `game.store.ts` и `theme.store.ts`. Компоненты и features обращаются к store через алиас `@shared`, а не через глубокие относительные пути.
+
 ```ts
 export const useGameStore = defineStore('game', () => {
 	const status = ref<GameStatus>('idle')
@@ -91,6 +93,8 @@ moviestr:theme:v1
 - экземпляры ошибок и реактивные объекты Vue.
 
 ## Router
+
+Router располагается в `app/router.ts`. Папка `app/router/` создаётся только после декомпозиции конфигурации на несколько файлов.
 
 Все маршруты именованные. Компоненты страниц загружаются лениво:
 

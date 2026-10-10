@@ -14,7 +14,7 @@
 Тест располагается рядом с тестируемым модулем:
 
 ```text
-features/play-game/model/
+shared/stores/
 ├── game.store.ts
 └── __tests__/
     └── game.store.spec.ts
