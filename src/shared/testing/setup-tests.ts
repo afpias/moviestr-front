@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll } from 'vitest'
 
+import { resetMockState } from '@shared/api/mock/data/sessions'
 import { server } from '@shared/api/mock/server'
 
 beforeAll(() => {
@@ -8,6 +9,8 @@ beforeAll(() => {
 
 afterEach(() => {
 	server.resetHandlers()
+	resetMockState()
+	window.localStorage.clear()
 })
 
 afterAll(() => {
