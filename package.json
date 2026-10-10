@@ -1,0 +1,74 @@
+{
+	"name": "moviestr",
+	"type": "module",
+	"version": "0.0.0",
+	"private": true,
+	"engines": {
+		"node": "^22.18.0 || >=24.12.0"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vue-tsc --build && vite build",
+		"build-only": "vite build",
+		"commit": "cz",
+		"commitlint": "commitlint",
+		"format": "prettier . --write",
+		"format:check": "prettier . --check",
+		"lint": "eslint . --cache",
+		"lint:fix": "eslint . --fix --cache",
+		"prepare": "simple-git-hooks",
+		"preview": "vite preview",
+		"test:unit": "vitest run",
+		"test:unit:watch": "vitest",
+		"type-check": "vue-tsc --build",
+		"validate": "vue-tsc --build && eslint . --cache && vitest run && prettier . --check"
+	},
+	"dependencies": {
+		"@primeuix/themes": "^3.0.1",
+		"@vue/devtools-api": "^8.2.1",
+		"pinia": "^4.0.3",
+		"primeicons": "^8.0.2",
+		"primevue": "^5.0.2",
+		"vue": "^3.5.42",
+		"vue-router": "^5.3.1"
+	},
+	"devDependencies": {
+		"@afpia/commitlint": "^1.1.1",
+		"@afpia/eslint": "^1.3.3",
+		"@afpia/prettier": "^1.2.0",
+		"@tsconfig/node24": "^24.0.5",
+		"@types/jsdom": "^30.0.0",
+		"@types/node": "^24.13.4",
+		"@vitejs/plugin-vue": "^6.0.8",
+		"@vitejs/plugin-vue-jsx": "^5.1.6",
+		"@vue/compiler-dom": "^3.5.43",
+		"@vue/compiler-sfc": "^3.5.43",
+		"@vue/test-utils": "^2.5.0",
+		"@vue/tsconfig": "^0.9.1",
+		"commitizen": "^4.3.2",
+		"eslint": "^9.12.0",
+		"inquirer": "^9",
+		"jsdom": "^30.0.1",
+		"msw": "^3.0.3",
+		"prettier": "^3.9.10",
+		"simple-git-hooks": "^2.14.0",
+		"typescript": "~6.0.0",
+		"vite": "^8.2.2",
+		"vite-plugin-vue-devtools": "^8.2.1",
+		"vitest": "^4.1.11",
+		"vue-tsc": "^3.3.11"
+	},
+	"msw": {
+		"workerDirectory": [
+			"public"
+		]
+	},
+	"config": {
+		"commitizen": {
+			"path": "@commitlint/cz-commitlint"
+		}
+	},
+	"simple-git-hooks": {
+		"commit-msg": "yarn commitlint --edit \"$1\""
+	}
+}
