@@ -6,7 +6,7 @@ import SupportIcon from './icons/IconSupport.vue'
 import ToolingIcon from './icons/IconTooling.vue'
 import WelcomeItem from './WelcomeItem.vue'
 
-const openReadmeInEditor = () => fetch('/__open-in-editor?file=README.md')
+const openReadmeInEditor = () => fetch('/__open-in-editor?file=docs/README.md')
 </script>
 
 <template>
@@ -42,7 +42,7 @@ const openReadmeInEditor = () => fetch('/__open-in-editor?file=README.md')
 		<br />
 
 		More instructions are available in
-		<a href="javascript:void(0)" @click="openReadmeInEditor"><code>README.md</code></a
+		<a href="javascript:void(0)" @click="openReadmeInEditor"><code>docs/README.md</code></a
 		>.
 	</WelcomeItem>
 
