@@ -1,35 +1,85 @@
 @import './base.css';
 
 #app {
-	max-width: 1280px;
-	margin: 0 auto;
-	padding: 2rem;
-	font-weight: normal;
+	min-height: 100vh;
 }
 
-a,
-.green {
-	text-decoration: none;
-	color: hsla(160, 100%, 37%, 1);
-	transition: 0.4s;
-	padding: 3px;
+.skip-link {
+	position: fixed;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 1000;
+	padding: 0.65rem 0.9rem;
+	border-radius: 0.65rem;
+	background: var(--app-color-accent);
+	color: var(--app-color-on-accent);
+	font-weight: 750;
+	transform: translateY(-150%);
 }
 
-@media (hover: hover) {
-	a:hover {
-		background-color: hsla(160, 100%, 37%, 0.2);
-	}
+.skip-link:focus {
+	transform: translateY(0);
 }
 
-@media (min-width: 1024px) {
-	body {
-		display: flex;
-		place-items: center;
-	}
+.eyebrow {
+	color: var(--app-color-accent);
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
 
-	#app {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		padding: 0 2rem;
-	}
+.status-page {
+	max-width: 650px;
+	margin: clamp(2rem, 10vh, 7rem) auto;
+	text-align: center;
+}
+
+.status-page h1 {
+	margin-top: 0.5rem;
+	font-size: clamp(2.5rem, 8vw, 5rem);
+	font-weight: 850;
+	letter-spacing: -0.06em;
+	line-height: 0.95;
+}
+
+.status-page > p:not(.eyebrow, .status-page__code) {
+	max-width: 34rem;
+	margin: 1.25rem auto 0;
+	color: var(--app-color-text-muted);
+}
+
+.status-page__icon {
+	width: 4rem;
+	aspect-ratio: 1;
+	margin: 0 auto 1.5rem;
+	display: grid;
+	place-items: center;
+	border-radius: 1.25rem;
+	background: var(--app-color-surface-raised);
+	color: var(--app-color-accent);
+	font-size: 1.4rem;
+	box-shadow: var(--app-shadow-large);
+}
+
+.status-page__code {
+	color: var(--app-color-border);
+	font-size: clamp(7rem, 30vw, 14rem);
+	font-weight: 900;
+	letter-spacing: -0.1em;
+	line-height: 0.75;
+}
+
+.text-link {
+	width: fit-content;
+	margin: 1.75rem auto 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	color: var(--app-color-text);
+	font-weight: 750;
+}
+
+.text-link i {
+	color: var(--app-color-accent);
 }
