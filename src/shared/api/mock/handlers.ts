@@ -1,5 +1,6 @@
 import { delay, http, HttpResponse } from 'msw'
 
+import { ApiError } from '@shared/api/api-error'
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
 import { isGameGenre } from '@shared/lib/game-genres'
 import { GAME_FRAME_COUNT, normalizeMovieTitle } from '@shared/lib/game-rules'
@@ -7,7 +8,7 @@ import { isRecord, isString } from '@shared/lib/type-guards'
 
 import { FIXTURE_COLLECTIONS, FIXTURE_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
 import { createMockSession, getMockSession, saveMockSession } from './data/sessions'
-import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog, TMDB_COLLECTION_ID, TmdbApiError } from './tmdb'
+import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog, TMDB_COLLECTION_ID } from './tmdb'
 
 async function mockDelay(): Promise<void> {
 	await delay(import.meta.env.MODE === 'test' ? 0 : 280)
@@ -18,7 +19,7 @@ function apiError(status: number, code: string, message: string) {
 }
 
 function upstreamError(error: unknown) {
-	if (error instanceof TmdbApiError) {
+	if (error instanceof ApiError) {
 		return apiError(error.status, error.code, error.message)
 	}
 

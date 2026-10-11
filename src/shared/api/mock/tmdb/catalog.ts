@@ -8,10 +8,8 @@ import type { CatalogMovie } from '../data/catalog'
 
 import {
 	assertTmdbConfigured,
-	getAlternativeTitles,
 	getKnownMoviesPage,
-	getMovieDetails,
-	getMovieImages,
+	getMovieBundle,
 	searchTmdbMovies,
 	type TmdbMovie,
 	type TmdbMoviePage
@@ -33,7 +31,7 @@ function getReleaseYear(releaseDate: string): number | null {
 	return Number.isInteger(year) && year > 1800 ? year : null
 }
 
-function createImageUrl(path: string, size: 'w500' | 'w1280'): string {
+function createImageUrl(path: string, size: 'w500' | 'w780' | 'w1280'): string {
 	return `${TMDB_IMAGE_BASE_URL}/${size}${path}`
 }
 
@@ -42,21 +40,16 @@ function uniqueTitles(titles: readonly string[]): string[] {
 }
 
 async function createCatalogMovie(candidate: TmdbMovie, recognizeImageText: ImageTextRecognizer): Promise<CatalogMovie | null> {
-	const [russianMovie, englishMovie, images, alternativeTitles] = await Promise.all([
-		getMovieDetails(candidate.id, 'ru-RU'),
-		getMovieDetails(candidate.id, 'en-US'),
-		getMovieImages(candidate.id),
-		getAlternativeTitles(candidate.id)
-	])
-	const aliases = uniqueTitles([russianMovie.title, englishMovie.title, russianMovie.originalTitle, ...alternativeTitles])
+	const { alternativeTitles, images, movie } = await getMovieBundle(candidate.id)
+	const aliases = uniqueTitles([movie.title, movie.originalTitle, ...alternativeTitles])
 	const backdrops = await selectSafeBackdrops(
 		images,
 		aliases,
 		(filePath) => createImageUrl(filePath, 'w1280'),
 		recognizeImageText
 	)
-	const releaseYear = getReleaseYear(russianMovie.releaseDate || englishMovie.releaseDate)
-	const posterPath = russianMovie.posterPath ?? englishMovie.posterPath
+	const releaseYear = getReleaseYear(movie.releaseDate)
+	const posterPath = movie.posterPath
 
 	if (backdrops.length < GAME_FRAME_COUNT || releaseYear === null || posterPath === null) {
 		return null
@@ -67,13 +60,13 @@ async function createCatalogMovie(candidate: TmdbMovie, recognizeImageText: Imag
 		frames: backdrops.map((backdrop, index) => ({
 			alt: `Кадр ${index + 1} из загаданного фильма`,
 			index,
-			url: createImageUrl(backdrop.filePath, 'w1280')
+			url: createImageUrl(backdrop.filePath, 'w780')
 		})),
 		id: `tmdb-${candidate.id}`,
-		originalTitle: russianMovie.originalTitle,
+		originalTitle: movie.originalTitle,
 		posterUrl: createImageUrl(posterPath, 'w500'),
 		releaseYear,
-		title: russianMovie.title
+		title: movie.title
 	}
 }
 
@@ -161,7 +154,9 @@ export async function getRandomTmdbMovie(
 	const movieRank = selectMovieRank(difficulty, movieCount)
 	const selectedPageNumber = Math.floor(movieRank / TMDB_PAGE_SIZE) + 1
 	const selectedPage = selectedPageNumber === 1 ? firstPage : await getMoviePage(genre, selectedPageNumber)
-	const difficultyCandidates = getDifficultyCandidates(selectedPage, difficulty, movieCount)
+	const difficultyCandidates = getDifficultyCandidates(selectedPage, difficulty, movieCount).filter(
+		(candidate) => candidate.backdropPath !== null
+	)
 	const preferredIndex = Math.floor(Math.random() * difficultyCandidates.length)
 	const candidates = orderCandidates(difficultyCandidates, preferredIndex).slice(0, MAX_MOVIE_ATTEMPTS)
 

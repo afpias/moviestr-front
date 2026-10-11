@@ -1,8 +1,13 @@
 import { isNumber, isRecord, isString } from '@shared/lib/type-guards'
 
+import { ApiError } from '../../api-error'
+
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
+const TMDB_REQUEST_TIMEOUT_MS = 10_000
+const requestCache = new Map<string, Promise<unknown>>()
 
 export interface TmdbMovie {
+	backdropPath: string | null
 	id: number
 	originalTitle: string
 	popularity: number
@@ -10,6 +15,12 @@ export interface TmdbMovie {
 	releaseDate: string
 	title: string
 	voteCount: number
+}
+
+export interface TmdbMovieBundle {
+	alternativeTitles: string[]
+	images: TmdbImage[]
+	movie: TmdbMovie
 }
 
 export interface TmdbMoviePage {
@@ -28,22 +39,11 @@ export interface TmdbImage {
 	width: number
 }
 
-export class TmdbApiError extends Error {
-	constructor(
-		readonly code: 'SERVICE_NOT_CONFIGURED' | 'UPSTREAM_ERROR',
-		message: string,
-		readonly status: number
-	) {
-		super(message)
-		this.name = 'TmdbApiError'
-	}
-}
-
 function getReadToken(): string {
 	const token = import.meta.env.VITE_TMDB_READ_TOKEN?.trim()
 
 	if (!token) {
-		throw new TmdbApiError('SERVICE_NOT_CONFIGURED', 'VITE_TMDB_READ_TOKEN is not configured', 503)
+		throw new ApiError(503, { code: 'SERVICE_NOT_CONFIGURED', message: 'VITE_TMDB_READ_TOKEN is not configured' })
 	}
 
 	return token
@@ -56,6 +56,7 @@ function isNullableString(value: unknown): value is null | string {
 function parseMovie(value: unknown): TmdbMovie | null {
 	if (
 		!isRecord(value) ||
+		!isNullableString(value.backdrop_path) ||
 		!isNumber(value.id) ||
 		!isString(value.original_title) ||
 		!isNumber(value.popularity) ||
@@ -68,6 +69,7 @@ function parseMovie(value: unknown): TmdbMovie | null {
 	}
 
 	return {
+		backdropPath: value.backdrop_path,
 		id: value.id,
 		originalTitle: value.original_title,
 		popularity: value.popularity,
@@ -80,7 +82,7 @@ function parseMovie(value: unknown): TmdbMovie | null {
 
 function parseMovieList(value: unknown): TmdbMovie[] {
 	if (!isRecord(value) || !Array.isArray(value.results)) {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned an invalid movie list', 502)
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned an invalid movie list' })
 	}
 
 	const movies: TmdbMovie[] = []
@@ -109,7 +111,7 @@ function parseMoviePage(value: unknown): TmdbMoviePage {
 		!Number.isInteger(value.total_results) ||
 		value.total_results < 0
 	) {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned invalid movie pagination', 502)
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned invalid movie pagination' })
 	}
 
 	return {
@@ -122,7 +124,7 @@ function parseMoviePage(value: unknown): TmdbMoviePage {
 
 function parseImages(value: unknown): TmdbImage[] {
 	if (!isRecord(value) || !Array.isArray(value.backdrops)) {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned an invalid image list', 502)
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned an invalid image list' })
 	}
 
 	const images: TmdbImage[] = []
@@ -153,12 +155,50 @@ function parseImages(value: unknown): TmdbImage[] {
 
 function parseAlternativeTitles(value: unknown): string[] {
 	if (!isRecord(value) || !Array.isArray(value.titles)) {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned invalid alternative titles', 502)
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned invalid alternative titles' })
 	}
 
 	return value.titles.flatMap((alternativeTitle) =>
 		isRecord(alternativeTitle) && isString(alternativeTitle.title) ? [alternativeTitle.title] : []
 	)
+}
+
+async function fetchTmdb(url: URL): Promise<unknown> {
+	const controller = new AbortController()
+	const timeoutId = window.setTimeout(() => controller.abort(), TMDB_REQUEST_TIMEOUT_MS)
+
+	try {
+		const response = await fetch(url, {
+			cache: 'force-cache',
+			headers: {
+				Accept: 'application/json',
+				Authorization: `Bearer ${getReadToken()}`
+			},
+			signal: controller.signal
+		})
+
+		if (!response.ok) {
+			throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: `TMDB responded with status ${response.status}` })
+		}
+
+		try {
+			return await response.json()
+		} catch {
+			throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned invalid JSON' })
+		}
+	} catch (error: unknown) {
+		if (error instanceof ApiError) {
+			throw error
+		}
+
+		if (error instanceof DOMException && error.name === 'AbortError') {
+			throw new ApiError(408, { code: 'TIMEOUT', message: 'TMDB request timeout' })
+		}
+
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB request failed' })
+	} finally {
+		window.clearTimeout(timeoutId)
+	}
 }
 
 async function requestTmdb(path: string, searchParams: Record<string, number | string> = {}): Promise<unknown> {
@@ -168,28 +208,24 @@ async function requestTmdb(path: string, searchParams: Record<string, number | s
 		url.searchParams.set(name, String(value))
 	}
 
-	let response: Response
-
-	try {
-		response = await fetch(url, {
-			headers: {
-				Accept: 'application/json',
-				Authorization: `Bearer ${getReadToken()}`
-			}
-		})
-	} catch {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB request failed', 502)
+	if (import.meta.env.MODE === 'test') {
+		return fetchTmdb(url)
 	}
 
-	if (!response.ok) {
-		throw new TmdbApiError('UPSTREAM_ERROR', `TMDB responded with status ${response.status}`, 502)
+	const cacheKey = url.toString()
+	const cachedRequest = requestCache.get(cacheKey)
+
+	if (cachedRequest) {
+		return cachedRequest
 	}
 
-	try {
-		return await response.json()
-	} catch {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned invalid JSON', 502)
-	}
+	const request = fetchTmdb(url).catch((error: unknown) => {
+		requestCache.delete(cacheKey)
+		throw error
+	})
+	requestCache.set(cacheKey, request)
+
+	return request
 }
 
 export function assertTmdbConfigured(): void {
@@ -216,7 +252,7 @@ export async function getMovieDetails(movieId: number, language: 'en-US' | 'ru-R
 	const movie = parseMovie(await requestTmdb(`/movie/${movieId}`, { language }))
 
 	if (!movie) {
-		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned invalid movie details', 502)
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned invalid movie details' })
 	}
 
 	return movie
@@ -232,6 +268,30 @@ export async function getMovieImages(movieId: number): Promise<TmdbImage[]> {
 
 export async function getAlternativeTitles(movieId: number): Promise<string[]> {
 	return parseAlternativeTitles(await requestTmdb(`/movie/${movieId}/alternative_titles`))
+}
+
+export async function getMovieBundle(movieId: number): Promise<TmdbMovieBundle> {
+	const response = await requestTmdb(`/movie/${movieId}`, {
+		append_to_response: 'images,alternative_titles',
+		include_image_language: 'null,en,ru',
+		language: 'ru-RU'
+	})
+
+	if (!isRecord(response)) {
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned invalid movie bundle' })
+	}
+
+	const movie = parseMovie(response)
+
+	if (!movie) {
+		throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: 'TMDB returned invalid movie details' })
+	}
+
+	return {
+		alternativeTitles: parseAlternativeTitles(response.alternative_titles),
+		images: parseImages(response.images),
+		movie
+	}
 }
 
 export async function searchTmdbMovies(query: string, language: 'en-US' | 'ru-RU'): Promise<TmdbMovie[]> {

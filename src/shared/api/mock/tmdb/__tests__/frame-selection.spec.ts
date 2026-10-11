@@ -29,7 +29,7 @@ describe('tmdb frame selection', () => {
 		expect(selected.map((image) => image.voteCount)).toEqual([10, 20, 40, 50, 60])
 	})
 
-	it('не использует кадр, если OCR завершился ошибкой', async () => {
+	it('использует fallback без языковой маркировки, если OCR завершился ошибкой', async () => {
 		const images = Array.from({ length: 6 }, (_, index) => createImage(`/frame-${index}.jpg`, index))
 
 		const selected = await selectSafeBackdrops(
@@ -45,7 +45,8 @@ describe('tmdb frame selection', () => {
 			}
 		)
 
-		expect(selected.map((image) => image.filePath)).not.toContain('/frame-0.jpg')
+		expect(selected).toHaveLength(5)
+		expect(selected.map((image) => image.filePath)).toContain('/frame-0.jpg')
 	})
 
 	it('не блокирует создание раунда, если OCR не отвечает', async () => {
@@ -58,7 +59,7 @@ describe('tmdb frame selection', () => {
 			async () => new Promise<string>(() => undefined)
 		)
 
-		await vi.advanceTimersByTimeAsync(1_200)
+		await vi.advanceTimersByTimeAsync(450)
 
 		await expect(selection).resolves.toHaveLength(5)
 		vi.useRealTimers()

@@ -11,6 +11,7 @@ function jsonResponse(body: unknown): Response {
 
 function createMovieResponse(title: string, originalTitle = 'Interstellar', id = 157_336, knownness = 100) {
 	return {
+		backdrop_path: '/backdrop.jpg',
 		id,
 		original_title: originalTitle,
 		popularity: knownness,
@@ -94,24 +95,24 @@ describe('tmdb catalog', () => {
 					return jsonResponse(createDiscoverPage(Number(url.searchParams.get('page'))))
 				}
 
-				if (url.pathname.endsWith('/images')) {
+				if (/\/movie\/\d+$/.test(url.pathname)) {
 					return jsonResponse({
-						backdrops: Array.from({ length: 5 }, (_, index) => ({
-							file_path: `/frame-${index + 1}.jpg`,
-							height: 720,
-							iso_639_1: null,
-							vote_average: 8 - index / 10,
-							vote_count: 100 - index,
-							width: 1280
-						}))
+						...createMovieResponse('Интерстеллар'),
+						alternative_titles: { titles: [{ title: 'Интерстеллар' }, { title: 'Interstellar' }] },
+						images: {
+							backdrops: Array.from({ length: 5 }, (_, index) => ({
+								file_path: `/frame-${index + 1}.jpg`,
+								height: 720,
+								iso_639_1: null,
+								vote_average: 8 - index / 10,
+								vote_count: 100 - index,
+								width: 1280
+							}))
+						}
 					})
 				}
 
-				if (url.pathname.endsWith('/alternative_titles')) {
-					return jsonResponse({ titles: [{ title: 'Интерстеллар' }, { title: 'Interstellar' }] })
-				}
-
-				return jsonResponse(createMovieResponse(url.searchParams.get('language') === 'ru-RU' ? 'Интерстеллар' : 'Interstellar'))
+				return jsonResponse(createMovieResponse('Интерстеллар'))
 			})
 		)
 
@@ -120,7 +121,7 @@ describe('tmdb catalog', () => {
 		expect(movie.title).toBe('Интерстеллар')
 		expect(movie.aliases).toEqual(expect.arrayContaining(['Интерстеллар', 'Interstellar']))
 		expect(movie.frames).toHaveLength(5)
-		expect(movie.frames.every((frame) => frame.url.startsWith('https://image.tmdb.org/t/p/w1280/'))).toBe(true)
+		expect(movie.frames.every((frame) => frame.url.startsWith('https://image.tmdb.org/t/p/w780/'))).toBe(true)
 		expect(movie.posterUrl).toBe('https://image.tmdb.org/t/p/w500/poster.jpg')
 	})
 
@@ -137,21 +138,21 @@ describe('tmdb catalog', () => {
 					return jsonResponse(createDiscoverPage(Number(url.searchParams.get('page'))))
 				}
 
-				if (url.pathname.endsWith('/images')) {
+				if (/\/movie\/\d+$/.test(url.pathname)) {
 					return jsonResponse({
-						backdrops: Array.from({ length: 5 }, (_, index) => ({
-							file_path: `/genre-frame-${index + 1}.jpg`,
-							height: 720,
-							iso_639_1: null,
-							vote_average: 8,
-							vote_count: 100,
-							width: 1280
-						}))
+						...createMovieResponse('Интерстеллар'),
+						alternative_titles: { titles: [] },
+						images: {
+							backdrops: Array.from({ length: 5 }, (_, index) => ({
+								file_path: `/genre-frame-${index + 1}.jpg`,
+								height: 720,
+								iso_639_1: null,
+								vote_average: 8,
+								vote_count: 100,
+								width: 1280
+							}))
+						}
 					})
-				}
-
-				if (url.pathname.endsWith('/alternative_titles')) {
-					return jsonResponse({ titles: [] })
 				}
 
 				return jsonResponse(createMovieResponse('Интерстеллар'))
@@ -162,12 +163,12 @@ describe('tmdb catalog', () => {
 
 		const discoverUrls = requestedUrls.filter((url) => url.pathname.endsWith('/discover/movie'))
 		const selectedPageUrl = discoverUrls.find((url) => url.searchParams.get('page') === '401')
-		const russianDetailsUrl = requestedUrls.find(
-			(url) => /^\/3\/movie\/\d+$/.test(url.pathname) && url.searchParams.get('language') === 'ru-RU'
-		)
+		const movieBundleUrls = requestedUrls.filter((url) => /^\/3\/movie\/\d+$/.test(url.pathname))
 		expect(discoverUrls).toHaveLength(2)
 		expect(selectedPageUrl?.searchParams.get('with_genres')).toBe('878')
 		expect(selectedPageUrl?.searchParams.get('sort_by')).toBe('vote_count.desc')
-		expect(russianDetailsUrl?.pathname).toBe('/3/movie/8001')
+		expect(movieBundleUrls).toHaveLength(1)
+		expect(movieBundleUrls[0]?.pathname).toBe('/3/movie/8001')
+		expect(movieBundleUrls[0]?.searchParams.get('append_to_response')).toBe('images,alternative_titles')
 	})
 })

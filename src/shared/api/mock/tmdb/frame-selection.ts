@@ -4,7 +4,7 @@ import { containsMovieTitle } from '@shared/lib/movie-title-detection'
 import type { TmdbImage } from './client'
 
 const BACKDROP_CANDIDATE_LIMIT = 18
-const OCR_TIME_BUDGET_MS = 1_200
+const OCR_TIME_BUDGET_MS = 450
 const SAFE_BACKDROP_TARGET = BACKDROP_CANDIDATE_LIMIT
 
 export type ImageTextRecognizer = (imageUrl: string) => Promise<string>
@@ -69,11 +69,7 @@ export async function selectSafeBackdrops(
 	for (const candidate of candidates) {
 		const recognition = await recognizeWithinBudget(createImageUrl(candidate.filePath), recognizeImageText, ocrDeadline)
 
-		if (recognition.status === 'failed') {
-			continue
-		}
-
-		if (recognition.status === 'timed-out' || !containsMovieTitle(recognition.text, titles)) {
+		if (recognition.status !== 'recognized' || !containsMovieTitle(recognition.text, titles)) {
 			safeBackdrops.push(candidate)
 		}
 
