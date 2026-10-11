@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { AlertCircle, Play } from '@lucide/vue'
 
 import { ROUTE_NAMES } from '@app/router'
+import { ApiError } from '@shared/api/api-error'
 import { getCollections } from '@shared/api/collections.api'
 import { useGameStore } from '@shared/stores/game.store'
 import type { MovieCollectionSummary } from '@shared/types/game'
@@ -16,14 +17,26 @@ const collections = ref<MovieCollectionSummary[]>([])
 const errorMessage = ref<string | null>(null)
 const isLoading = ref(true)
 
+function getCollectionsError(error: unknown): string {
+	if (error instanceof ApiError && error.code === 'SERVICE_NOT_CONFIGURED') {
+		return 'Добавьте VITE_TMDB_READ_TOKEN в .env.local и перезапустите dev-сервер.'
+	}
+
+	if (error instanceof ApiError && error.code === 'UPSTREAM_ERROR') {
+		return 'TMDB сейчас недоступен. Попробуйте ещё раз.'
+	}
+
+	return 'Не удалось загрузить подборки. Попробуйте ещё раз.'
+}
+
 async function loadCollections(): Promise<void> {
 	isLoading.value = true
 	errorMessage.value = null
 
 	try {
 		collections.value = await getCollections()
-	} catch {
-		errorMessage.value = 'Не удалось загрузить подборки. Попробуйте ещё раз.'
+	} catch (error: unknown) {
+		errorMessage.value = getCollectionsError(error)
 	} finally {
 		isLoading.value = false
 	}
@@ -82,7 +95,7 @@ onMounted(loadCollections)
 			</div>
 			<div v-else-if="collections[0]" class="collection-meta">
 				<span>{{ collections[0].title }}</span>
-				<span>{{ collections[0].movieCount }} фильма в демо</span>
+				<span>{{ collections[0].movieCount }} фильмов</span>
 			</div>
 			<div v-else-if="!errorMessage" class="home-page__empty">Подборки пока не добавлены.</div>
 		</div>

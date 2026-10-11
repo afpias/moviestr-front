@@ -47,7 +47,12 @@ const themeStore = useThemeStore()
 				<p class="app-footer__attribution">Этот продукт использует TMDB API, но не одобрен и не сертифицирован TMDB.</p>
 			</div>
 			<div class="app-footer__links">
-				<a href="https://www.themoviedb.org" rel="noreferrer" target="_blank">TMDB</a>
+				<a class="tmdb-link" href="https://www.themoviedb.org" rel="noreferrer" target="_blank">
+					<img
+						alt="The Movie Database"
+						src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
+					/>
+				</a>
 				<RouterLink to="/rules">Как играть</RouterLink>
 			</div>
 		</footer>

@@ -3,8 +3,9 @@ import { delay, http, HttpResponse } from 'msw'
 import { getPointsForFrame, normalizeMovieTitle } from '@shared/lib/game-rules'
 import { isRecord, isString } from '@shared/lib/type-guards'
 
-import { MOCK_COLLECTIONS, MOCK_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
+import { FIXTURE_COLLECTIONS, FIXTURE_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
 import { createMockSession, getMockSession, saveMockSession } from './data/sessions'
+import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog, TmdbApiError } from './tmdb'
 
 async function mockDelay(): Promise<void> {
 	await delay(import.meta.env.MODE === 'test' ? 0 : 280)
@@ -14,10 +15,27 @@ function apiError(status: number, code: string, message: string) {
 	return HttpResponse.json({ code, message }, { status })
 }
 
+function upstreamError(error: unknown) {
+	if (error instanceof TmdbApiError) {
+		return apiError(error.status, error.code, error.message)
+	}
+
+	return apiError(502, 'UPSTREAM_ERROR', 'Unable to load movie data')
+}
+
+function isFixtureMode(): boolean {
+	return import.meta.env.MODE === 'test'
+}
+
 export const handlers = [
 	http.get('/api/v1/collections', async () => {
 		await mockDelay()
-		return HttpResponse.json({ items: MOCK_COLLECTIONS })
+
+		try {
+			return HttpResponse.json({ items: isFixtureMode() ? FIXTURE_COLLECTIONS : [getTmdbCollection()] })
+		} catch (error: unknown) {
+			return upstreamError(error)
+		}
 	}),
 	http.post('/api/v1/games', async ({ request }) => {
 		await mockDelay()
@@ -27,23 +45,31 @@ export const handlers = [
 			return apiError(400, 'VALIDATION_ERROR', 'collectionId is required')
 		}
 
-		if (!MOCK_COLLECTIONS.some((collection) => collection.id === body.collectionId)) {
+		let collections
+
+		try {
+			collections = isFixtureMode() ? FIXTURE_COLLECTIONS : [getTmdbCollection()]
+		} catch (error: unknown) {
+			return upstreamError(error)
+		}
+
+		if (!collections.some((collection) => collection.id === body.collectionId)) {
 			return apiError(404, 'COLLECTION_NOT_FOUND', 'Collection not found')
 		}
 
-		const session = createMockSession(MOCK_MOVIES.map((movie) => movie.id))
-		const movie = MOCK_MOVIES.find((item) => item.id === session.movieId)
+		try {
+			const movies = isFixtureMode() ? FIXTURE_MOVIES : [await getRandomTmdbMovie()]
+			const session = createMockSession(movies)
 
-		if (!movie) {
-			return apiError(500, 'INTERNAL_ERROR', 'Movie not found')
+			return HttpResponse.json({
+				currentFrame: session.movie.frames[0],
+				gameId: session.gameId,
+				status: 'playing',
+				totalFrames: 6
+			})
+		} catch (error: unknown) {
+			return upstreamError(error)
 		}
-
-		return HttpResponse.json({
-			currentFrame: movie.frames[0],
-			gameId: session.gameId,
-			status: 'playing',
-			totalFrames: 6
-		})
 	}),
 	http.get('/api/v1/games/:gameId', async ({ params }) => {
 		await mockDelay()
@@ -54,15 +80,9 @@ export const handlers = [
 			return apiError(404, 'GAME_NOT_FOUND', 'Game not found')
 		}
 
-		const movie = MOCK_MOVIES.find((item) => item.id === session.movieId)
-
-		if (!movie) {
-			return apiError(500, 'INTERNAL_ERROR', 'Movie not found')
-		}
-
 		if (session.status === 'playing') {
 			return HttpResponse.json({
-				currentFrame: movie.frames[session.currentFrameIndex],
+				currentFrame: session.movie.frames[session.currentFrameIndex],
 				gameId,
 				status: 'playing',
 				totalFrames: 6
@@ -72,7 +92,7 @@ export const handlers = [
 		return HttpResponse.json({
 			gameId,
 			points: session.points,
-			result: toMovieResult(movie),
+			result: toMovieResult(session.movie),
 			status: session.status,
 			totalFrames: 6
 		})
@@ -86,13 +106,21 @@ export const handlers = [
 			return HttpResponse.json({ items: [] })
 		}
 
-		const items = MOCK_MOVIES.filter((movie) =>
-			[movie.title, movie.originalTitle, ...movie.aliases].some((title) => normalizeMovieTitle(title).includes(normalizedQuery))
-		)
-			.slice(0, 10)
-			.map(toMovieSuggestion)
+		try {
+			const items = isFixtureMode()
+				? FIXTURE_MOVIES.filter((movie) =>
+						[movie.title, movie.originalTitle, ...movie.aliases].some((title) =>
+							normalizeMovieTitle(title).includes(normalizedQuery)
+						)
+					)
+						.slice(0, 10)
+						.map(toMovieSuggestion)
+				: await searchTmdbCatalog(query)
 
-		return HttpResponse.json({ items })
+			return HttpResponse.json({ items })
+		} catch (error: unknown) {
+			return upstreamError(error)
+		}
 	}),
 	http.post('/api/v1/games/:gameId/guesses', async ({ params, request }) => {
 		await mockDelay()
@@ -113,14 +141,10 @@ export const handlers = [
 			return apiError(400, 'VALIDATION_ERROR', 'title is required')
 		}
 
-		const movie = MOCK_MOVIES.find((item) => item.id === session.movieId)
-
-		if (!movie) {
-			return apiError(500, 'INTERNAL_ERROR', 'Movie not found')
-		}
-
 		const answer = normalizeMovieTitle(body.title)
-		const isCorrect = [movie.title, movie.originalTitle, ...movie.aliases].some((title) => normalizeMovieTitle(title) === answer)
+		const isCorrect = [session.movie.title, session.movie.originalTitle, ...session.movie.aliases].some(
+			(title) => normalizeMovieTitle(title) === answer
+		)
 
 		if (isCorrect) {
 			session.status = 'won'
@@ -130,19 +154,19 @@ export const handlers = [
 			return HttpResponse.json({
 				correct: true,
 				points: session.points,
-				result: toMovieResult(movie),
+				result: toMovieResult(session.movie),
 				status: 'won'
 			})
 		}
 
-		if (session.currentFrameIndex === movie.frames.length - 1) {
+		if (session.currentFrameIndex === session.movie.frames.length - 1) {
 			session.status = 'lost'
 			saveMockSession()
 
 			return HttpResponse.json({
 				correct: false,
 				points: 0,
-				result: toMovieResult(movie),
+				result: toMovieResult(session.movie),
 				status: 'lost'
 			})
 		}
@@ -152,7 +176,7 @@ export const handlers = [
 
 		return HttpResponse.json({
 			correct: false,
-			currentFrame: movie.frames[session.currentFrameIndex],
+			currentFrame: session.movie.frames[session.currentFrameIndex],
 			status: 'playing'
 		})
 	})

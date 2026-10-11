@@ -158,7 +158,7 @@ watch(() => route.params.id, loadCurrentGame, { immediate: true })
 						{{ isSubmitting ? 'Проверяем…' : 'Ответить' }}
 					</Button>
 				</div>
-				<p class="answer-form__hint">Можно ввести русское или оригинальное название</p>
+				<p class="answer-form__hint">Можно ввести русское, английское или оригинальное название</p>
 			</form>
 
 			<Alert v-if="feedbackMessage" class="game-page__alert" variant="warning" role="status">

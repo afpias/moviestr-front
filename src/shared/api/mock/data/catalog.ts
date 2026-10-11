@@ -1,6 +1,6 @@
 import type { GameFrame, GameResult, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
 
-interface MockMovie {
+export interface CatalogMovie {
 	aliases: string[]
 	frames: GameFrame[]
 	id: string
@@ -39,7 +39,7 @@ function createMovie(
 	aliases: string[],
 	scenes: string[],
 	palette: FramePalette
-): MockMovie {
+): CatalogMovie {
 	return {
 		aliases,
 		frames: scenes.map((scene, index) => ({
@@ -55,7 +55,7 @@ function createMovie(
 	}
 }
 
-export const MOCK_MOVIES: MockMovie[] = [
+export const FIXTURE_MOVIES: CatalogMovie[] = [
 	createMovie(
 		'm01',
 		'Интерстеллар',
@@ -106,16 +106,16 @@ export const MOCK_MOVIES: MockMovie[] = [
 	)
 ]
 
-export const MOCK_COLLECTIONS: MovieCollectionSummary[] = [
+export const FIXTURE_COLLECTIONS: MovieCollectionSummary[] = [
 	{
 		description: 'Знаковые фильмы разных жанров и эпох',
 		id: 'top-250',
-		movieCount: MOCK_MOVIES.length,
+		movieCount: FIXTURE_MOVIES.length,
 		title: 'Топ 250'
 	}
 ]
 
-export function toMovieResult(movie: MockMovie): GameResult {
+export function toMovieResult(movie: CatalogMovie): GameResult {
 	return {
 		originalTitle: movie.originalTitle,
 		posterUrl: movie.posterUrl,
@@ -124,7 +124,7 @@ export function toMovieResult(movie: MockMovie): GameResult {
 	}
 }
 
-export function toMovieSuggestion(movie: MockMovie): MovieSuggestion {
+export function toMovieSuggestion(movie: CatalogMovie): MovieSuggestion {
 	return {
 		id: movie.id,
 		releaseYear: movie.releaseYear,

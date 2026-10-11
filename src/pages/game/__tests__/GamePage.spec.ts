@@ -7,12 +7,6 @@ import { flushPromises, mount } from '@vue/test-utils'
 import GamePage from '@pages/game/GamePage.vue'
 import { useGameStore } from '@shared/stores/game.store'
 
-const AutoCompleteStub = {
-	emits: ['update:modelValue'],
-	props: ['modelValue'],
-	template: `<input id="movie-answer" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`
-}
-
 describe('game page', () => {
 	it('показывает следующий кадр после неверного ответа', async () => {
 		const pinia = createPinia()
@@ -37,10 +31,8 @@ describe('game page', () => {
 			global: {
 				plugins: [pinia, router],
 				stubs: {
-					AutoComplete: AutoCompleteStub,
 					Button: true,
 					Dialog: true,
-					Message: { template: '<div><slot /></div>' },
 					Skeleton: true
 				}
 			}

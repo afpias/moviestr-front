@@ -97,6 +97,12 @@
 	gap: 1rem;
 }
 
+.tmdb-link img {
+	width: 2rem;
+	height: 2rem;
+	display: block;
+}
+
 @media (max-width: 680px) {
 	.app-header {
 		min-height: 64px;

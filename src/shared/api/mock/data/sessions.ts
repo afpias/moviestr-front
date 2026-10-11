@@ -1,14 +1,16 @@
 import { isRecord } from '@shared/lib/type-guards'
 
+import type { CatalogMovie } from './catalog'
+
 interface MockGameSession {
 	currentFrameIndex: number
 	gameId: string
-	movieId: string
+	movie: CatalogMovie
 	points: number
 	status: 'lost' | 'playing' | 'won'
 }
 
-const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v1'
+const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v2'
 const sessions = new Map<string, MockGameSession>()
 let gameCounter = 0
 let movieCounter = 0
@@ -21,7 +23,7 @@ function isMockSession(value: unknown): value is MockGameSession {
 	return (
 		typeof value.currentFrameIndex === 'number' &&
 		typeof value.gameId === 'string' &&
-		typeof value.movieId === 'string' &&
+		isCatalogMovie(value.movie) &&
 		typeof value.points === 'number' &&
 		(value.status === 'lost' || value.status === 'playing' || value.status === 'won')
 	)
@@ -57,10 +59,32 @@ function persistSessions(): void {
 	}
 }
 
-export function createMockSession(movieIds: string[]): MockGameSession {
-	const movieId = movieIds[movieCounter % movieIds.length]
+function isCatalogMovie(value: unknown): value is CatalogMovie {
+	if (!isRecord(value)) {
+		return false
+	}
 
-	if (!movieId) {
+	return (
+		Array.isArray(value.aliases) &&
+		value.aliases.every((alias) => typeof alias === 'string') &&
+		Array.isArray(value.frames) &&
+		value.frames.length === 6 &&
+		value.frames.every(
+			(frame) =>
+				isRecord(frame) && typeof frame.alt === 'string' && typeof frame.index === 'number' && typeof frame.url === 'string'
+		) &&
+		typeof value.id === 'string' &&
+		typeof value.originalTitle === 'string' &&
+		typeof value.posterUrl === 'string' &&
+		typeof value.releaseYear === 'number' &&
+		typeof value.title === 'string'
+	)
+}
+
+export function createMockSession(movies: CatalogMovie[]): MockGameSession {
+	const movie = movies[movieCounter % movies.length]
+
+	if (!movie) {
 		throw new Error('Mock movie catalog is empty')
 	}
 
@@ -68,7 +92,7 @@ export function createMockSession(movieIds: string[]): MockGameSession {
 	const session: MockGameSession = {
 		currentFrameIndex: 0,
 		gameId,
-		movieId,
+		movie,
 		points: 0,
 		status: 'playing'
 	}
