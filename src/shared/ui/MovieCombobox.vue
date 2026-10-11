@@ -1,20 +1,13 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount } from 'vue'
 
-import { Check, LoaderCircle } from '@lucide/vue'
+import { LoaderCircle } from '@lucide/vue'
 
 import type { MovieSuggestion } from '@shared/types/game'
 
-import {
-	Combobox,
-	ComboboxAnchor,
-	ComboboxGroup,
-	ComboboxInput,
-	ComboboxItem,
-	ComboboxItemIndicator,
-	ComboboxList,
-	ComboboxViewport
-} from './combobox'
+import { Combobox, ComboboxAnchor, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList, ComboboxViewport } from './combobox'
+
+import './MovieCombobox.css'
 
 interface MovieComboboxProps {
 	disabled?: boolean
@@ -79,13 +72,13 @@ onBeforeUnmount(() => {
 		open-on-focus
 		@update:model-value="selectSuggestion"
 	>
-		<ComboboxAnchor class="relative w-full">
+		<ComboboxAnchor class="movie-combobox__anchor relative w-full">
 			<ComboboxInput
 				:id="props.inputId"
 				:disabled="props.disabled"
 				:model-value="displayValue"
 				:placeholder="props.placeholder"
-				class="h-9 text-sm focus-visible:outline-none"
+				class="movie-combobox__input"
 				@update:model-value="updateQuery"
 			/>
 			<LoaderCircle
@@ -97,26 +90,26 @@ onBeforeUnmount(() => {
 		<ComboboxList
 			v-if="props.suggestions.length > 0"
 			align="start"
-			class="w-[var(--reka-combobox-trigger-width)] border-border bg-popover text-popover-foreground"
+			class="movie-combobox__list w-[var(--reka-combobox-trigger-width)]"
 			side="top"
 		>
-			<ComboboxViewport class="max-h-56">
+			<ComboboxViewport class="movie-combobox__viewport">
 				<ComboboxGroup>
 					<ComboboxItem
 						v-for="suggestion in props.suggestions"
 						:key="suggestion.id"
 						:text-value="`${suggestion.title} ${suggestion.englishTitle}`"
 						:value="suggestion.id"
-						class="items-center px-3 py-2"
+						class="movie-combobox__option"
 					>
-						<span class="min-w-0">
-							<span class="block truncate font-semibold">{{ suggestion.title }}</span>
-							<span v-if="suggestion.englishTitle !== suggestion.title" class="block truncate text-xs text-muted-foreground">
+						<span class="movie-combobox__titles">
+							<span class="movie-combobox__title">
+								{{ suggestion.title }} <span>({{ suggestion.releaseYear }})</span>
+							</span>
+							<span v-if="suggestion.englishTitle !== suggestion.title" class="movie-combobox__original-title">
 								{{ suggestion.englishTitle }}
 							</span>
 						</span>
-						<span class="ml-auto shrink-0 text-xs text-muted-foreground">{{ suggestion.releaseYear }}</span>
-						<ComboboxItemIndicator><Check class="size-4 text-primary" /></ComboboxItemIndicator>
 					</ComboboxItem>
 				</ComboboxGroup>
 			</ComboboxViewport>

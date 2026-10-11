@@ -223,7 +223,7 @@ onMounted(gameStore.initializeGame)
 								placeholder="Найди фильм по названию"
 								@search="completeSearch"
 							/>
-							<Button :disabled="isBusy" type="submit">
+							<Button class="answer-form__submit" :disabled="isBusy" type="submit">
 								<CheckCircle2 v-if="selectedMovie" :size="17" />
 								<SkipForward v-else :size="17" />
 								{{ actionLabel }}

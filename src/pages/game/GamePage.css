@@ -161,6 +161,12 @@
 	gap: 0.6rem;
 }
 
+.answer-form__submit {
+	height: 2.75rem;
+	border-radius: 0.9rem;
+	padding-inline: 1.15rem;
+}
+
 .game-info section {
 	padding-bottom: 1.5rem;
 	border-bottom: 1px solid var(--app-color-border);

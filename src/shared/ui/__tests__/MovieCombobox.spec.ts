@@ -56,6 +56,7 @@ describe('movie combobox', () => {
 		const option = document.querySelector<HTMLElement>('[role="option"]')
 		expect(listbox?.dataset.side).toBe('top')
 		expect(option?.textContent).toContain('Матрица')
+		expect(option?.textContent).toContain('(1999)')
 		expect(option?.textContent).toContain('The Matrix')
 
 		wrapper.unmount()
