@@ -64,9 +64,24 @@
 	color: var(--app-color-text);
 }
 
+.movie-combobox__option.is-attempted {
+	cursor: not-allowed;
+	color: var(--app-color-text-muted);
+	opacity: 0.5;
+}
+
 .movie-combobox__titles {
 	min-width: 0;
+	flex: 1;
 	display: block;
+}
+
+.movie-combobox__attempted-label {
+	margin-left: auto;
+	color: var(--app-color-text-muted);
+	font-size: 0.66rem;
+	font-weight: 700;
+	white-space: nowrap;
 }
 
 .movie-combobox__title,

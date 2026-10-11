@@ -11,6 +11,7 @@ import { Button } from '@shared/ui'
 
 interface GameStageProps {
 	actionLabel: string
+	attemptedMovieIds: string[]
 	currentAttempt: number
 	currentFrame: GameFrame
 	difficulty: GameDifficulty
@@ -106,6 +107,7 @@ watch(
 				<div class="answer-form__controls">
 					<MovieCombobox
 						v-model="answer"
+						:attempted-movie-ids="props.attemptedMovieIds"
 						input-id="movie-answer"
 						:suggestions="props.suggestions"
 						:disabled="props.isBusy"

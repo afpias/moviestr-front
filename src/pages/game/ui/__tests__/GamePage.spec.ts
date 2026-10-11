@@ -52,6 +52,32 @@ describe('game page', () => {
 		expect(wrapper.find('figcaption').exists()).toBe(false)
 	})
 
+	it('помечает неверно выбранный фильм в повторной поисковой выдаче', async () => {
+		const { gameStore, wrapper } = mountGamePage()
+		const findMatrixOption = () =>
+			[...document.querySelectorAll<HTMLElement>('[role="option"]')].find((option) => option.textContent?.includes('Матрица'))
+
+		await vi.waitFor(() => {
+			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+		})
+
+		await wrapper.get('#movie-answer').trigger('focus')
+		await wrapper.get('#movie-answer').setValue('matrix')
+		await vi.waitFor(() => expect(findMatrixOption()).toBeDefined())
+		await new DOMWrapper(findMatrixOption()!).trigger('click')
+		await wrapper.get('form').trigger('submit')
+
+		await vi.waitFor(() => {
+			expect(gameStore.currentFrame?.index).toBe(1)
+		})
+
+		await wrapper.get('#movie-answer').setValue('matrix')
+		await vi.waitFor(() => {
+			expect(findMatrixOption()?.textContent).toContain('Уже выбрано')
+			expect(findMatrixOption()?.hasAttribute('data-disabled')).toBe(true)
+		})
+	})
+
 	it('не показывает alt до полной загрузки нового кадра', async () => {
 		const { wrapper } = mountGamePage()
 

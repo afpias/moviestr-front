@@ -60,4 +60,26 @@ describe('movie combobox', () => {
 
 		wrapper.unmount()
 	})
+
+	it('помечает и блокирует уже выбранный фильм', async () => {
+		const suggestion = { englishTitle: 'The Matrix', id: 'tmdb-603', releaseYear: 1999, title: 'Матрица' }
+		const wrapper = mount(MovieCombobox, {
+			props: {
+				attemptedMovieIds: [suggestion.id],
+				inputId: 'movie-answer',
+				modelValue: 'matrix',
+				suggestions: [suggestion]
+			}
+		})
+
+		await wrapper.get('input').trigger('focus')
+		await vi.waitFor(() => expect(document.querySelector('[role="option"]')).not.toBeNull())
+		const option = document.querySelector<HTMLElement>('[role="option"]')
+
+		expect(option?.textContent).toContain('Уже выбрано')
+		expect(option?.hasAttribute('data-disabled')).toBe(true)
+		expect(option?.classList.contains('is-attempted')).toBe(true)
+
+		wrapper.unmount()
+	})
 })

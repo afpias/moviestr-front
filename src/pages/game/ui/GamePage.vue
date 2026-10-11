@@ -11,6 +11,7 @@ import { useGameConsole } from '../model/useGameConsole'
 const {
 	actionLabel,
 	answer,
+	attemptedMovieIds,
 	completeSearch,
 	continueRound,
 	currentAttempt,
@@ -62,6 +63,7 @@ const {
 			<GameStage
 				v-model="answer"
 				:action-label="actionLabel"
+				:attempted-movie-ids="attemptedMovieIds"
 				:current-attempt="currentAttempt"
 				:current-frame="currentFrame"
 				:difficulty="difficulty"

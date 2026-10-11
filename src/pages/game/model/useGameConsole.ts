@@ -8,7 +8,17 @@ import type { GameDifficulty, GameGenre } from '@shared/types/game'
 export function useGameConsole() {
 	const gameStore = useGameStore()
 	const { currentFrame, difficulty, genre, lastError, roundResult, status, totalFrames } = storeToRefs(gameStore)
-	const { answer, clearSearch, completeSearch, isSearching, selectedMovie, suggestions } = useMovieSearch()
+	const {
+		answer,
+		attemptedMovieIds,
+		clearSearch,
+		completeSearch,
+		isSearching,
+		markMovieAttempted,
+		resetSearch,
+		selectedMovie,
+		suggestions
+	} = useMovieSearch()
 
 	const currentAttempt = computed(() => (currentFrame.value?.index ?? 0) + 1)
 	const isBusy = computed(() => status.value === 'loading' || status.value === 'submitting')
@@ -25,7 +35,7 @@ export function useGameConsole() {
 			return
 		}
 
-		clearSearch()
+		resetSearch()
 		await gameStore.switchDifficulty(selectedDifficulty)
 	}
 
@@ -34,7 +44,7 @@ export function useGameConsole() {
 			return
 		}
 
-		clearSearch()
+		resetSearch()
 		await gameStore.switchGenre(selectedGenre)
 	}
 
@@ -43,7 +53,7 @@ export function useGameConsole() {
 			return
 		}
 
-		clearSearch()
+		resetSearch()
 		await gameStore.restartRound()
 	}
 
@@ -60,17 +70,22 @@ export function useGameConsole() {
 			return
 		}
 
-		await gameStore.submitGuess(movie.title)
+		const isCorrect = await gameStore.submitGuess(movie.title)
+
+		if (isCorrect === false) {
+			markMovieAttempted(movie.id)
+		}
+
 		clearSearch()
 	}
 
 	async function continueRound(): Promise<void> {
-		clearSearch()
+		resetSearch()
 		await gameStore.continueAfterWin()
 	}
 
 	async function retryRound(): Promise<void> {
-		clearSearch()
+		resetSearch()
 		await gameStore.retryAfterLoss()
 	}
 
@@ -95,6 +110,7 @@ export function useGameConsole() {
 	return {
 		actionLabel,
 		answer,
+		attemptedMovieIds,
 		completeSearch,
 		continueRound,
 		currentAttempt,

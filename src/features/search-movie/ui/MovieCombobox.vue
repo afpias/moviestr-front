@@ -7,6 +7,7 @@ import type { MovieSuggestion } from '@shared/types/game'
 import { Combobox, ComboboxAnchor, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList, ComboboxViewport } from '@shared/ui'
 
 interface MovieComboboxProps {
+	attemptedMovieIds?: string[]
 	disabled?: boolean
 	inputId: string
 	isLoading?: boolean
@@ -16,6 +17,7 @@ interface MovieComboboxProps {
 }
 
 const props = withDefaults(defineProps<MovieComboboxProps>(), {
+	attemptedMovieIds: () => [],
 	disabled: false,
 	isLoading: false,
 	placeholder: ''
@@ -28,6 +30,7 @@ const emit = defineEmits<{
 
 const displayValue = computed(() => (typeof props.modelValue === 'string' ? props.modelValue : (props.modelValue?.title ?? '')))
 const selectedId = computed(() => (typeof props.modelValue === 'object' ? props.modelValue?.id : undefined))
+const attemptedMovieIdSet = computed(() => new Set(props.attemptedMovieIds))
 let searchTimeout: ReturnType<typeof setTimeout> | undefined
 
 function updateQuery(query: string): void {
@@ -41,7 +44,7 @@ function updateQuery(query: string): void {
 }
 
 function selectSuggestion(value: unknown): void {
-	if (typeof value !== 'string') {
+	if (typeof value !== 'string' || attemptedMovieIdSet.value.has(value)) {
 		return
 	}
 
@@ -95,6 +98,8 @@ onBeforeUnmount(() => {
 					<ComboboxItem
 						v-for="suggestion in props.suggestions"
 						:key="suggestion.id"
+						:class="{ 'is-attempted': attemptedMovieIdSet.has(suggestion.id) }"
+						:disabled="attemptedMovieIdSet.has(suggestion.id)"
 						:text-value="`${suggestion.title} ${suggestion.englishTitle}`"
 						:value="suggestion.id"
 						class="movie-combobox__option"
@@ -107,6 +112,7 @@ onBeforeUnmount(() => {
 								{{ suggestion.englishTitle }}
 							</span>
 						</span>
+						<span v-if="attemptedMovieIdSet.has(suggestion.id)" class="movie-combobox__attempted-label"> Уже выбрано </span>
 					</ComboboxItem>
 				</ComboboxGroup>
 			</ComboboxViewport>

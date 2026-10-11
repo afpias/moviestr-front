@@ -6,6 +6,7 @@ import { searchMovies } from '../api/movies.api'
 
 export function useMovieSearch() {
 	const answer = ref<MovieSuggestion | string | null>(null)
+	const attemptedMovieIds = ref<string[]>([])
 	const isSearching = ref(false)
 	const suggestions = ref<MovieSuggestion[]>([])
 	let latestSearchId = 0
@@ -19,6 +20,17 @@ export function useMovieSearch() {
 		suggestions.value = []
 		isSearching.value = false
 		latestSearchId += 1
+	}
+
+	function markMovieAttempted(movieId: string): void {
+		if (!attemptedMovieIds.value.includes(movieId)) {
+			attemptedMovieIds.value.push(movieId)
+		}
+	}
+
+	function resetSearch(): void {
+		clearSearch()
+		attemptedMovieIds.value = []
 	}
 
 	async function completeSearch(query: string): Promise<void> {
@@ -49,9 +61,12 @@ export function useMovieSearch() {
 
 	return {
 		answer,
+		attemptedMovieIds,
 		clearSearch,
 		completeSearch,
 		isSearching,
+		markMovieAttempted,
+		resetSearch,
 		selectedMovie,
 		suggestions
 	}
