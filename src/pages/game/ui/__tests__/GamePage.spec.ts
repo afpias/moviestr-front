@@ -187,7 +187,7 @@ describe('game page', () => {
 		gameStore.status = 'loading'
 		await wrapper.vm.$nextTick()
 
-		expect(wrapper.find('.game-console').exists()).toBe(true)
+		expect(wrapper.find('.game-page__layout').exists()).toBe(true)
 		expect(wrapper.find('.game-loading').exists()).toBe(false)
 		expect(wrapper.find('.movie-frame__loading').exists()).toBe(true)
 		expect(wrapper.text()).not.toContain('Назови этот фильм')

@@ -3,7 +3,7 @@
 	align-content: start;
 	gap: 1.4rem;
 	padding: 1.35rem;
-	background: color-mix(in srgb, var(--app-color-background) 82%, transparent);
+	background: transparent;
 }
 
 .control-label {
@@ -28,17 +28,7 @@
 	font-size: 0.75rem;
 }
 
-@media (min-width: 1120px) {
-	.game-sidebar {
-		border-right: 1px solid var(--app-color-border);
-	}
-}
-
 @media (max-width: 1119px) {
-	.game-sidebar {
-		border-bottom: 1px solid var(--app-color-border);
-	}
-
 	.game-sidebar :deep(.difficulty-selector--list) {
 		display: grid;
 		grid-template-columns: repeat(5, minmax(0, 1fr));

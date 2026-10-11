@@ -34,7 +34,7 @@ const {
 </script>
 
 <template>
-	<section class="game-console-widget">
+	<section class="game-page">
 		<div v-if="status === 'idle' || (status === 'loading' && !currentFrame)" class="game-loading" aria-label="Загрузка фильма">
 			<Skeleton class="h-12 w-full rounded-xl" />
 			<Skeleton class="aspect-video w-full rounded-[var(--app-radius-large)]" />
@@ -49,7 +49,7 @@ const {
 			<Button type="button" @click="retryLoading"><RefreshCcw :size="17" /> Попробовать снова</Button>
 		</div>
 
-		<div v-else-if="currentFrame" class="game-console">
+		<div v-else-if="currentFrame" class="game-page__layout">
 			<GameSidebar
 				:difficulty="difficulty"
 				:disabled="isBusy"

@@ -3,7 +3,7 @@
 	align-content: start;
 	gap: 1.8rem;
 	padding: 1.35rem;
-	background: color-mix(in srgb, var(--app-color-background) 82%, transparent);
+	background: transparent;
 }
 
 .control-label {
@@ -42,15 +42,8 @@
 	font-weight: 750;
 }
 
-@media (min-width: 1120px) {
-	.game-info {
-		border-left: 1px solid var(--app-color-border);
-	}
-}
-
 @media (max-width: 1119px) {
 	.game-info {
 		grid-template-columns: repeat(2, 1fr);
-		border-top: 1px solid var(--app-color-border);
 	}
 }
