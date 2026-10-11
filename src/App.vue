@@ -44,7 +44,7 @@ const themeStore = useThemeStore()
 		<footer class="app-footer">
 			<div>
 				<p>Moviestr · угадывай кино по кадрам</p>
-				<p class="app-footer__attribution">Этот продукт использует TMDB API, но не одобрен и не сертифицирован TMDB.</p>
+				<p class="app-footer__attribution">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
 			</div>
 			<div class="app-footer__links">
 				<a class="tmdb-link" href="https://www.themoviedb.org" rel="noreferrer" target="_blank">
