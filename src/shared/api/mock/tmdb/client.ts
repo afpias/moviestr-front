@@ -12,6 +12,13 @@ export interface TmdbMovie {
 	voteCount: number
 }
 
+export interface TmdbMoviePage {
+	movies: TmdbMovie[]
+	page: number
+	totalPages: number
+	totalResults: number
+}
+
 export interface TmdbImage {
 	filePath: string
 	height: number
@@ -87,6 +94,30 @@ function parseMovieList(value: unknown): TmdbMovie[] {
 	}
 
 	return movies
+}
+
+function parseMoviePage(value: unknown): TmdbMoviePage {
+	if (
+		!isRecord(value) ||
+		!isNumber(value.page) ||
+		!Number.isInteger(value.page) ||
+		value.page < 1 ||
+		!isNumber(value.total_pages) ||
+		!Number.isInteger(value.total_pages) ||
+		value.total_pages < 0 ||
+		!isNumber(value.total_results) ||
+		!Number.isInteger(value.total_results) ||
+		value.total_results < 0
+	) {
+		throw new TmdbApiError('UPSTREAM_ERROR', 'TMDB returned invalid movie pagination', 502)
+	}
+
+	return {
+		movies: parseMovieList(value),
+		page: value.page,
+		totalPages: value.total_pages,
+		totalResults: value.total_results
+	}
 }
 
 function parseImages(value: unknown): TmdbImage[] {
@@ -165,20 +196,20 @@ export function assertTmdbConfigured(): void {
 	getReadToken()
 }
 
-export async function getPopularMovies(page: number, genreId: number | null): Promise<TmdbMovie[]> {
+export async function getKnownMoviesPage(page: number, genreId: number | null): Promise<TmdbMoviePage> {
 	const searchParams: Record<string, number | string> = {
 		include_adult: 'false',
 		include_video: 'false',
 		language: 'ru-RU',
 		page,
-		sort_by: 'popularity.desc'
+		sort_by: 'vote_count.desc'
 	}
 
 	if (genreId !== null) {
 		searchParams.with_genres = genreId
 	}
 
-	return parseMovieList(await requestTmdb('/discover/movie', searchParams))
+	return parseMoviePage(await requestTmdb('/discover/movie', searchParams))
 }
 
 export async function getMovieDetails(movieId: number, language: 'en-US' | 'ru-RU'): Promise<TmdbMovie> {

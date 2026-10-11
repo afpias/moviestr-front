@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getRandomTmdbMovie, searchTmdbCatalog } from '../catalog'
+import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog } from '../catalog'
 
 function jsonResponse(body: unknown): Response {
 	return new Response(JSON.stringify(body), {
@@ -23,13 +23,17 @@ function createMovieResponse(title: string, originalTitle = 'Interstellar', id =
 
 function createDiscoverPage(page: number) {
 	const startIndex = (page - 1) * 20
-	const pageSize = page === 13 ? 10 : 20
 
-	return Array.from({ length: pageSize }, (_, index) => {
-		const rank = startIndex + index
+	return {
+		page,
+		results: Array.from({ length: 20 }, (_, index) => {
+			const rank = startIndex + index
 
-		return createMovieResponse('Интерстеллар', 'Interstellar', rank + 1, 250 - rank)
-	})
+			return createMovieResponse('Интерстеллар', 'Interstellar', rank + 1, 10_000 - rank)
+		}),
+		total_pages: 500,
+		total_results: 10_000
+	}
 }
 
 describe('tmdb catalog', () => {
@@ -59,6 +63,26 @@ describe('tmdb catalog', () => {
 		expect(suggestions).toEqual([{ englishTitle: 'Interstellar', id: 'tmdb-157336', releaseYear: 2014, title: 'Интерстеллар' }])
 	})
 
+	it('возвращает фактический размер доступного каталога', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (input: URL) => {
+				const url = new URL(input)
+
+				return jsonResponse(createDiscoverPage(Number(url.searchParams.get('page'))))
+			})
+		)
+
+		const collection = await getTmdbCollection()
+
+		expect(collection).toEqual({
+			description: 'Фильмы TMDB, ранжированные по известности',
+			id: 'tmdb-catalog',
+			movieCount: 10_000,
+			title: 'Каталог TMDB'
+		})
+	})
+
 	it('создаёт раунд с пятью настоящими tmdb backdrops', async () => {
 		vi.spyOn(Math, 'random').mockReturnValue(0)
 		vi.stubGlobal(
@@ -67,7 +91,7 @@ describe('tmdb catalog', () => {
 				const url = new URL(input)
 
 				if (url.pathname.endsWith('/discover/movie')) {
-					return jsonResponse({ results: createDiscoverPage(Number(url.searchParams.get('page'))) })
+					return jsonResponse(createDiscoverPage(Number(url.searchParams.get('page'))))
 				}
 
 				if (url.pathname.endsWith('/images')) {
@@ -100,7 +124,7 @@ describe('tmdb catalog', () => {
 		expect(movie.posterUrl).toBe('https://image.tmdb.org/t/p/w500/poster.jpg')
 	})
 
-	it('запрашивает выбранный жанр и берёт impossible из нижних 20% известности', async () => {
+	it('выбирает impossible из нижних 20% всего доступного каталога жанра', async () => {
 		vi.spyOn(Math, 'random').mockReturnValue(0)
 		const requestedUrls: URL[] = []
 		vi.stubGlobal(
@@ -110,7 +134,7 @@ describe('tmdb catalog', () => {
 				requestedUrls.push(url)
 
 				if (url.pathname.endsWith('/discover/movie')) {
-					return jsonResponse({ results: createDiscoverPage(Number(url.searchParams.get('page'))) })
+					return jsonResponse(createDiscoverPage(Number(url.searchParams.get('page'))))
 				}
 
 				if (url.pathname.endsWith('/images')) {
@@ -136,12 +160,14 @@ describe('tmdb catalog', () => {
 
 		await getRandomTmdbMovie('impossible', 'science-fiction', async () => '')
 
-		const discoverUrl = requestedUrls.find((url) => url.pathname.endsWith('/discover/movie'))
+		const discoverUrls = requestedUrls.filter((url) => url.pathname.endsWith('/discover/movie'))
+		const selectedPageUrl = discoverUrls.find((url) => url.searchParams.get('page') === '401')
 		const russianDetailsUrl = requestedUrls.find(
 			(url) => /^\/3\/movie\/\d+$/.test(url.pathname) && url.searchParams.get('language') === 'ru-RU'
 		)
-		expect(discoverUrl?.searchParams.get('with_genres')).toBe('878')
-		expect(discoverUrl?.searchParams.get('sort_by')).toBe('popularity.desc')
-		expect(russianDetailsUrl?.pathname).toBe('/3/movie/201')
+		expect(discoverUrls).toHaveLength(2)
+		expect(selectedPageUrl?.searchParams.get('with_genres')).toBe('878')
+		expect(selectedPageUrl?.searchParams.get('sort_by')).toBe('vote_count.desc')
+		expect(russianDetailsUrl?.pathname).toBe('/3/movie/8001')
 	})
 })

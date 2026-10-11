@@ -1,2 +1,2 @@
-export { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog } from './catalog'
+export { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog, TMDB_COLLECTION_ID } from './catalog'
 export { TmdbApiError } from './client'

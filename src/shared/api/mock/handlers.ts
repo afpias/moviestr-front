@@ -7,7 +7,7 @@ import { isRecord, isString } from '@shared/lib/type-guards'
 
 import { FIXTURE_COLLECTIONS, FIXTURE_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
 import { createMockSession, getMockSession, saveMockSession } from './data/sessions'
-import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog, TmdbApiError } from './tmdb'
+import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog, TMDB_COLLECTION_ID, TmdbApiError } from './tmdb'
 
 async function mockDelay(): Promise<void> {
 	await delay(import.meta.env.MODE === 'test' ? 0 : 280)
@@ -34,7 +34,7 @@ export const handlers = [
 		await mockDelay()
 
 		try {
-			return HttpResponse.json({ items: isFixtureMode() ? FIXTURE_COLLECTIONS : [getTmdbCollection()] })
+			return HttpResponse.json({ items: isFixtureMode() ? FIXTURE_COLLECTIONS : [await getTmdbCollection()] })
 		} catch (error: unknown) {
 			return upstreamError(error)
 		}
@@ -47,15 +47,9 @@ export const handlers = [
 			return apiError(400, 'VALIDATION_ERROR', 'collectionId, difficulty and genre are required')
 		}
 
-		let collections
+		const collectionIds = isFixtureMode() ? FIXTURE_COLLECTIONS.map((collection) => collection.id) : [TMDB_COLLECTION_ID]
 
-		try {
-			collections = isFixtureMode() ? FIXTURE_COLLECTIONS : [getTmdbCollection()]
-		} catch (error: unknown) {
-			return upstreamError(error)
-		}
-
-		if (!collections.some((collection) => collection.id === body.collectionId)) {
+		if (!collectionIds.includes(body.collectionId)) {
 			return apiError(404, 'COLLECTION_NOT_FOUND', 'Collection not found')
 		}
 

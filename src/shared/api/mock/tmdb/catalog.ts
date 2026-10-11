@@ -9,28 +9,23 @@ import type { CatalogMovie } from '../data/catalog'
 import {
 	assertTmdbConfigured,
 	getAlternativeTitles,
+	getKnownMoviesPage,
 	getMovieDetails,
 	getMovieImages,
-	getPopularMovies,
 	searchTmdbMovies,
-	type TmdbMovie
+	type TmdbMovie,
+	type TmdbMoviePage
 } from './client'
 import { selectSafeBackdrops, type ImageTextRecognizer } from './frame-selection'
 import { recognizeTmdbImageText } from './ocr'
 
 const MAX_MOVIE_ATTEMPTS = 8
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
-const TOP_MOVIE_COUNT = 250
+const TMDB_MAX_ACCESSIBLE_PAGES = 500
 const TMDB_PAGE_SIZE = 20
-const TMDB_POOL_PAGE_COUNT = Math.ceil(TOP_MOVIE_COUNT / TMDB_PAGE_SIZE)
-const moviePoolCache = new Map<GameGenre, Promise<TmdbMovie[]>>()
+const moviePageCache = new Map<string, Promise<TmdbMoviePage>>()
 
-export const TMDB_COLLECTION: MovieCollectionSummary = {
-	description: '250 фильмов, ранжированных по известности',
-	id: 'top-250',
-	movieCount: TOP_MOVIE_COUNT,
-	title: '250 известных фильмов'
-}
+export const TMDB_COLLECTION_ID = 'tmdb-catalog'
 
 function getReleaseYear(releaseDate: string): number | null {
 	const year = Number.parseInt(releaseDate.slice(0, 4), 10)
@@ -86,50 +81,74 @@ function orderCandidates(movies: readonly TmdbMovie[], preferredIndex: number): 
 	return [...movies.slice(preferredIndex), ...movies.slice(0, preferredIndex)]
 }
 
-async function requestMoviePool(genre: GameGenre): Promise<TmdbMovie[]> {
-	const genreId = getGameGenreOption(genre).tmdbId
-	const pages = await Promise.all(
-		Array.from({ length: TMDB_POOL_PAGE_COUNT }, (_, index) => getPopularMovies(index + 1, genreId))
-	)
-	const uniqueMovies = new Map<number, TmdbMovie>()
-
-	for (const movie of pages.flat()) {
-		if (!uniqueMovies.has(movie.id)) {
-			uniqueMovies.set(movie.id, movie)
-		}
-
-		if (uniqueMovies.size === TOP_MOVIE_COUNT) {
-			break
-		}
-	}
-
-	return rankMoviesByKnownness([...uniqueMovies.values()])
+function getPageCacheKey(genre: GameGenre, page: number): string {
+	return `${genre}:${page}`
 }
 
-async function getMoviePool(genre: GameGenre): Promise<TmdbMovie[]> {
+async function requestMoviePage(genre: GameGenre, page: number): Promise<TmdbMoviePage> {
+	const genreId = getGameGenreOption(genre).tmdbId
+
+	return getKnownMoviesPage(page, genreId)
+}
+
+async function getMoviePage(genre: GameGenre, page: number): Promise<TmdbMoviePage> {
 	if (import.meta.env.MODE === 'test') {
-		return requestMoviePool(genre)
+		return requestMoviePage(genre, page)
 	}
 
-	const cachedPool = moviePoolCache.get(genre)
+	const cacheKey = getPageCacheKey(genre, page)
+	const cachedPage = moviePageCache.get(cacheKey)
 
-	if (cachedPool) {
-		return cachedPool
+	if (cachedPage) {
+		return cachedPage
 	}
 
-	const moviePool = requestMoviePool(genre).catch((error: unknown) => {
-		moviePoolCache.delete(genre)
+	const moviePage = requestMoviePage(genre, page).catch((error: unknown) => {
+		moviePageCache.delete(cacheKey)
 		throw error
 	})
 
-	moviePoolCache.set(genre, moviePool)
+	moviePageCache.set(cacheKey, moviePage)
 
-	return moviePool
+	return moviePage
 }
 
-export function getTmdbCollection(): MovieCollectionSummary {
+function getAccessibleMovieCount(moviePage: TmdbMoviePage): number {
+	const accessiblePageCount = Math.min(moviePage.totalPages, TMDB_MAX_ACCESSIBLE_PAGES)
+
+	return Math.min(moviePage.totalResults, accessiblePageCount * TMDB_PAGE_SIZE)
+}
+
+function selectMovieRank(difficulty: GameDifficulty, movieCount: number): number {
+	const { endIndex, startIndex } = getDifficultySlice(difficulty, movieCount)
+	const difficultyMovieCount = endIndex - startIndex
+
+	if (difficultyMovieCount < 1) {
+		throw new Error('TMDB difficulty range does not contain movies')
+	}
+
+	return startIndex + Math.min(difficultyMovieCount - 1, Math.floor(Math.random() * difficultyMovieCount))
+}
+
+function getDifficultyCandidates(moviePage: TmdbMoviePage, difficulty: GameDifficulty, movieCount: number): TmdbMovie[] {
+	const { endIndex, startIndex } = getDifficultySlice(difficulty, movieCount)
+	const pageStartIndex = (moviePage.page - 1) * TMDB_PAGE_SIZE
+	const localStartIndex = Math.max(0, startIndex - pageStartIndex)
+	const localEndIndex = Math.min(moviePage.movies.length, endIndex - pageStartIndex)
+
+	return rankMoviesByKnownness(moviePage.movies.slice(localStartIndex, localEndIndex))
+}
+
+export async function getTmdbCollection(): Promise<MovieCollectionSummary> {
 	assertTmdbConfigured()
-	return TMDB_COLLECTION
+	const firstPage = await getMoviePage('all', 1)
+
+	return {
+		description: 'Фильмы TMDB, ранжированные по известности',
+		id: TMDB_COLLECTION_ID,
+		movieCount: getAccessibleMovieCount(firstPage),
+		title: 'Каталог TMDB'
+	}
 }
 
 export async function getRandomTmdbMovie(
@@ -137,11 +156,14 @@ export async function getRandomTmdbMovie(
 	genre: GameGenre = 'all',
 	recognizeImageText: ImageTextRecognizer = recognizeTmdbImageText
 ): Promise<CatalogMovie> {
-	const movies = await getMoviePool(genre)
-	const { endIndex, startIndex } = getDifficultySlice(difficulty, movies.length)
-	const difficultyPool = movies.slice(startIndex, endIndex)
-	const preferredIndex = Math.floor(Math.random() * difficultyPool.length)
-	const candidates = orderCandidates(difficultyPool, preferredIndex).slice(0, MAX_MOVIE_ATTEMPTS)
+	const firstPage = await getMoviePage(genre, 1)
+	const movieCount = getAccessibleMovieCount(firstPage)
+	const movieRank = selectMovieRank(difficulty, movieCount)
+	const selectedPageNumber = Math.floor(movieRank / TMDB_PAGE_SIZE) + 1
+	const selectedPage = selectedPageNumber === 1 ? firstPage : await getMoviePage(genre, selectedPageNumber)
+	const difficultyCandidates = getDifficultyCandidates(selectedPage, difficulty, movieCount)
+	const preferredIndex = Math.floor(Math.random() * difficultyCandidates.length)
+	const candidates = orderCandidates(difficultyCandidates, preferredIndex).slice(0, MAX_MOVIE_ATTEMPTS)
 
 	for (const candidate of candidates) {
 		const movie = await createCatalogMovie(candidate, recognizeImageText)
@@ -151,7 +173,7 @@ export async function getRandomTmdbMovie(
 		}
 	}
 
-	throw new Error('TMDB difficulty pool does not contain a movie with five safe backdrops')
+	throw new Error('TMDB difficulty range does not contain a movie with five safe backdrops')
 }
 
 export async function searchTmdbCatalog(query: string): Promise<MovieSuggestion[]> {

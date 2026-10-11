@@ -74,7 +74,7 @@ export const useGameStore = defineStore('game', () => {
 		roundResult.value = null
 
 		try {
-			const game = await requestChallenge('top-250', selectedDifficulty, selectedGenre)
+			const game = await requestChallenge('tmdb-catalog', selectedDifficulty, selectedGenre)
 			applyGame(game)
 		} catch (error: unknown) {
 			status.value = 'error'

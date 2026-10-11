@@ -7,11 +7,11 @@ describe('game API', () => {
 	it('возвращает фактический размер mock-подборки', async () => {
 		const collections = await getCollections()
 
-		expect(collections).toEqual([expect.objectContaining({ id: 'top-250', movieCount: 3, title: 'Известные фильмы' })])
+		expect(collections).toEqual([expect.objectContaining({ id: 'tmdb-catalog', movieCount: 3, title: 'Каталог TMDB' })])
 	})
 
 	it('загружает фильм режима без раскрытия правильного ответа', async () => {
-		const game = await loadChallenge('top-250', 'hard', 'thriller')
+		const game = await loadChallenge('tmdb-catalog', 'hard', 'thriller')
 
 		expect(game.status).toBe('playing')
 		expect(game.difficulty).toBe('hard')
@@ -22,7 +22,7 @@ describe('game API', () => {
 	})
 
 	it('проверяет нормализованный ответ без начисления очков', async () => {
-		const game = await loadChallenge('top-250', 'easy')
+		const game = await loadChallenge('tmdb-catalog', 'easy')
 		const response = await submitGuess(game.gameId, '  ИНТЕРСТЕЛЛАР! ')
 
 		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
@@ -30,21 +30,21 @@ describe('game API', () => {
 	})
 
 	it('принимает английское название как правильный ответ', async () => {
-		const game = await loadChallenge('top-250', 'easy')
+		const game = await loadChallenge('tmdb-catalog', 'easy')
 		const response = await submitGuess(game.gameId, '  INTERSTELLAR  ')
 
 		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
 	})
 
 	it('пропускает ответ и открывает следующий кадр', async () => {
-		const game = await loadChallenge('top-250', 'easy')
+		const game = await loadChallenge('tmdb-catalog', 'easy')
 		const response = await skipFrame(game.gameId)
 
 		expect(response).toEqual(expect.objectContaining({ currentFrame: expect.objectContaining({ index: 1 }), status: 'playing' }))
 	})
 
 	it('возвращает правильный ответ при сдаче на пятом кадре', async () => {
-		const game = await loadChallenge('top-250', 'easy')
+		const game = await loadChallenge('tmdb-catalog', 'easy')
 
 		for (let frame = 1; frame < 5; frame += 1) {
 			await skipFrame(game.gameId)

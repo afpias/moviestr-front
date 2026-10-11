@@ -14,17 +14,17 @@ describe('game difficulty', () => {
 		expect(getDifficultySlice(difficulty, 100)).toEqual({ endIndex, startIndex })
 	})
 
-	it('покрывает пул из 250 фильмов без пересечений и пропусков', () => {
+	it('покрывает каталог из 10 000 фильмов без пересечений и пропусков', () => {
 		const slices = (['easy', 'medium', 'hard', 'expert', 'impossible'] satisfies GameDifficulty[]).map((difficulty) =>
-			getDifficultySlice(difficulty, 250)
+			getDifficultySlice(difficulty, 10_000)
 		)
 
 		expect(slices).toEqual([
-			{ endIndex: 25, startIndex: 0 },
-			{ endIndex: 75, startIndex: 25 },
-			{ endIndex: 137, startIndex: 75 },
-			{ endIndex: 200, startIndex: 137 },
-			{ endIndex: 250, startIndex: 200 }
+			{ endIndex: 1_000, startIndex: 0 },
+			{ endIndex: 3_000, startIndex: 1_000 },
+			{ endIndex: 5_500, startIndex: 3_000 },
+			{ endIndex: 8_000, startIndex: 5_500 },
+			{ endIndex: 10_000, startIndex: 8_000 }
 		])
 	})
 

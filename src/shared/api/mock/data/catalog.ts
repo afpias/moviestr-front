@@ -109,10 +109,10 @@ export const FIXTURE_MOVIES: CatalogMovie[] = [
 
 export const FIXTURE_COLLECTIONS: MovieCollectionSummary[] = [
 	{
-		description: 'Фильмы, ранжированные по известности',
-		id: 'top-250',
+		description: 'Фильмы TMDB, ранжированные по известности',
+		id: 'tmdb-catalog',
 		movieCount: FIXTURE_MOVIES.length,
-		title: 'Известные фильмы'
+		title: 'Каталог TMDB'
 	}
 ]
 
