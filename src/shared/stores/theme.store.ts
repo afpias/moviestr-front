@@ -21,9 +21,7 @@ export const useThemeStore = defineStore('theme', () => {
 
 	function initializeTheme(): void {
 		const savedTheme = readStorage(THEME_STORAGE_KEY, isTheme)
-		const preferredTheme: AppTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-
-		theme.value = savedTheme ?? preferredTheme
+		theme.value = savedTheme ?? 'dark'
 		applyTheme()
 	}
 

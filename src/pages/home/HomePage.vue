@@ -2,13 +2,14 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { AlertCircle, Play } from '@lucide/vue'
+import { AlertCircle, Image, Play } from '@lucide/vue'
 
 import { ROUTE_NAMES } from '@app/router'
+import { DifficultySelector } from '@features/select-difficulty'
 import { ApiError } from '@shared/api/api-error'
 import { getCollections } from '@shared/api/collections.api'
 import { useGameStore } from '@shared/stores/game.store'
-import type { MovieCollectionSummary } from '@shared/types/game'
+import type { GameDifficulty, MovieCollectionSummary } from '@shared/types/game'
 import { Alert, Button, Skeleton } from '@shared/ui'
 
 const router = useRouter()
@@ -16,6 +17,7 @@ const gameStore = useGameStore()
 const collections = ref<MovieCollectionSummary[]>([])
 const errorMessage = ref<string | null>(null)
 const isLoading = ref(true)
+const selectedDifficulty = ref<GameDifficulty>('easy')
 
 function getCollectionsError(error: unknown): string {
 	if (error instanceof ApiError && error.code === 'SERVICE_NOT_CONFIGURED') {
@@ -43,7 +45,7 @@ async function loadCollections(): Promise<void> {
 }
 
 async function startCollection(collectionId: string): Promise<void> {
-	const gameId = await gameStore.startGame(collectionId, 'easy')
+	const gameId = await gameStore.startGame(collectionId, selectedDifficulty.value)
 
 	if (gameId) {
 		await router.push({ name: ROUTE_NAMES.game, params: { id: gameId } })
@@ -61,54 +63,66 @@ onMounted(loadCollections)
 
 <template>
 	<section class="home-page">
-		<div class="home-page__copy">
-			<p class="eyebrow">Киноигра для внимательных</p>
-			<h1>Узнай фильм.<br /><span>Кадр за кадром.</span></h1>
-			<p class="home-page__lead">
-				Шесть кадров, шесть попыток и максимум 600 очков. Чем раньше узнаешь фильм, тем выше результат.
-			</p>
+		<header class="home-hero">
+			<p class="eyebrow">Solo · image mode</p>
+			<h1><span>Угадай</span> фильм</h1>
+			<p>Шесть изображений, пять уровней сложности и никаких таймеров. Выбери режим и начни раунд.</p>
+		</header>
 
-			<div class="home-page__actions">
-				<Button
-					v-if="collections[0]"
-					:disabled="gameStore.status === 'loading'"
-					size="large"
-					type="button"
-					@click="startCollection(collections[0].id)"
-				>
-					<Play :size="18" />
-					{{ gameStore.status === 'loading' ? 'Создаём игру…' : 'Начать игру' }}
-				</Button>
-				<Button v-if="gameStore.persistedGameId" size="large" type="button" variant="outline" @click="resumeGame">
-					Продолжить раунд
-				</Button>
+		<div class="home-console">
+			<div class="home-console__stage" aria-label="Превью игрового экрана">
+				<div class="home-console__meta">
+					<span><Image :size="15" /> Только изображения</span>
+					<span>6 кадров</span>
+				</div>
+				<div class="home-console__focus">
+					<span class="home-console__play"><Play :size="30" fill="currentColor" /></span>
+					<p>Насколько хорошо ты знаешь кино?</p>
+					<small>Фильм выбирается из выбранной части топа TMDB</small>
+				</div>
+				<div class="home-console__frames" aria-hidden="true">
+					<span v-for="frame in 6" :key="frame" :class="{ 'is-active': frame === 1 }"></span>
+				</div>
 			</div>
 
-			<Alert v-if="errorMessage || gameStore.lastError" class="home-page__alert" variant="destructive" role="alert">
-				<template #icon><AlertCircle /></template>
-				{{ errorMessage ?? gameStore.lastError }}
-			</Alert>
+			<aside class="home-setup" aria-label="Настройка раунда">
+				<div>
+					<p class="control-label">Подборка</p>
+					<div v-if="isLoading" class="collection-skeleton" aria-label="Загрузка подборки">
+						<Skeleton class="h-5 w-44" />
+						<Skeleton class="h-3.5 w-52 max-w-full" />
+					</div>
+					<div v-else-if="collections[0]" class="collection-meta">
+						<strong>{{ collections[0].title }}</strong>
+						<span>{{ collections[0].movieCount }} фильмов</span>
+					</div>
+					<div v-else-if="!errorMessage" class="home-page__empty">Подборки пока не добавлены.</div>
+				</div>
 
-			<div v-if="isLoading" class="collection-skeleton" aria-label="Загрузка подборки">
-				<Skeleton class="h-5 w-44" />
-				<Skeleton class="h-3.5 w-72 max-w-full" />
-			</div>
-			<div v-else-if="collections[0]" class="collection-meta">
-				<span>{{ collections[0].title }}</span>
-				<span>{{ collections[0].movieCount }} фильмов</span>
-			</div>
-			<div v-else-if="!errorMessage" class="home-page__empty">Подборки пока не добавлены.</div>
-		</div>
+				<div>
+					<p class="control-label">Сложность</p>
+					<DifficultySelector v-model="selectedDifficulty" variant="list" />
+				</div>
 
-		<div class="film-preview" aria-label="Пример последовательности кадров">
-			<div class="film-preview__screen">
-				<span class="film-preview__glow"></span>
-				<span class="film-preview__planet"></span>
-				<p>Сможешь узнать с первого кадра?</p>
-			</div>
-			<ol class="film-preview__steps" aria-label="Шесть попыток">
-				<li v-for="step in 6" :key="step" :class="{ 'is-active': step === 1 }">{{ step }}</li>
-			</ol>
+				<Alert v-if="errorMessage || gameStore.lastError" class="home-page__alert" variant="destructive" role="alert">
+					<template #icon><AlertCircle /></template>
+					{{ errorMessage ?? gameStore.lastError }}
+				</Alert>
+
+				<div class="home-page__actions">
+					<Button
+						v-if="collections[0]"
+						:disabled="gameStore.status === 'loading'"
+						size="large"
+						type="button"
+						@click="startCollection(collections[0].id)"
+					>
+						<Play :size="18" fill="currentColor" />
+						{{ gameStore.status === 'loading' ? 'Создаём раунд…' : 'Начать игру' }}
+					</Button>
+					<Button v-if="gameStore.persistedGameId" type="button" variant="outline" @click="resumeGame"> Продолжить </Button>
+				</div>
+			</aside>
 		</div>
 	</section>
 </template>

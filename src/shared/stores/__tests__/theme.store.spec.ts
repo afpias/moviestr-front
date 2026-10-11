@@ -7,7 +7,6 @@ describe('theme store', () => {
 	beforeEach(() => {
 		setActivePinia(createPinia())
 		window.localStorage.clear()
-		vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }))
 	})
 
 	afterEach(() => {
@@ -25,13 +24,15 @@ describe('theme store', () => {
 		expect(document.documentElement.classList.contains('app-dark')).toBe(true)
 	})
 
-	it('переключает и сохраняет тему', () => {
+	it('использует тёмную тему по умолчанию и сохраняет переключение', () => {
 		const themeStore = useThemeStore()
 		themeStore.initializeTheme()
 
+		expect(themeStore.theme).toBe('dark')
+
 		themeStore.toggleTheme()
 
-		expect(themeStore.theme).toBe('dark')
-		expect(window.localStorage.getItem('moviestr:theme:v1')).toBe(JSON.stringify('dark'))
+		expect(themeStore.theme).toBe('light')
+		expect(window.localStorage.getItem('moviestr:theme:v1')).toBe(JSON.stringify('light'))
 	})
 })

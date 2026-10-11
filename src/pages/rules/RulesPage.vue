@@ -1,13 +1,13 @@
 <script setup lang="ts">
-const SCORE_RULES = [600, 500, 400, 300, 200, 100]
+import { DIFFICULTY_OPTIONS } from '@shared/lib/game-difficulty'
 </script>
 
 <template>
 	<article class="content-page">
 		<header class="content-page__header">
-			<p class="eyebrow">Всё просто</p>
+			<p class="eyebrow">Solo · image mode</p>
 			<h1>Правила игры</h1>
-			<p>Определи фильм по кадрам. Каждый неверный ответ открывает более узнаваемую сцену.</p>
+			<p>Определи фильм по шести кадрам. Каждый неверный ответ открывает следующую сцену.</p>
 		</header>
 
 		<section class="rules-grid" aria-label="Основные правила">
@@ -23,23 +23,29 @@ const SCORE_RULES = [600, 500, 400, 300, 200, 100]
 			</div>
 			<div>
 				<span>03</span>
-				<h2>Рискуй</h2>
-				<p>У тебя шесть попыток. Чем раньше ответишь, тем больше очков.</p>
+				<h2>Угадывай</h2>
+				<p>У тебя шесть попыток. В одиночном режиме нет очков, таймера и пропуска.</p>
 			</div>
 		</section>
 
-		<section class="score-card">
-			<div>
-				<p class="eyebrow">Система очков</p>
-				<h2>Первый кадр — лучший результат</h2>
-			</div>
-			<ol>
-				<li v-for="(score, index) in SCORE_RULES" :key="score">
-					<span>Кадр {{ index + 1 }}</span>
-					<strong>{{ score }}</strong>
+		<section class="difficulty-card">
+			<header>
+				<p class="eyebrow">Пять режимов</p>
+				<h2>Выбери знакомость фильмов</h2>
+				<p>Сложность определяет, из какой части топа 250 TMDB выбирается фильм.</p>
+			</header>
+			<ul>
+				<li v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :class="`is-${option.value}`">
+					<div>
+						<strong>{{ option.label }}</strong>
+						<span>{{ option.description }}</span>
+					</div>
+					<small>{{ option.startRank }}–{{ option.endRank }}</small>
 				</li>
-			</ol>
+			</ul>
 		</section>
+
+		<p class="content-page__note">Очки появятся в будущем многопользовательском режиме для соревнований.</p>
 	</article>
 </template>
 

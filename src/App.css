@@ -6,16 +6,18 @@
 
 .app-header,
 .app-footer {
-	width: min(100% - 2rem, 1180px);
+	width: min(100% - 2rem, 1480px);
 	margin-inline: auto;
 }
 
 .app-header {
-	min-height: 76px;
+	min-height: 72px;
 	display: flex;
 	align-items: center;
 	gap: 1rem;
 	border-bottom: 1px solid var(--app-color-border);
+	background: color-mix(in srgb, var(--app-color-background) 86%, transparent);
+	backdrop-filter: blur(18px);
 }
 
 .brand {
@@ -23,12 +25,12 @@
 	align-items: center;
 	gap: 0.65rem;
 	color: var(--app-color-text);
-	font-size: 1.1rem;
-	font-weight: 800;
-	letter-spacing: -0.04em;
+	font-size: 0.95rem;
+	font-weight: 900;
+	letter-spacing: 0.08em;
 }
 
-.brand span span {
+.brand strong {
 	color: var(--app-color-accent);
 }
 
@@ -37,9 +39,10 @@
 	aspect-ratio: 1;
 	display: grid;
 	place-items: center;
-	border-radius: 0.65rem;
-	background: var(--app-color-accent);
-	color: var(--app-color-on-accent);
+	border: 1px solid color-mix(in srgb, var(--app-color-accent) 48%, transparent);
+	border-radius: 0.6rem;
+	background: color-mix(in srgb, var(--app-color-accent) 12%, transparent);
+	color: var(--app-color-accent);
 	font-weight: 900;
 	box-shadow: 0 8px 24px var(--app-color-accent-shadow);
 }
@@ -51,12 +54,17 @@
 	margin-left: auto;
 }
 
-.app-nav a {
+.app-nav a,
+.app-nav__soon {
 	padding: 0.6rem 0.75rem;
 	border-radius: 0.65rem;
 	color: var(--app-color-text-muted);
 	font-size: 0.9rem;
 	font-weight: 650;
+}
+
+.app-nav__soon {
+	opacity: 0.42;
 }
 
 .app-nav a:hover,
@@ -66,9 +74,9 @@
 }
 
 .app-main {
-	width: min(100% - 2rem, 1180px);
+	width: min(100% - 2rem, 1480px);
 	margin-inline: auto;
-	padding-block: clamp(2rem, 6vw, 5rem);
+	padding-block: clamp(1.5rem, 4vw, 3.5rem);
 }
 
 .app-footer {
@@ -114,6 +122,10 @@
 
 	.app-nav a:first-child {
 		display: inline-flex;
+	}
+
+	.app-nav__soon {
+		display: none;
 	}
 
 	.app-footer {

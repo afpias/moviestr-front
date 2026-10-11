@@ -49,6 +49,8 @@ describe('game page', () => {
 		await flushPromises()
 
 		expect(wrapper.text()).toContain('Не угадал — открываем следующий кадр.')
+		expect(wrapper.text()).toContain('Easy')
+		expect(wrapper.text()).not.toContain('Skip')
 		expect(wrapper.get('img').attributes('alt')).toContain('кадр 2')
 	})
 })

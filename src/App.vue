@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 
-import { Moon, Sun } from '@lucide/vue'
+import { Clapperboard, Moon, Sun } from '@lucide/vue'
 
 import { useThemeStore } from '@shared/stores/theme.store'
 import { Button } from '@shared/ui'
@@ -15,14 +15,14 @@ const themeStore = useThemeStore()
 	<div class="app-shell">
 		<header class="app-header">
 			<RouterLink aria-label="Moviestr — на главную" class="brand" to="/">
-				<span class="brand__mark" aria-hidden="true">M</span>
-				<span>Movie<span>str</span></span>
+				<span class="brand__mark" aria-hidden="true"><Clapperboard :size="17" /></span>
+				<span>MOVIE<strong>STR</strong></span>
 			</RouterLink>
 
 			<nav aria-label="Основная навигация" class="app-nav">
-				<RouterLink to="/">Игра</RouterLink>
+				<RouterLink to="/">Соло</RouterLink>
 				<RouterLink to="/rules">Правила</RouterLink>
-				<RouterLink to="/statistics">Статистика</RouterLink>
+				<span class="app-nav__soon">Мультиплеер · скоро</span>
 			</nav>
 
 			<Button
@@ -43,7 +43,7 @@ const themeStore = useThemeStore()
 
 		<footer class="app-footer">
 			<div>
-				<p>Moviestr · угадывай кино по кадрам</p>
+				<p>Moviestr · solo image mode</p>
 				<p class="app-footer__attribution">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
 			</div>
 			<div class="app-footer__links">

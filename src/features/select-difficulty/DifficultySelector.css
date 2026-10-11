@@ -1,0 +1,100 @@
+.difficulty-selector {
+	--difficulty-easy: #14e17a;
+	--difficulty-medium: #f0c62e;
+	--difficulty-hard: #ff8139;
+	--difficulty-expert: #ff5a5f;
+	--difficulty-impossible: #a66cff;
+
+	display: flex;
+	gap: 0.45rem;
+}
+
+.difficulty-selector--pills {
+	flex-wrap: wrap;
+}
+
+.difficulty-selector--list {
+	flex-direction: column;
+}
+
+.difficulty-selector__option {
+	--difficulty-color: var(--difficulty-easy);
+
+	min-height: 2.5rem;
+	padding: 0.65rem 1rem;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--difficulty-color) 9%, var(--app-color-surface-raised));
+	color: color-mix(in srgb, var(--difficulty-color) 78%, var(--app-color-text));
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.82rem;
+	font-weight: 800;
+	text-align: left;
+	transition:
+		background 160ms ease,
+		border-color 160ms ease,
+		box-shadow 160ms ease,
+		transform 160ms ease;
+}
+
+.difficulty-selector__option:hover:not(:disabled) {
+	transform: translateY(-1px);
+	border-color: color-mix(in srgb, var(--difficulty-color) 35%, transparent);
+}
+
+.difficulty-selector__option.is-active {
+	border-color: color-mix(in srgb, var(--difficulty-color) 65%, transparent);
+	background: var(--difficulty-color);
+	color: #03120a;
+	box-shadow: 0 0 1.75rem color-mix(in srgb, var(--difficulty-color) 26%, transparent);
+}
+
+.difficulty-selector__option:disabled {
+	cursor: default;
+	opacity: 1;
+}
+
+.difficulty-selector__option--medium {
+	--difficulty-color: var(--difficulty-medium);
+}
+
+.difficulty-selector__option--hard {
+	--difficulty-color: var(--difficulty-hard);
+}
+
+.difficulty-selector__option--expert {
+	--difficulty-color: var(--difficulty-expert);
+}
+
+.difficulty-selector__option--impossible {
+	--difficulty-color: var(--difficulty-impossible);
+}
+
+.difficulty-selector--list .difficulty-selector__option {
+	min-height: 4.1rem;
+	display: grid;
+	align-content: center;
+	gap: 0.12rem;
+	border-radius: 0.75rem;
+}
+
+.difficulty-selector__option small {
+	color: inherit;
+	font-size: 0.68rem;
+	font-weight: 550;
+	opacity: 0.62;
+}
+
+@media (max-width: 720px) {
+	.difficulty-selector--list {
+		padding-bottom: 0.35rem;
+		flex-direction: row;
+		overflow-x: auto;
+		scrollbar-width: thin;
+	}
+
+	.difficulty-selector--list .difficulty-selector__option {
+		min-width: 8.5rem;
+	}
+}
