@@ -100,6 +100,7 @@ Content-Type: application/json
 interface LoadChallengeRequest {
 	collectionId: string
 	difficulty: 'easy' | 'medium' | 'hard' | 'expert' | 'impossible'
+	genre: 'all' | 'action' | 'comedy' | 'drama' | 'thriller' | 'horror' | 'science-fiction' | 'animation'
 }
 
 type Difficulty = LoadChallengeRequest['difficulty']
@@ -114,12 +115,13 @@ interface LoadChallengeResponse {
 	currentFrame: GameFrame
 	difficulty: Difficulty
 	gameId: string
+	genre: LoadChallengeRequest['genre']
 	status: 'playing'
 	totalFrames: 6
 }
 ```
 
-Запрос выполняется автоматически при первом открытии `/`, смене режима и замене фильма после последнего кадра. Внутренний
+Запрос выполняется автоматически при первом открытии `/`, смене режима, жанра и замене фильма после последнего кадра. Внутренний
 `gameId` нужен только mock/backend для проверки ответа: он не отображается, не попадает в URL и не создаёт отдельную
 пользовательскую «игру». Ответ не содержит `movieId`, правильное название, aliases или URL будущих кадров.
 
