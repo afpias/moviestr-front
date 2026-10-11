@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
 import { RouterLink, RouterView } from 'vue-router'
 
+import { Moon, Sun } from '@lucide/vue'
+
 import { useThemeStore } from '@shared/stores/theme.store'
+import { Button } from '@shared/ui'
 
 const themeStore = useThemeStore()
 </script>
@@ -25,12 +27,14 @@ const themeStore = useThemeStore()
 
 			<Button
 				:aria-label="themeStore.theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'"
-				:icon="themeStore.theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
-				rounded
-				severity="secondary"
-				text
+				size="icon"
+				type="button"
+				variant="ghost"
 				@click="themeStore.toggleTheme"
-			/>
+			>
+				<Sun v-if="themeStore.theme === 'dark'" :size="19" />
+				<Moon v-else :size="19" />
+			</Button>
 		</header>
 
 		<main id="main-content" class="app-main">
@@ -38,8 +42,14 @@ const themeStore = useThemeStore()
 		</main>
 
 		<footer class="app-footer">
-			<p>Moviestr · угадывай кино по кадрам</p>
-			<RouterLink to="/rules">Как играть</RouterLink>
+			<div>
+				<p>Moviestr · угадывай кино по кадрам</p>
+				<p class="app-footer__attribution">Этот продукт использует TMDB API, но не одобрен и не сертифицирован TMDB.</p>
+			</div>
+			<div class="app-footer__links">
+				<a href="https://www.themoviedb.org" rel="noreferrer" target="_blank">TMDB</a>
+				<RouterLink to="/rules">Как играть</RouterLink>
+			</div>
 		</footer>
 	</div>
 </template>

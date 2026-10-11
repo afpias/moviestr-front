@@ -1,4 +1,17 @@
 :root {
+	--background: 40 21% 94%;
+	--foreground: 231 19% 11%;
+	--primary: 5 83% 58%;
+	--primary-foreground: 0 0% 100%;
+	--secondary: 0 0% 100%;
+	--secondary-foreground: 231 19% 11%;
+	--muted: 36 12% 88%;
+	--muted-foreground: 235 6% 43%;
+	--destructive: 0 72% 51%;
+	--destructive-foreground: 0 0% 100%;
+	--border: 231 19% 11% / 12%;
+	--ring: 5 83% 58%;
+	--radius: 1rem;
 	--app-color-accent: #ed4d3d;
 	--app-color-accent-hover: #d83c2e;
 	--app-color-accent-shadow: rgb(237 77 61 / 24%);
@@ -15,6 +28,13 @@
 }
 
 :root.app-dark {
+	--background: 230 26% 7%;
+	--foreground: 40 21% 94%;
+	--secondary: 230 20% 13%;
+	--secondary-foreground: 40 21% 94%;
+	--muted: 230 15% 18%;
+	--muted-foreground: 235 6% 66%;
+	--border: 0 0% 100% / 10%;
 	--app-color-background: #0d0f16;
 	--app-color-border: rgb(255 255 255 / 10%);
 	--app-color-surface: rgb(255 255 255 / 4%);

@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import AutoComplete from 'primevue/autocomplete'
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import Message from 'primevue/message'
-import Skeleton from 'primevue/skeleton'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+import { AlertTriangle, RefreshCcw, RotateCcw } from '@lucide/vue'
 
 import { ROUTE_NAMES } from '@app/router'
 import { searchMovies } from '@shared/api/movies.api'
 import { useGameStore } from '@shared/stores/game.store'
 import type { MovieSuggestion } from '@shared/types/game'
-
-interface CompleteEvent {
-	query: string
-}
+import { Alert, Button, Dialog, MovieCombobox, Skeleton } from '@shared/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -23,7 +17,10 @@ const gameStore = useGameStore()
 const { currentFrame, lastError, points, result, status, totalFrames } = storeToRefs(gameStore)
 const answer = ref<MovieSuggestion | string | null>(null)
 const feedbackMessage = ref<string | null>(null)
+const isSearching = ref(false)
+const searchError = ref<string | null>(null)
 const suggestions = ref<MovieSuggestion[]>([])
+let latestSearchId = 0
 
 const isFinished = computed(() => status.value === 'won' || status.value === 'lost')
 const isSubmitting = computed(() => status.value === 'submitting')
@@ -44,16 +41,32 @@ async function loadCurrentGame(): Promise<void> {
 	await gameStore.loadGame(id)
 }
 
-async function completeSearch(event: CompleteEvent): Promise<void> {
-	if (event.query.trim().length < 2) {
+async function completeSearch(query: string): Promise<void> {
+	if (query.trim().length < 2) {
 		suggestions.value = []
+		searchError.value = null
 		return
 	}
 
+	const searchId = ++latestSearchId
+	isSearching.value = true
+	searchError.value = null
+
 	try {
-		suggestions.value = await searchMovies(event.query)
+		const results = await searchMovies(query)
+
+		if (searchId === latestSearchId) {
+			suggestions.value = results
+		}
 	} catch {
-		suggestions.value = []
+		if (searchId === latestSearchId) {
+			suggestions.value = []
+			searchError.value = 'Не удалось найти фильмы. Попробуйте ещё раз.'
+		}
+	} finally {
+		if (searchId === latestSearchId) {
+			isSearching.value = false
+		}
 	}
 }
 
@@ -83,19 +96,19 @@ watch(() => route.params.id, loadCurrentGame, { immediate: true })
 <template>
 	<section class="game-page">
 		<div v-if="status === 'loading'" class="game-loading" aria-label="Загрузка игры">
-			<Skeleton width="10rem" height="1rem" />
-			<Skeleton width="100%" height="min(58vw, 620px)" border-radius="1.5rem" />
-			<Skeleton width="100%" height="3.25rem" border-radius="0.8rem" />
+			<Skeleton class="h-4 w-40" />
+			<Skeleton class="aspect-video w-full rounded-[var(--app-radius-large)]" />
+			<Skeleton class="h-13 w-full rounded-[calc(var(--radius)*0.8)]" />
 		</div>
 
 		<div v-else-if="status === 'error'" class="status-page">
-			<div class="status-page__icon" aria-hidden="true"><i class="pi pi-exclamation-triangle"></i></div>
+			<div class="status-page__icon" aria-hidden="true"><AlertTriangle /></div>
 			<p class="eyebrow">Ошибка загрузки</p>
 			<h1>Кадр потерялся</h1>
 			<p role="alert">{{ lastError }}</p>
 			<div class="game-page__error-actions">
-				<Button label="Попробовать снова" icon="pi pi-refresh" @click="loadCurrentGame" />
-				<Button label="На главную" severity="secondary" text @click="returnHome" />
+				<Button type="button" @click="loadCurrentGame"><RefreshCcw :size="17" /> Попробовать снова</Button>
+				<Button type="button" variant="ghost" @click="returnHome">На главную</Button>
 			</div>
 		</div>
 
@@ -132,45 +145,33 @@ watch(() => route.params.id, loadCurrentGame, { immediate: true })
 			<form class="answer-form" @submit.prevent="submitAnswer">
 				<label for="movie-answer">Название фильма</label>
 				<div class="answer-form__controls">
-					<AutoComplete
+					<MovieCombobox
 						v-model="answer"
 						input-id="movie-answer"
 						:suggestions="suggestions"
 						:disabled="isSubmitting"
-						:min-length="2"
-						option-label="title"
+						:is-loading="isSearching"
 						placeholder="Например, Интерстеллар"
-						fluid
-						@complete="completeSearch"
-					>
-						<template #option="slotProps">
-							<div class="suggestion-option">
-								<span>{{ slotProps.option.title }}</span>
-								<small>{{ slotProps.option.releaseYear }}</small>
-							</div>
-						</template>
-					</AutoComplete>
-					<Button :disabled="isSubmitting" :loading="isSubmitting" label="Ответить" type="submit" />
+						@search="completeSearch"
+					/>
+					<Button :disabled="isSubmitting" type="submit">
+						{{ isSubmitting ? 'Проверяем…' : 'Ответить' }}
+					</Button>
 				</div>
 				<p class="answer-form__hint">Можно ввести русское или оригинальное название</p>
 			</form>
 
-			<Message v-if="feedbackMessage" severity="warn" :closable="false" role="status">
+			<Alert v-if="feedbackMessage" class="game-page__alert" variant="warning" role="status">
+				<template #icon><AlertTriangle /></template>
 				{{ feedbackMessage }}
-			</Message>
-			<Message v-if="lastError" severity="error" :closable="false" role="alert">
-				{{ lastError }}
-			</Message>
+			</Alert>
+			<Alert v-if="searchError || lastError" class="game-page__alert" variant="destructive" role="alert">
+				<template #icon><AlertTriangle /></template>
+				{{ searchError ?? lastError }}
+			</Alert>
 		</template>
 
-		<Dialog
-			:visible="isFinished"
-			:closable="false"
-			:draggable="false"
-			:header="status === 'won' ? 'Фильм угадан!' : 'Попытки закончились'"
-			modal
-			class="result-dialog"
-		>
+		<Dialog :open="isFinished" :closable="false" :title="status === 'won' ? 'Фильм угадан!' : 'Попытки закончились'">
 			<div v-if="result" class="game-result">
 				<img :alt="`Постер фильма «${result.title}»`" :src="result.posterUrl" />
 				<div>
@@ -183,7 +184,7 @@ watch(() => route.params.id, loadCurrentGame, { immediate: true })
 				</div>
 			</div>
 			<template #footer>
-				<Button label="Сыграть ещё" icon="pi pi-replay" @click="returnHome" />
+				<Button type="button" @click="returnHome"><RotateCcw :size="17" /> Сыграть ещё</Button>
 			</template>
 		</Dialog>
 	</section>

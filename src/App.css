@@ -85,6 +85,18 @@
 	color: inherit;
 }
 
+.app-footer__attribution {
+	max-width: 42rem;
+	margin-top: 0.3rem;
+	font-size: 0.72rem;
+}
+
+.app-footer__links {
+	display: flex;
+	align-items: start;
+	gap: 1rem;
+}
+
 @media (max-width: 680px) {
 	.app-header {
 		min-height: 64px;

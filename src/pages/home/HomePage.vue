@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import Message from 'primevue/message'
-import Skeleton from 'primevue/skeleton'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { AlertCircle, Play } from '@lucide/vue'
 
 import { ROUTE_NAMES } from '@app/router'
 import { getCollections } from '@shared/api/collections.api'
 import { useGameStore } from '@shared/stores/game.store'
 import type { MovieCollectionSummary } from '@shared/types/game'
+import { Alert, Button, Skeleton } from '@shared/ui'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -59,29 +59,26 @@ onMounted(loadCollections)
 				<Button
 					v-if="collections[0]"
 					:disabled="gameStore.status === 'loading'"
-					:label="gameStore.status === 'loading' ? 'Создаём игру…' : 'Начать игру'"
-					:loading="gameStore.status === 'loading'"
-					icon="pi pi-play"
 					size="large"
+					type="button"
 					@click="startCollection(collections[0].id)"
-				/>
-				<Button
-					v-if="gameStore.persistedGameId"
-					label="Продолжить раунд"
-					severity="secondary"
-					size="large"
-					outlined
-					@click="resumeGame"
-				/>
+				>
+					<Play :size="18" />
+					{{ gameStore.status === 'loading' ? 'Создаём игру…' : 'Начать игру' }}
+				</Button>
+				<Button v-if="gameStore.persistedGameId" size="large" type="button" variant="outline" @click="resumeGame">
+					Продолжить раунд
+				</Button>
 			</div>
 
-			<Message v-if="errorMessage || gameStore.lastError" severity="error" :closable="false">
+			<Alert v-if="errorMessage || gameStore.lastError" class="home-page__alert" variant="destructive" role="alert">
+				<template #icon><AlertCircle /></template>
 				{{ errorMessage ?? gameStore.lastError }}
-			</Message>
+			</Alert>
 
 			<div v-if="isLoading" class="collection-skeleton" aria-label="Загрузка подборки">
-				<Skeleton width="11rem" height="1.25rem" />
-				<Skeleton width="18rem" height="0.85rem" />
+				<Skeleton class="h-5 w-44" />
+				<Skeleton class="h-3.5 w-72 max-w-full" />
 			</div>
 			<div v-else-if="collections[0]" class="collection-meta">
 				<span>{{ collections[0].title }}</span>

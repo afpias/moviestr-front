@@ -1,4 +1,8 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
 @import './base.css';
+
+@custom-variant dark (&:is(.app-dark *));
 
 #app {
 	min-height: 100vh;
@@ -80,6 +84,6 @@
 	font-weight: 750;
 }
 
-.text-link i {
+.text-link svg {
 	color: var(--app-color-accent);
 }

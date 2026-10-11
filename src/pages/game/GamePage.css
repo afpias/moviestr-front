@@ -135,18 +135,7 @@
 	font-size: 0.78rem;
 }
 
-.suggestion-option {
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	gap: 1rem;
-}
-
-.suggestion-option small {
-	color: var(--app-color-text-muted);
-}
-
-.game-page > :deep(.p-message) {
+.game-page__alert {
 	margin-top: 0.75rem;
 }
 
