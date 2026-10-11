@@ -9,6 +9,7 @@ Before changing application code, read `docs/README.md` and the linked specifica
 - Follow the shortened FSD dependency direction: `app -> pages -> features -> shared`.
 - Use Setup Stores for Pinia. Keep local UI state in the component or its composable.
 - Keep Pinia stores in `shared/stores`, the router in `app`, and static application assets in `shared/assets`.
+- Keep component CSS in a neighboring file with the same PascalCase basename and connect it with `<style scoped src="./ComponentName.css"></style>`.
 - Put shared HTTP infrastructure in `shared/api` and feature-specific API calls inside the feature slice.
 - Use named exports except where a framework requires a default export.
 - Use the configured aliases for cross-slice imports and relative imports inside one module.

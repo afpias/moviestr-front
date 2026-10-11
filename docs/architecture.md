@@ -48,7 +48,11 @@ src/
 │   └── router.ts
 ├── pages/
 │   ├── home/
+│   │   ├── HomePage.vue
+│   │   └── HomePage.css
 │   ├── game/
+│   │   ├── GamePage.vue
+│   │   └── GamePage.css
 │   ├── rules/
 │   ├── statistics/
 │   └── not-found/
@@ -88,6 +92,8 @@ features/play-game/
 ```
 
 Папка из одного файла не создаётся без архитектурной причины. Если сегмент содержит один небольшой файл и не ожидается расширение, файл располагается в корне slice.
+
+Файл стилей Vue-компонента не считается отдельным архитектурным модулем: пара `ComponentName.vue` и `ComponentName.css` всегда хранится рядом.
 
 ## Алиасы
 

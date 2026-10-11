@@ -55,6 +55,7 @@ Barrel-файлы `index.ts` создаются только как публич
 | Сущность             | Формат                       | Пример                |
 | -------------------- | ---------------------------- | --------------------- |
 | Vue-компонент        | PascalCase                   | `MovieFrame.vue`      |
+| CSS Vue-компонента   | PascalCase как у компонента  | `MovieFrame.css`      |
 | TypeScript-файл      | kebab-case с ролью           | `game.store.ts`       |
 | Composable           | `use` + PascalCase           | `useGameRound`        |
 | Pinia store          | `use` + PascalCase + `Store` | `useGameStore`        |
@@ -76,8 +77,10 @@ Barrel-файлы `index.ts` создаются только как публич
 
 <template></template>
 
-<style scoped></style>
+<style scoped src="./MovieFrame.css"></style>
 ```
+
+Стили Vue-компонента не пишутся внутри `.vue`. Они располагаются в соседнем `.css` с тем же базовым именем и подключаются через атрибут `src`. Например, `MovieFrame.vue` использует `MovieFrame.css`.
 
 Внутри `<script setup>` придерживаться порядка:
 
@@ -119,7 +122,8 @@ Barrel-файлы `index.ts` создаются только как публич
 ## CSS
 
 - Используется обычный CSS.
-- Стили компонента по умолчанию имеют `scoped`.
+- Стили компонента располагаются в соседнем файле с тем же PascalCase-именем и подключаются как `<style scoped src="./ComponentName.css"></style>`.
+- Inline CSS внутри `<style>` Vue-компонента не используется.
 - Глобальные reset, typography, design tokens и статические ресурсы располагаются в `shared/assets`.
 - Цвета, интервалы, радиусы и тени повторного использования задаются CSS custom properties.
 - В компоненте запрещены случайные hex-цвета, если существует подходящий token.
