@@ -56,4 +56,14 @@ export type SubmitGuessResponse =
 			status: 'lost' | 'won'
 	  }
 
+export type SkipFrameResponse =
+	| {
+			currentFrame: GameFrame
+			status: 'playing'
+	  }
+	| {
+			result: GameResult
+			status: 'lost'
+	  }
+
 export type GameStatus = 'error' | 'idle' | 'loading' | 'lost' | 'playing' | 'submitting' | 'won'

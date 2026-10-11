@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getCollections } from '@shared/api/collections.api'
-import { startGame, submitGuess } from '@shared/api/games.api'
+import { skipFrame, startGame, submitGuess } from '@shared/api/games.api'
 import { searchMovies } from '@shared/api/movies.api'
 
 describe('game API', () => {
@@ -26,6 +26,13 @@ describe('game API', () => {
 
 		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
 		expect(response).not.toHaveProperty('points')
+	})
+
+	it('пропускает ответ и открывает следующий кадр', async () => {
+		const game = await startGame('top-250', 'easy')
+		const response = await skipFrame(game.gameId)
+
+		expect(response).toEqual(expect.objectContaining({ currentFrame: expect.objectContaining({ index: 1 }), status: 'playing' }))
 	})
 
 	it('ищет фильмы для автодополнения', async () => {

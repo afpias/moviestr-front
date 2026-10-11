@@ -1,7 +1,7 @@
-import type { GameDifficulty, GameResponse, SubmitGuessResponse } from '@shared/types/game'
+import type { GameDifficulty, GameResponse, SkipFrameResponse, SubmitGuessResponse } from '@shared/types/game'
 
 import { requestJson } from './client'
-import { isGameResponse, isSubmitGuessResponse } from './contract-guards'
+import { isGameResponse, isSkipFrameResponse, isSubmitGuessResponse } from './contract-guards'
 
 export function startGame(collectionId: string, difficulty: GameDifficulty): Promise<GameResponse> {
 	return requestJson(
@@ -27,4 +27,8 @@ export function submitGuess(gameId: string, title: string): Promise<SubmitGuessR
 		},
 		isSubmitGuessResponse
 	)
+}
+
+export function skipFrame(gameId: string): Promise<SkipFrameResponse> {
+	return requestJson(`/games/${encodeURIComponent(gameId)}/skip`, { method: 'POST' }, isSkipFrameResponse)
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRandomRankForDifficulty } from '@shared/lib/game-difficulty'
+import { getNextDifficulty, getRandomRankForDifficulty } from '@shared/lib/game-difficulty'
 import type { GameDifficulty } from '@shared/types/game'
 
 describe('game difficulty', () => {
@@ -13,5 +13,13 @@ describe('game difficulty', () => {
 	])('ограничивает режим %s позициями %i–%i', (difficulty, startRank, endRank) => {
 		expect(getRandomRankForDifficulty(difficulty, 0)).toBe(startRank)
 		expect(getRandomRankForDifficulty(difficulty, 0.999_999)).toBe(endRank)
+	})
+
+	it('повышает сложность и начинает цикл заново после impossible', () => {
+		expect(getNextDifficulty('easy')).toBe('medium')
+		expect(getNextDifficulty('medium')).toBe('hard')
+		expect(getNextDifficulty('hard')).toBe('expert')
+		expect(getNextDifficulty('expert')).toBe('impossible')
+		expect(getNextDifficulty('impossible')).toBe('easy')
 	})
 })

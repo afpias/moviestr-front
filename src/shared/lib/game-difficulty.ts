@@ -30,6 +30,13 @@ export function getDifficultyOption(difficulty: GameDifficulty): DifficultyOptio
 	return option
 }
 
+export function getNextDifficulty(difficulty: GameDifficulty): GameDifficulty {
+	const currentIndex = DIFFICULTY_OPTIONS.findIndex((option) => option.value === difficulty)
+	const nextOption = DIFFICULTY_OPTIONS[currentIndex + 1]
+
+	return nextOption?.value ?? 'easy'
+}
+
 export function getRandomRankForDifficulty(difficulty: GameDifficulty, randomValue = Math.random()): number {
 	const { endRank, startRank } = getDifficultyOption(difficulty)
 	const rangeSize = endRank - startRank + 1

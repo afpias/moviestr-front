@@ -125,6 +125,37 @@ export const handlers = [
 			return upstreamError(error)
 		}
 	}),
+	http.post('/api/v1/games/:gameId/skip', async ({ params }) => {
+		await mockDelay()
+		const gameId = String(params.gameId)
+		const session = getMockSession(gameId)
+
+		if (!session) {
+			return apiError(404, 'GAME_NOT_FOUND', 'Game not found')
+		}
+
+		if (session.status !== 'playing') {
+			return apiError(409, 'GAME_FINISHED', 'Game already finished')
+		}
+
+		if (session.currentFrameIndex === session.movie.frames.length - 1) {
+			session.status = 'lost'
+			saveMockSession()
+
+			return HttpResponse.json({
+				result: toMovieResult(session.movie),
+				status: 'lost'
+			})
+		}
+
+		session.currentFrameIndex += 1
+		saveMockSession()
+
+		return HttpResponse.json({
+			currentFrame: session.movie.frames[session.currentFrameIndex],
+			status: 'playing'
+		})
+	}),
 	http.post('/api/v1/games/:gameId/guesses', async ({ params, request }) => {
 		await mockDelay()
 		const gameId = String(params.gameId)

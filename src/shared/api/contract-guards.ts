@@ -8,6 +8,7 @@ import type {
 	MovieCollectionSummary,
 	MovieSuggestion,
 	PlayingGameResponse,
+	SkipFrameResponse,
 	SubmitGuessResponse
 } from '@shared/types/game'
 
@@ -79,4 +80,16 @@ export function isSubmitGuessResponse(value: unknown): value is SubmitGuessRespo
 	}
 
 	return (value.status === 'lost' || value.status === 'won') && isGameResult(value.result)
+}
+
+export function isSkipFrameResponse(value: unknown): value is SkipFrameResponse {
+	if (!isRecord(value)) {
+		return false
+	}
+
+	if (value.status === 'playing') {
+		return isGameFrame(value.currentFrame)
+	}
+
+	return value.status === 'lost' && isGameResult(value.result)
 }
