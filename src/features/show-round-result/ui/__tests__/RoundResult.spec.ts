@@ -32,5 +32,8 @@ describe('round result', () => {
 		expect(wrapper.text()).toContain('Повторить')
 		expect(wrapper.text()).not.toContain('Раунд окончен')
 		expect(wrapper.text()).not.toContain('Это был правильный ответ')
+		expect(wrapper.get('.round-result__poster img').attributes()).toEqual(
+			expect.objectContaining({ alt: 'Постер фильма «Матрица»', src: result.posterUrl })
+		)
 	})
 })
