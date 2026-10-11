@@ -8,8 +8,7 @@ Moviestr — непрерывная Vue-игра, которая сразу пр
 
 - Vue 3, TypeScript, Pinia и Vue Router.
 - компоненты из официального реестра shadcn-vue, Tailwind CSS 4 и штатные примитивы Reka UI.
-- MSW для mock API.
-- TMDB как источник каталога и изображений в development-режиме.
+- прямой TMDB-адаптер для каталога, названий и изображений frontend-прототипа.
 - Tesseract.js как браузерный OCR-фильтр кадров с названием фильма.
 - Vitest и Vue Test Utils.
 - ESLint и Prettier из пакетов Afpia.
@@ -29,7 +28,7 @@ yarn build
 - [architecture.md](./architecture.md) — стек, сокращённый FSD, зависимости слоёв и структура каталогов.
 - [code-style.md](./code-style.md) — TypeScript, Vue, именование, форматирование и CSS.
 - [state-and-routing.md](./state-and-routing.md) — Pinia, жизненный цикл игры, localStorage и Vue Router.
-- [api-and-mocks.md](./api-and-mocks.md) — HTTP-контракты, MSW, модели данных и будущая замена backend.
+- [api-and-tmdb.md](./api-and-tmdb.md) — TMDB-интеграция, модели данных и будущая замена backend.
 - [ui-and-accessibility.md](./ui-and-accessibility.md) — shadcn-vue, темы, адаптивность и обязательная доступность.
 - [testing.md](./testing.md) — стратегия Vitest и Vue Test Utils.
 - [git-workflow.md](./git-workflow.md) — атомарные коммиты, формат сообщений и Git hooks.

@@ -10,12 +10,13 @@
 - локально хранимые компоненты из официального реестра shadcn-vue со штатными примитивами Reka UI.
 - Tailwind CSS 4 внутри `shared/ui`, обычный CSS и CSS custom properties в остальном приложении.
 - Fetch API для HTTP.
-- MSW для mock API в браузере и тестах.
+- Fetch API и прямой TMDB-адаптер frontend-прототипа.
 - Vitest и Vue Test Utils.
 - Yarn как единственный менеджер пакетов.
 
-Проект является только frontend-приложением. Backend и monorepo в текущую область работ не входят. В development-режиме
-MSW реализует контракт `/api/v1` и обращается к TMDB напрямую. Это временный адаптер прототипа, а не production backend.
+Проект является только frontend-приложением. Backend и monorepo в текущую область работ не входят. Браузер обращается к
+TMDB напрямую, а локальный игровой session-адаптер управляет переходами между пятью кадрами. Это временная архитектура
+прототипа, а не production backend.
 
 ## FSD-слои
 
@@ -78,7 +79,7 @@ src/
 │   └── movie/
 └── shared/
     ├── api/
-    │   ├── mock/
+    │   ├── tmdb/
     │   └── client.ts
     ├── assets/
     ├── config/
@@ -156,7 +157,7 @@ features/play-game/
 
 ### API
 
-- `shared/api` содержит HTTP-клиент, общую обработку ошибок и MSW-инфраструктуру;
+- `shared/api` содержит TMDB-клиент, общую обработку ошибок и локальный session-адаптер игры;
 - конкретные запросы игры находятся в `features/<slice>/api`;
 - компонент может инициировать запрос, но обращается к функции API или composable, а не вызывает `fetch` напрямую.
 
@@ -178,8 +179,6 @@ features/play-game/
 Все переменные Vite объявляются в типах и начинаются с `VITE_`. Пример:
 
 ```text
-VITE_API_BASE_URL=/api/v1
-VITE_ENABLE_MOCKS=true
 VITE_TMDB_READ_TOKEN=
 ```
 
