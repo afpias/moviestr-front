@@ -24,7 +24,7 @@ yarn build
 
 ## Карта документации
 
-- [product.md](./product.md) — пользовательский сценарий, правила игры, очки и границы MVP.
+- [product.md](./product.md) — пользовательский сценарий, режимы сложности и границы MVP.
 - [architecture.md](./architecture.md) — стек, сокращённый FSD, зависимости слоёв и структура каталогов.
 - [code-style.md](./code-style.md) — TypeScript, Vue, именование, форматирование и CSS.
 - [state-and-routing.md](./state-and-routing.md) — Pinia, жизненный цикл игры, localStorage и Vue Router.

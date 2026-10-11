@@ -98,7 +98,10 @@ Content-Type: application/json
 ```ts
 interface StartGameRequest {
 	collectionId: string
+	difficulty: 'easy' | 'medium' | 'hard' | 'expert' | 'impossible'
 }
+
+type Difficulty = StartGameRequest['difficulty']
 
 interface GameFrame {
 	alt: string
@@ -108,6 +111,7 @@ interface GameFrame {
 
 interface StartGameResponse {
 	currentFrame: GameFrame
+	difficulty: Difficulty
 	gameId: string
 	status: 'playing'
 	totalFrames: 6
@@ -165,13 +169,11 @@ type SubmitGuessResponse =
 	  }
 	| {
 			correct: true
-			points: number
 			result: GameResult
 			status: 'won'
 	  }
 	| {
 			correct: false
-			points: 0
 			result: GameResult
 			status: 'lost'
 	  }
@@ -201,7 +203,8 @@ interface GameResult {
 ## TMDB
 
 - API Read Access Token читается из `VITE_TMDB_READ_TOKEN` и задаётся только в `.env.local`.
-- Запрос каталога использует первые 250 позиций TMDB `top_rated`.
+- Запрос каталога использует первые 250 позиций TMDB `top_rated` и выбирает фильм только из диапазона переданной
+  сложности.
 - Поиск выполняется через TMDB movie search с локалью `ru-RU`; результаты дополнительно запрашиваются с `en-US` и
   объединяются по `id`, чтобы корректно показывать русские и английские запросы.
 - Для игры выбирается фильм как минимум с шестью backdrop-изображениями.
@@ -214,7 +217,7 @@ interface GameResult {
 
 При frontend-only реализации правильные ответы и TMDB token доступны в браузере и могут быть найдены пользователем.
 Это допустимо только для локального прототипа. Перед публичной соревновательной версией интеграция с TMDB, выбор
-фильма, проверка ответа и начисление очков должны быть перенесены на backend.
+фильма и проверка ответа должны быть перенесены на backend.
 
 ## Изображения и каталог
 

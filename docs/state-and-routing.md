@@ -46,9 +46,9 @@ Store обязан экспортировать только состояние 
 ```ts
 interface ActiveGameState {
 	currentFrameIndex: number
+	difficulty: Difficulty
 	gameId: string
 	lastError: string | null
-	points: number | null
 	status: GameStatus
 	totalFrames: 6
 }
