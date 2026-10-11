@@ -1,3 +1,3 @@
-export { default as MovieCombobox } from './MovieCombobox.vue'
-export { searchMovies } from './movies.api'
-export { useMovieSearch } from './useMovieSearch'
+export { searchMovies } from './api/movies.api'
+export { useMovieSearch } from './model/useMovieSearch'
+export { default as MovieCombobox } from './ui/MovieCombobox.vue'

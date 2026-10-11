@@ -2,11 +2,11 @@
 import { AlertTriangle, RefreshCcw } from '@lucide/vue'
 
 import { Button, Skeleton } from '@shared/ui'
+import { GameInfo } from '@widgets/game-info'
+import { GameSidebar } from '@widgets/game-sidebar'
+import { GameStage } from '@widgets/game-stage'
 
-import GameInfo from './GameInfo.vue'
-import GameSidebar from './GameSidebar.vue'
-import GameStage from './GameStage.vue'
-import { useGameConsole } from './useGameConsole'
+import { useGameConsole } from '../model/useGameConsole'
 
 const {
 	actionLabel,
@@ -83,4 +83,4 @@ const {
 	</section>
 </template>
 
-<style scoped src="./GameConsole.css"></style>
+<style scoped src="./GamePage.css"></style>

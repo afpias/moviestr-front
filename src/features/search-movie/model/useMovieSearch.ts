@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 
 import type { MovieSuggestion } from '@shared/types/game'
 
-import { searchMovies } from './movies.api'
+import { searchMovies } from '../api/movies.api'
 
 export function useMovieSearch() {
 	const answer = ref<MovieSuggestion | string | null>(null)

@@ -1,1 +1,1 @@
-export { default as RoundResult } from './RoundResult.vue'
+export { default as RoundResult } from './ui/RoundResult.vue'

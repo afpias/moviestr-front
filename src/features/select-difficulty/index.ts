@@ -1,1 +1,1 @@
-export { default as DifficultySelector } from './DifficultySelector.vue'
+export { default as DifficultySelector } from './ui/DifficultySelector.vue'

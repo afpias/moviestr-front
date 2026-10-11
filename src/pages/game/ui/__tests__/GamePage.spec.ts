@@ -4,8 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, mount, type VueWrapper } from '@vue/test-utils'
 
 import { GenreSelector } from '@features/select-genre'
-import GamePage from '@pages/game/GamePage.vue'
 import { useGameStore } from '@shared/stores/game.store'
+
+import GamePage from '../GamePage.vue'
 
 const mountedWrappers: VueWrapper[] = []
 

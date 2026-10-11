@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 
-import DifficultySelector from '@features/select-difficulty/DifficultySelector.vue'
+import DifficultySelector from '../DifficultySelector.vue'
 
 describe('difficulty selector', () => {
 	it('выбирает новый режим сложности', async () => {

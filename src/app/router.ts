@@ -9,7 +9,7 @@ const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
-			component: () => import('@pages/game/GamePage.vue'),
+			component: () => import('@pages/game').then(({ GamePage }) => GamePage),
 			meta: { title: 'Угадай фильм по кадру' },
 			name: 'home',
 			path: '/'
