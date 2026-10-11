@@ -17,27 +17,31 @@
 Проект является только frontend-приложением. Backend и monorepo в текущую область работ не входят. В development-режиме
 MSW реализует контракт `/api/v1` и обращается к TMDB напрямую. Это временный адаптер прототипа, а не production backend.
 
-## Сокращённый FSD
+## FSD-слои
 
-Используются четыре слоя:
+Используются шесть слоёв:
 
 ```text
 src/
 ├── app/
 ├── pages/
+├── widgets/
 ├── features/
+├── entities/
 └── shared/
 ```
 
 Направление зависимостей:
 
 ```text
-app -> pages -> features -> shared
+app -> pages -> widgets -> features -> entities -> shared
 ```
 
 Нижний слой не импортирует верхний. Страницы не импортируют друг друга. Разные feature-slices не должны напрямую читать внутренние файлы соседней feature.
 
-Слои `entities` и `widgets` не создаются заранее. Они добавляются только когда повторяющаяся предметная модель или самостоятельный крупный блок действительно используются несколькими страницами или features.
+`widgets` содержат крупные самостоятельные области страницы и могут собирать несколько features: например игровую
+сцену и боковые панели. `entities` содержат предметные модели и их пассивное отображение. Компонент с пользовательским
+сценарием — поиском, debounce и выбором ответа — относится к feature, а не к entity.
 
 ## Рекомендуемая структура
 
@@ -49,16 +53,22 @@ src/
 │   └── router.ts
 ├── pages/
 │   ├── game/
-│   │   ├── GamePage.vue
-│   │   └── GamePage.css
-│   ├── rules/
-│   ├── statistics/
+│   │   └── GamePage.vue
 │   └── not-found/
+├── widgets/
+│   └── game-console/
+│       ├── GameConsole.vue
+│       ├── GameSidebar.vue
+│       ├── GameStage.vue
+│       └── GameInfo.vue
 ├── features/
-│   ├── start-game/
-│   ├── play-game/
-│   ├── movie-search/
+│   ├── search-movie/
+│   ├── select-difficulty/
+│   ├── select-genre/
+│   ├── show-round-result/
 │   └── switch-theme/
+├── entities/
+│   └── movie/
 └── shared/
     ├── api/
     │   ├── mock/
@@ -100,7 +110,9 @@ features/play-game/
 | `@/*`         | `src/*`               |
 | `@app/*`      | `src/app/*`           |
 | `@pages/*`    | `src/pages/*`         |
+| `@widgets/*`  | `src/widgets/*`       |
 | `@features/*` | `src/features/*`      |
+| `@entities/*` | `src/entities/*`      |
 | `@shared/*`   | `src/shared/*`        |
 | `@assets/*`   | `src/shared/assets/*` |
 

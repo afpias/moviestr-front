@@ -6,7 +6,7 @@ Before changing application code, read `docs/README.md` and the linked specifica
 
 - Use Vue 3, TypeScript, Composition API, and `<script setup lang="ts">`.
 - Keep TypeScript strict. Do not introduce `any`; validate unknown external data before use.
-- Follow the shortened FSD dependency direction: `app -> pages -> features -> shared`.
+- Follow the FSD dependency direction: `app -> pages -> widgets -> features -> entities -> shared`.
 - Use Setup Stores for Pinia. Keep local UI state in the component or its composable.
 - Keep Pinia stores in `shared/stores`, the router in `app`, and static application assets in `shared/assets`.
 - Keep component CSS in a neighboring file with the same PascalCase basename and connect it with `<style scoped src="./ComponentName.css"></style>`.
