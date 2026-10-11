@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 
 import { getCollections } from '@shared/api/collections.api'
 import { loadChallenge, skipFrame, submitGuess } from '@shared/api/games.api'
-import { searchMovies } from '@shared/api/movies.api'
 
 describe('game API', () => {
 	it('возвращает фактический размер mock-подборки', async () => {
@@ -56,17 +55,5 @@ describe('game API', () => {
 		expect(response).toEqual(
 			expect.objectContaining({ result: expect.objectContaining({ title: 'Интерстеллар' }), status: 'lost' })
 		)
-	})
-
-	it('ищет фильмы для автодополнения', async () => {
-		const suggestions = await searchMovies('матр')
-
-		expect(suggestions).toEqual([expect.objectContaining({ englishTitle: 'The Matrix', title: 'Матрица' })])
-	})
-
-	it('ищет фильмы по английскому названию', async () => {
-		const suggestions = await searchMovies('matrix')
-
-		expect(suggestions).toEqual([expect.objectContaining({ englishTitle: 'The Matrix', title: 'Матрица' })])
 	})
 })

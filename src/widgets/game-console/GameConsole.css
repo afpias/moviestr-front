@@ -1,0 +1,26 @@
+.game-console-widget {
+	width: 100%;
+	max-width: 1600px;
+	margin-inline: auto;
+}
+
+.game-loading {
+	max-width: 900px;
+	margin-inline: auto;
+	display: grid;
+	gap: 1rem;
+}
+
+.game-console {
+	overflow: hidden;
+	display: grid;
+	border-radius: 1.25rem;
+	background: var(--app-color-surface);
+	box-shadow: var(--app-shadow-large);
+}
+
+@media (min-width: 1120px) {
+	.game-console {
+		grid-template-columns: 230px minmax(0, 1fr) 230px;
+	}
+}

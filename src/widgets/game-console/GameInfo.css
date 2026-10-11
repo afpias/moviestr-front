@@ -1,0 +1,56 @@
+.game-info {
+	display: grid;
+	align-content: start;
+	gap: 1.8rem;
+	padding: 1.35rem;
+	background: color-mix(in srgb, var(--app-color-background) 82%, transparent);
+}
+
+.control-label {
+	margin-bottom: 0.7rem;
+	color: var(--app-color-text-muted);
+	font-size: 0.65rem;
+	font-weight: 850;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.game-info section {
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid var(--app-color-border);
+}
+
+.game-info section:last-child {
+	border: 0;
+}
+
+.game-info strong {
+	color: var(--app-color-accent);
+	font-size: 2.1rem;
+	font-weight: 900;
+}
+
+.game-info span {
+	color: var(--app-color-text-muted);
+}
+
+.game-info p:not(.control-label) {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.82rem;
+	font-weight: 750;
+}
+
+@media (min-width: 1120px) {
+	.game-info {
+		border-left: 1px solid var(--app-color-border);
+	}
+}
+
+@media (max-width: 1119px) {
+	.game-info {
+		grid-template-columns: repeat(2, 1fr);
+		border-top: 1px solid var(--app-color-border);
+	}
+}

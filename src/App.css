@@ -5,7 +5,7 @@
 }
 
 .app-header {
-	width: min(100% - 2rem, 1480px);
+	width: min(100% - 2rem, 1600px);
 	margin-inline: auto;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .app-main {
-	width: min(100% - 2rem, 1480px);
+	width: min(100% - 2rem, 1600px);
 	margin-inline: auto;
 	padding-block: clamp(1.5rem, 4vw, 3.5rem);
 }

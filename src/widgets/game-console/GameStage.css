@@ -1,0 +1,158 @@
+.game-stage {
+	min-width: 0;
+	display: flex;
+	align-items: stretch;
+	flex-direction: column;
+	padding: clamp(1rem, 2.5vw, 2rem);
+	background:
+		radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--app-color-accent) 6%, transparent), transparent 28rem),
+		var(--app-color-stage);
+}
+
+.game-stage__toolbar {
+	margin-bottom: 1.15rem;
+	display: flex;
+	justify-content: center;
+}
+
+.game-stage__toolbar :deep(.difficulty-selector) {
+	justify-content: center;
+}
+
+.game-stage__toolbar :deep(.difficulty-selector__option:not(.is-active)) {
+	opacity: 0.38;
+}
+
+.movie-frame {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	margin: 0;
+	overflow: hidden;
+	border: 1px solid rgb(255 255 255 / 7%);
+	border-radius: 1rem;
+	background: #000;
+	box-shadow: 0 24px 70px rgb(0 0 0 / 40%);
+}
+
+.movie-frame::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	box-shadow: inset 0 0 5rem rgb(0 0 0 / 28%);
+}
+
+.movie-frame img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+	opacity: 0;
+	transition: opacity 160ms ease;
+}
+
+.movie-frame img.is-loaded {
+	opacity: 1;
+}
+
+.movie-frame__loading {
+	position: absolute;
+	z-index: 2;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 0.7rem;
+	background: #000;
+	color: rgb(255 255 255 / 68%);
+	font-size: 0.78rem;
+	font-weight: 750;
+}
+
+.movie-frame__loading svg {
+	color: var(--app-color-accent);
+	animation: frame-loading-spin 0.9s linear infinite;
+}
+
+.frame-progress {
+	margin-top: 1rem;
+	overflow: hidden;
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 1px;
+	border-radius: 999px;
+	background: var(--app-color-border);
+}
+
+.frame-progress span {
+	height: 0.55rem;
+	background: color-mix(in srgb, var(--app-color-text) 9%, transparent);
+}
+
+.frame-progress .is-used {
+	background: color-mix(in srgb, var(--app-color-accent) 42%, transparent);
+}
+
+.frame-progress .is-active {
+	background: var(--app-color-accent);
+	box-shadow: 0 0 1.5rem var(--app-color-accent-shadow);
+}
+
+.answer-form {
+	position: relative;
+	z-index: 3;
+	width: min(100%, 52rem);
+	margin-top: 1rem;
+	margin-inline: auto;
+}
+
+.answer-form__controls {
+	display: grid;
+	gap: 0.6rem;
+}
+
+.answer-form__submit {
+	height: 2.75rem;
+	border-radius: 0.9rem;
+	padding-inline: 1.15rem;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	clip-path: inset(50%);
+}
+
+@keyframes frame-loading-spin {
+	to {
+		transform: rotate(1turn);
+	}
+}
+
+@media (min-width: 620px) {
+	.answer-form__controls {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+}
+
+@media (max-width: 760px) {
+	.game-stage__toolbar :deep(.difficulty-selector) {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.movie-frame img {
+		transition: none;
+	}
+
+	.movie-frame__loading svg {
+		animation: none;
+	}
+}

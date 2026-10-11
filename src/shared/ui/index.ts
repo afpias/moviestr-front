@@ -1,6 +1,5 @@
 export * from './alert'
 export * from './button'
 export * from './combobox'
-export { default as MovieCombobox } from './MovieCombobox.vue'
 export * from './select'
 export * from './skeleton'

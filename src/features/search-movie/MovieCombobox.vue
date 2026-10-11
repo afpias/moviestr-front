@@ -4,10 +4,7 @@ import { computed, onBeforeUnmount } from 'vue'
 import { LoaderCircle } from '@lucide/vue'
 
 import type { MovieSuggestion } from '@shared/types/game'
-
-import { Combobox, ComboboxAnchor, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList, ComboboxViewport } from './combobox'
-
-import './MovieCombobox.css'
+import { Combobox, ComboboxAnchor, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList, ComboboxViewport } from '@shared/ui'
 
 interface MovieComboboxProps {
 	disabled?: boolean
@@ -116,3 +113,5 @@ onBeforeUnmount(() => {
 		</ComboboxList>
 	</Combobox>
 </template>
+
+<style scoped src="./MovieCombobox.css"></style>

@@ -51,6 +51,23 @@ describe('game page', () => {
 		expect(wrapper.find('figcaption').exists()).toBe(false)
 	})
 
+	it('не показывает alt до полной загрузки нового кадра', async () => {
+		const { wrapper } = mountGamePage()
+
+		await vi.waitFor(() => {
+			expect(wrapper.find('.movie-frame img').exists()).toBe(true)
+		})
+
+		const image = wrapper.get('.movie-frame img')
+		expect(image.attributes('alt')).toBe('')
+		expect(image.classes()).not.toContain('is-loaded')
+
+		await image.trigger('load')
+
+		expect(image.attributes('alt')).toContain('кадр 1')
+		expect(image.classes()).toContain('is-loaded')
+	})
+
 	it('показывает правильный ответ и продолжает после победы', async () => {
 		const { gameStore, wrapper } = mountGamePage()
 

@@ -8,7 +8,6 @@ import type {
 	GameResponse,
 	GameResult,
 	MovieCollectionSummary,
-	MovieSuggestion,
 	PlayingGameResponse,
 	SkipFrameResponse,
 	SubmitGuessResponse
@@ -64,16 +63,6 @@ function isCollection(value: unknown): value is MovieCollectionSummary {
 
 export function isCollectionsResponse(value: unknown): value is { items: MovieCollectionSummary[] } {
 	return isRecord(value) && Array.isArray(value.items) && value.items.every(isCollection)
-}
-
-function isSuggestion(value: unknown): value is MovieSuggestion {
-	return (
-		isRecord(value) && isString(value.englishTitle) && isString(value.id) && isNumber(value.releaseYear) && isString(value.title)
-	)
-}
-
-export function isSuggestionsResponse(value: unknown): value is { items: MovieSuggestion[] } {
-	return isRecord(value) && Array.isArray(value.items) && value.items.every(isSuggestion)
 }
 
 export function isSubmitGuessResponse(value: unknown): value is SubmitGuessResponse {

@@ -1,0 +1,60 @@
+.game-sidebar {
+	display: grid;
+	align-content: start;
+	gap: 1.4rem;
+	padding: 1.35rem;
+	background: color-mix(in srgb, var(--app-color-background) 82%, transparent);
+}
+
+.control-label {
+	margin-bottom: 0.7rem;
+	color: var(--app-color-text-muted);
+	font-size: 0.65rem;
+	font-weight: 850;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.game-sidebar__section {
+	padding-bottom: 1.4rem;
+	border-bottom: 1px solid var(--app-color-border);
+}
+
+.game-sidebar__restart {
+	width: 100%;
+	justify-content: flex-start;
+	padding-inline: 0.8rem;
+	color: var(--app-color-text-muted);
+	font-size: 0.75rem;
+}
+
+@media (min-width: 1120px) {
+	.game-sidebar {
+		border-right: 1px solid var(--app-color-border);
+	}
+}
+
+@media (max-width: 1119px) {
+	.game-sidebar {
+		border-bottom: 1px solid var(--app-color-border);
+	}
+
+	.game-sidebar :deep(.difficulty-selector--list) {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+	}
+
+	.game-sidebar :deep(.difficulty-selector--list .difficulty-selector__option) {
+		min-height: 2.8rem;
+	}
+
+	.game-sidebar :deep(.difficulty-selector__option small) {
+		display: none;
+	}
+}
+
+@media (max-width: 760px) {
+	.game-sidebar :deep(.difficulty-selector--list) {
+		display: flex;
+	}
+}

@@ -185,7 +185,7 @@ a {
 		padding-block: 0.85rem;
 	}
 
-	:root[data-game-difficulty] .game-page {
+	:root[data-game-difficulty] .game-console-widget {
 		max-height: 100%;
 	}
 }

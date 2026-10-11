@@ -14,14 +14,14 @@
 	box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-color-accent) 20%, transparent);
 }
 
-.movie-combobox__anchor [data-slot='command-input-wrapper'] {
+.movie-combobox__anchor :deep([data-slot='command-input-wrapper']) {
 	height: 100%;
 	gap: 0.65rem;
 	border: 0;
 	padding-inline: 0.9rem;
 }
 
-.movie-combobox__anchor [data-slot='command-input-wrapper'] > svg {
+.movie-combobox__anchor :deep([data-slot='command-input-wrapper'] > svg) {
 	width: 1rem;
 	height: 1rem;
 	color: var(--app-color-text-muted);

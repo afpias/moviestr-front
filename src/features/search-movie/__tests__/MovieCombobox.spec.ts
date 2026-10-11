@@ -40,7 +40,7 @@ describe('movie combobox', () => {
 		wrapper.unmount()
 	})
 
-	it('показывает русское и английское названия над полем', async () => {
+	it('показывает названия и год рядом с локализованным названием', async () => {
 		const wrapper = mount(MovieCombobox, {
 			props: {
 				inputId: 'movie-answer',
@@ -55,8 +55,7 @@ describe('movie combobox', () => {
 		const listbox = document.querySelector<HTMLElement>('[role="listbox"]')
 		const option = document.querySelector<HTMLElement>('[role="option"]')
 		expect(listbox?.dataset.side).toBe('top')
-		expect(option?.textContent).toContain('Матрица')
-		expect(option?.textContent).toContain('(1999)')
+		expect(option?.textContent).toContain('Матрица (1999)')
 		expect(option?.textContent).toContain('The Matrix')
 
 		wrapper.unmount()
