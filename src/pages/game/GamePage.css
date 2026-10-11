@@ -66,12 +66,10 @@
 	font-size: 0.68rem;
 }
 
-.game-sidebar__restart {
-	width: 100%;
-	justify-content: flex-start;
-	border-top: 1px solid var(--app-color-border);
-	border-radius: 0;
+.game-sidebar__hint {
+	margin-top: 0.65rem;
 	color: var(--app-color-text-muted);
+	font-size: 0.7rem;
 }
 
 .game-stage {
@@ -234,32 +232,6 @@
 	gap: 0.5rem;
 }
 
-.game-result {
-	display: grid;
-	gap: 1.5rem;
-}
-
-.game-result img {
-	width: min(180px, 44vw);
-	aspect-ratio: 5 / 7;
-	border-radius: 0.85rem;
-	object-fit: cover;
-}
-
-.game-result h2 {
-	font-size: 2rem;
-	font-weight: 850;
-	letter-spacing: -0.04em;
-}
-
-.game-result div > p:not(.eyebrow) {
-	color: var(--app-color-text-muted);
-}
-
-.game-result__message {
-	margin-top: 1rem;
-}
-
 .visually-hidden {
 	position: absolute;
 	width: 1px;
@@ -273,11 +245,6 @@
 @media (min-width: 620px) {
 	.answer-form__controls {
 		grid-template-columns: minmax(0, 1fr) auto;
-	}
-
-	.game-result {
-		grid-template-columns: auto minmax(0, 1fr);
-		align-items: center;
 	}
 }
 

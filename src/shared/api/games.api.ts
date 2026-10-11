@@ -3,7 +3,7 @@ import type { GameDifficulty, GameResponse, SkipFrameResponse, SubmitGuessRespon
 import { requestJson } from './client'
 import { isGameResponse, isSkipFrameResponse, isSubmitGuessResponse } from './contract-guards'
 
-export function startGame(collectionId: string, difficulty: GameDifficulty): Promise<GameResponse> {
+export function loadChallenge(collectionId: string, difficulty: GameDifficulty): Promise<GameResponse> {
 	return requestJson(
 		'/games',
 		{
@@ -14,7 +14,7 @@ export function startGame(collectionId: string, difficulty: GameDifficulty): Pro
 	)
 }
 
-export function getGame(gameId: string): Promise<GameResponse> {
+export function getChallenge(gameId: string): Promise<GameResponse> {
 	return requestJson(`/games/${encodeURIComponent(gameId)}`, { method: 'GET' }, isGameResponse)
 }
 

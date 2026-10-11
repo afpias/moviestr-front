@@ -2,14 +2,20 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { ApiError } from '@shared/api/api-error'
-import { getGame, startGame as requestStartGame, submitGuess as requestSubmitGuess } from '@shared/api/games.api'
+import {
+	getChallenge,
+	loadChallenge as requestChallenge,
+	skipFrame as requestSkipFrame,
+	submitGuess as requestSubmitGuess
+} from '@shared/api/games.api'
+import { getNextDifficulty } from '@shared/lib/game-difficulty'
 import { clearSavedGame, getSavedGameId, saveGameId } from '@shared/lib/game-persistence'
-import type { GameDifficulty, GameFrame, GameResponse, GameResult, GameStatus } from '@shared/types/game'
+import type { GameDifficulty, GameFrame, GameResponse, GameStatus } from '@shared/types/game'
 
 const ERROR_MESSAGES: Record<string, string> = {
 	COLLECTION_NOT_FOUND: 'Подборка не найдена.',
-	GAME_FINISHED: 'Эта игра уже завершена.',
-	GAME_NOT_FOUND: 'Игра не найдена. Начните новый раунд.',
+	GAME_FINISHED: 'Этот фильм уже заменён. Обновите игровую доску.',
+	GAME_NOT_FOUND: 'Сохранённое состояние не найдено.',
 	NETWORK_ERROR: 'Не удалось связаться с сервером. Проверьте соединение.',
 	SERVICE_NOT_CONFIGURED: 'Добавьте VITE_TMDB_READ_TOKEN в .env.local и перезапустите dev-сервер.',
 	TIMEOUT: 'Сервер отвечает слишком долго. Попробуйте ещё раз.',
@@ -30,8 +36,6 @@ export const useGameStore = defineStore('game', () => {
 	const difficulty = ref<GameDifficulty>('easy')
 	const gameId = ref<string | null>(null)
 	const lastError = ref<string | null>(null)
-	const persistedGameId = ref<string | null>(getSavedGameId())
-	const result = ref<GameResult | null>(null)
 	const status = ref<GameStatus>('idle')
 	const totalFrames = ref<6>(6)
 
@@ -44,42 +48,96 @@ export const useGameStore = defineStore('game', () => {
 
 		if (game.status === 'playing') {
 			currentFrame.value = game.currentFrame
-			result.value = null
-			persistedGameId.value = game.gameId
 			saveGameId(game.gameId)
 			return
 		}
 
 		currentFrame.value = null
-		result.value = game.result
-		persistedGameId.value = null
 		clearSavedGame()
 	}
 
-	async function startGame(collectionId: string, selectedDifficulty: GameDifficulty): Promise<string | null> {
+	async function loadChallenge(selectedDifficulty: GameDifficulty): Promise<void> {
 		status.value = 'loading'
 		lastError.value = null
 
 		try {
-			const game = await requestStartGame(collectionId, selectedDifficulty)
+			const game = await requestChallenge('top-250', selectedDifficulty)
 			applyGame(game)
-			return game.gameId
 		} catch (error: unknown) {
 			status.value = 'error'
 			lastError.value = getErrorMessage(error)
-			return null
 		}
 	}
 
-	async function loadGame(id: string): Promise<void> {
+	async function loadSavedGame(id: string): Promise<void> {
 		status.value = 'loading'
 		lastError.value = null
 
 		try {
-			applyGame(await getGame(id))
+			const game = await getChallenge(id)
+
+			if (game.status === 'playing') {
+				applyGame(game)
+				return
+			}
+
+			await loadChallenge(game.difficulty)
 		} catch (error: unknown) {
+			if (error instanceof ApiError && error.code === 'GAME_NOT_FOUND') {
+				clearSavedGame()
+				await loadChallenge('easy')
+				return
+			}
+
 			gameId.value = id
 			status.value = 'error'
+			lastError.value = getErrorMessage(error)
+		}
+	}
+
+	async function initializeGame(): Promise<void> {
+		if (status.value === 'playing') {
+			return
+		}
+
+		const savedGameId = getSavedGameId()
+
+		if (savedGameId) {
+			await loadSavedGame(savedGameId)
+			return
+		}
+
+		await loadChallenge('easy')
+	}
+
+	async function switchDifficulty(selectedDifficulty: GameDifficulty): Promise<void> {
+		if (selectedDifficulty === difficulty.value && status.value === 'playing') {
+			return
+		}
+
+		await loadChallenge(selectedDifficulty)
+	}
+
+	async function skipFrame(): Promise<void> {
+		if (status.value !== 'playing' || gameId.value === null) {
+			return
+		}
+
+		status.value = 'submitting'
+		lastError.value = null
+
+		try {
+			const response = await requestSkipFrame(gameId.value)
+
+			if (response.status === 'playing') {
+				currentFrame.value = response.currentFrame
+				status.value = 'playing'
+				return
+			}
+
+			await loadChallenge(difficulty.value)
+		} catch (error: unknown) {
+			status.value = 'playing'
 			lastError.value = getErrorMessage(error)
 		}
 	}
@@ -101,12 +159,14 @@ export const useGameStore = defineStore('game', () => {
 				return false
 			}
 
-			status.value = response.status
-			result.value = response.result
-			persistedGameId.value = null
-			clearSavedGame()
+			if (!response.correct) {
+				await loadChallenge(difficulty.value)
+				return false
+			}
 
-			return response.correct
+			await loadChallenge(getNextDifficulty(difficulty.value))
+
+			return true
 		} catch (error: unknown) {
 			status.value = 'playing'
 			lastError.value = getErrorMessage(error)
@@ -117,14 +177,12 @@ export const useGameStore = defineStore('game', () => {
 	return {
 		currentFrame,
 		difficulty,
-		gameId,
+		initializeGame,
 		lastError,
-		loadGame,
-		persistedGameId,
-		result,
-		startGame,
+		skipFrame,
 		status,
 		submitGuess,
+		switchDifficulty,
 		totalFrames
 	}
 })

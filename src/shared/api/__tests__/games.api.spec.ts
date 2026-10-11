@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getCollections } from '@shared/api/collections.api'
-import { skipFrame, startGame, submitGuess } from '@shared/api/games.api'
+import { loadChallenge, skipFrame, submitGuess } from '@shared/api/games.api'
 import { searchMovies } from '@shared/api/movies.api'
 
 describe('game API', () => {
@@ -11,8 +11,8 @@ describe('game API', () => {
 		expect(collections).toEqual([expect.objectContaining({ id: 'top-250', movieCount: 3, title: 'Топ 250' })])
 	})
 
-	it('создаёт игру без раскрытия правильного ответа', async () => {
-		const game = await startGame('top-250', 'hard')
+	it('загружает фильм режима без раскрытия правильного ответа', async () => {
+		const game = await loadChallenge('top-250', 'hard')
 
 		expect(game.status).toBe('playing')
 		expect(game.difficulty).toBe('hard')
@@ -21,7 +21,7 @@ describe('game API', () => {
 	})
 
 	it('проверяет нормализованный ответ без начисления очков', async () => {
-		const game = await startGame('top-250', 'easy')
+		const game = await loadChallenge('top-250', 'easy')
 		const response = await submitGuess(game.gameId, '  ИНТЕРСТЕЛЛАР! ')
 
 		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
@@ -29,7 +29,7 @@ describe('game API', () => {
 	})
 
 	it('пропускает ответ и открывает следующий кадр', async () => {
-		const game = await startGame('top-250', 'easy')
+		const game = await loadChallenge('top-250', 'easy')
 		const response = await skipFrame(game.gameId)
 
 		expect(response).toEqual(expect.objectContaining({ currentFrame: expect.objectContaining({ index: 1 }), status: 'playing' }))

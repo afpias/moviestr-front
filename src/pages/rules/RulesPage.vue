@@ -7,7 +7,7 @@ import { DIFFICULTY_OPTIONS } from '@shared/lib/game-difficulty'
 		<header class="content-page__header">
 			<p class="eyebrow">Solo · image mode</p>
 			<h1>Правила игры</h1>
-			<p>Определи фильм по шести кадрам. Каждый неверный ответ открывает следующую сцену.</p>
+			<p>Игра начинается сразу. Определи фильм по кадрам или переключись на другой режим.</p>
 		</header>
 
 		<section class="rules-grid" aria-label="Основные правила">
@@ -18,13 +18,13 @@ import { DIFFICULTY_OPTIONS } from '@shared/lib/game-difficulty'
 			</div>
 			<div>
 				<span>02</span>
-				<h2>Вспоминай</h2>
-				<p>Введи русское, английское или оригинальное название фильма.</p>
+				<h2>Выбирай</h2>
+				<p>Найди русское, английское или оригинальное название и выбери фильм из списка.</p>
 			</div>
 			<div>
 				<span>03</span>
-				<h2>Угадывай</h2>
-				<p>У тебя шесть попыток. В одиночном режиме нет очков, таймера и пропуска.</p>
+				<h2>Угадывай или пропускай</h2>
+				<p>Без выбранного фильма кнопка покажет следующий кадр. Верный ответ повысит сложность.</p>
 			</div>
 		</section>
 
@@ -32,7 +32,7 @@ import { DIFFICULTY_OPTIONS } from '@shared/lib/game-difficulty'
 			<header>
 				<p class="eyebrow">Пять режимов</p>
 				<h2>Выбери знакомость фильмов</h2>
-				<p>Сложность определяет, из какой части топа 250 TMDB выбирается фильм.</p>
+				<p>Сложность определяет часть топа 250 TMDB. На другой режим можно перейти в любой момент.</p>
 			</header>
 			<ul>
 				<li v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :class="`is-${option.value}`">

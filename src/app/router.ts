@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 export const ROUTE_NAMES = {
-	game: 'game-round',
 	home: 'home',
 	notFound: 'not-found',
 	rules: 'rules',
@@ -12,16 +11,10 @@ const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
-			component: () => import('@pages/home/HomePage.vue'),
+			component: () => import('@pages/game/GamePage.vue'),
 			meta: { title: 'Угадай фильм по кадру' },
 			name: 'home',
 			path: '/'
-		},
-		{
-			component: () => import('@pages/game/GamePage.vue'),
-			meta: { title: 'Игра' },
-			name: 'game-round',
-			path: '/game/:id'
 		},
 		{
 			component: () => import('@pages/rules/RulesPage.vue'),

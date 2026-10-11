@@ -1,56 +1,82 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { describe, expect, it, vi } from 'vitest'
-import { createMemoryHistory, createRouter } from 'vue-router'
 
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 
 import GamePage from '@pages/game/GamePage.vue'
 import { useGameStore } from '@shared/stores/game.store'
 
-describe('game page', () => {
-	it('показывает следующий кадр после неверного ответа', async () => {
-		const pinia = createPinia()
-		setActivePinia(pinia)
-		const gameStore = useGameStore()
-		const gameId = await gameStore.startGame('top-250', 'easy')
-		const router = createRouter({
-			history: createMemoryHistory(),
-			routes: [
-				{
-					component: GamePage,
-					meta: { title: 'Игра' },
-					path: '/game/:id'
-				}
-			]
-		})
+function mountGamePage() {
+	const pinia = createPinia()
+	setActivePinia(pinia)
 
-		await router.push(`/game/${gameId}`)
-		await router.isReady()
-
-		const wrapper = mount(GamePage, {
+	return {
+		gameStore: useGameStore(),
+		wrapper: mount(GamePage, {
 			global: {
-				plugins: [pinia, router],
-				stubs: {
-					Button: true,
-					Dialog: true,
-					Skeleton: true
-				}
+				plugins: [pinia]
 			}
 		})
+	}
+}
+
+describe('game page', () => {
+	it('сразу показывает игру и пропускает кадр без ответа', async () => {
+		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
 			expect(wrapper.find('#movie-answer').exists()).toBe(true)
 		})
-		await wrapper.get('#movie-answer').setValue('не тот фильм')
+
+		expect(wrapper.get('.answer-form button').text()).toContain('Пропустить')
 		await wrapper.get('form').trigger('submit')
+
 		await vi.waitFor(() => {
 			expect(gameStore.currentFrame?.index).toBe(1)
 		})
-		await flushPromises()
 
-		expect(wrapper.text()).toContain('Не угадал — открываем следующий кадр.')
-		expect(wrapper.text()).toContain('Easy')
-		expect(wrapper.text()).not.toContain('Skip')
-		expect(wrapper.get('img').attributes('alt')).toContain('кадр 2')
+		expect(wrapper.text()).toContain('Показываем следующий кадр.')
+	})
+
+	it('меняет действие на угадывание только после выбора фильма', async () => {
+		const { gameStore, wrapper } = mountGamePage()
+
+		await vi.waitFor(() => {
+			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+		})
+
+		await wrapper.get('#movie-answer').trigger('focus')
+		await wrapper.get('#movie-answer').setValue('Интерстеллар')
+		expect(wrapper.get('.answer-form button').text()).toContain('Пропустить')
+
+		await vi.waitFor(() => {
+			expect(wrapper.find('[role="option"]').exists()).toBe(true)
+		})
+		await wrapper.get('[role="option"]').trigger('mousedown')
+
+		expect(wrapper.get('.answer-form button').text()).toContain('Угадать')
+		await wrapper.get('form').trigger('submit')
+
+		await vi.waitFor(() => {
+			expect(gameStore.difficulty).toBe('medium')
+		})
+
+		expect(wrapper.text()).toContain('Верно! Переходим в режим Medium.')
+	})
+
+	it('переключает режим без обязательного ответа', async () => {
+		const { gameStore, wrapper } = mountGamePage()
+
+		await vi.waitFor(() => {
+			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+		})
+
+		const mediumButton = wrapper.findAll('[role="radio"]').find((button) => button.text().includes('Medium'))
+		expect(mediumButton).toBeDefined()
+		await mediumButton?.trigger('click')
+
+		await vi.waitFor(() => {
+			expect(gameStore.difficulty).toBe('medium')
+		})
 	})
 })

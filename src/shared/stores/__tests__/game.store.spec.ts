@@ -8,26 +8,70 @@ describe('game store', () => {
 		setActivePinia(createPinia())
 	})
 
-	it('открывает следующий кадр после неверного ответа', async () => {
+	it('автоматически открывает easy при первом входе', async () => {
 		const gameStore = useGameStore()
 
-		await gameStore.startGame('top-250', 'medium')
-		const result = await gameStore.submitGuess('не тот фильм')
+		await gameStore.initializeGame()
 
-		expect(result).toBe(false)
+		expect(gameStore.status).toBe('playing')
+		expect(gameStore.difficulty).toBe('easy')
+		expect(gameStore.currentFrame?.index).toBe(0)
+	})
+
+	it('открывает следующий кадр без ответа', async () => {
+		const gameStore = useGameStore()
+
+		await gameStore.initializeGame()
+		await gameStore.skipFrame()
+
 		expect(gameStore.status).toBe('playing')
 		expect(gameStore.currentFrame?.index).toBe(1)
 	})
 
-	it('завершает игру и очищает сохранённый раунд после верного ответа', async () => {
+	it('сразу переключается на выбранную сложность', async () => {
 		const gameStore = useGameStore()
 
-		await gameStore.startGame('top-250', 'expert')
+		await gameStore.initializeGame()
+		await gameStore.switchDifficulty('hard')
+
+		expect(gameStore.difficulty).toBe('hard')
+		expect(gameStore.currentFrame?.index).toBe(0)
+	})
+
+	it('повышает сложность после верного ответа', async () => {
+		const gameStore = useGameStore()
+
+		await gameStore.initializeGame()
+		const result = await gameStore.submitGuess('Интерстеллар')
+
+		expect(result).toBe(true)
+		expect(gameStore.status).toBe('playing')
+		expect(gameStore.difficulty).toBe('medium')
+		expect(gameStore.currentFrame?.index).toBe(0)
+	})
+
+	it('начинает цикл с easy после верного ответа в impossible', async () => {
+		const gameStore = useGameStore()
+
+		await gameStore.switchDifficulty('impossible')
 		await gameStore.submitGuess('Интерстеллар')
 
-		expect(gameStore.status).toBe('won')
-		expect(gameStore.difficulty).toBe('expert')
-		expect(gameStore.result?.title).toBe('Интерстеллар')
-		expect(window.localStorage.getItem('moviestr:game:v1')).toBeNull()
+		expect(gameStore.status).toBe('playing')
+		expect(gameStore.difficulty).toBe('easy')
+		expect(gameStore.currentFrame?.index).toBe(0)
+	})
+
+	it('заменяет фильм после пропуска последнего кадра', async () => {
+		const gameStore = useGameStore()
+
+		await gameStore.initializeGame()
+
+		for (let frame = 0; frame < 6; frame += 1) {
+			await gameStore.skipFrame()
+		}
+
+		expect(gameStore.status).toBe('playing')
+		expect(gameStore.difficulty).toBe('easy')
+		expect(gameStore.currentFrame?.index).toBe(0)
 	})
 })
