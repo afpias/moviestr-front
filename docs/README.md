@@ -7,8 +7,9 @@ Moviestr — Vue-игра, в которой пользователь угады
 ## Стек
 
 - Vue 3, TypeScript, Pinia и Vue Router.
-- PrimeVue 5 и Aura.
+- shadcn-vue, Reka UI и Tailwind CSS 4 для локальных UI-компонентов.
 - MSW для mock API.
+- TMDB как источник каталога и изображений в development-режиме.
 - Vitest и Vue Test Utils.
 - ESLint и Prettier из пакетов Afpia.
 
@@ -28,7 +29,7 @@ yarn build
 - [code-style.md](./code-style.md) — TypeScript, Vue, именование, форматирование и CSS.
 - [state-and-routing.md](./state-and-routing.md) — Pinia, жизненный цикл игры, localStorage и Vue Router.
 - [api-and-mocks.md](./api-and-mocks.md) — HTTP-контракты, MSW, модели данных и будущая замена backend.
-- [ui-and-accessibility.md](./ui-and-accessibility.md) — PrimeVue, темы, адаптивность и обязательная доступность.
+- [ui-and-accessibility.md](./ui-and-accessibility.md) — shadcn-vue, темы, адаптивность и обязательная доступность.
 - [testing.md](./testing.md) — стратегия Vitest и Vue Test Utils.
 - [git-workflow.md](./git-workflow.md) — атомарные коммиты, формат сообщений и Git hooks.
 - [decisions.md](./decisions.md) — журнал принятых технических решений.

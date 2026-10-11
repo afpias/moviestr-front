@@ -81,7 +81,7 @@ afterAll(() => server.close())
 expect(wrapper.get('[role="status"]').text()).toContain('Неверный ответ')
 ```
 
-Не следует привязываться к внутреннему имени метода или классу PrimeVue, если это не часть контракта.
+Не следует привязываться к внутреннему классу shadcn-vue или Reka UI, если это не часть контракта.
 
 ## Snapshot tests
 

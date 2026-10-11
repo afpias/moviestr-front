@@ -7,14 +7,15 @@
 - Vite для разработки и production-сборки.
 - Pinia с Setup Stores.
 - Vue Router с именованными ленивыми маршрутами.
-- PrimeVue 5 с темой Aura.
-- Обычный CSS и CSS custom properties.
+- shadcn-vue с локально хранимым кодом компонентов и примитивами Reka UI.
+- Tailwind CSS 4 внутри `shared/ui`, обычный CSS и CSS custom properties в остальном приложении.
 - Fetch API для HTTP.
 - MSW для mock API в браузере и тестах.
 - Vitest и Vue Test Utils.
 - Yarn как единственный менеджер пакетов.
 
-Проект является только frontend-приложением. Backend и monorepo в текущую область работ не входят.
+Проект является только frontend-приложением. Backend и monorepo в текущую область работ не входят. В development-режиме
+MSW реализует контракт `/api/v1` и обращается к TMDB напрямую. Это временный адаптер прототипа, а не production backend.
 
 ## Сокращённый FSD
 
@@ -160,6 +161,10 @@ features/play-game/
 ```text
 VITE_API_BASE_URL=/api/v1
 VITE_ENABLE_MOCKS=true
+VITE_TMDB_READ_TOKEN=
 ```
 
 Секреты нельзя помещать во frontend-переменные: всё, что попадает в клиентскую сборку, доступно пользователю.
+`VITE_TMDB_READ_TOKEN` разрешён только как локальная конфигурация frontend-прототипа и неизбежно виден в браузере. Перед
+публичным развёртыванием запросы к TMDB и токен переносятся на backend. Значение хранится только в игнорируемом
+`.env.local` и никогда не коммитится.
