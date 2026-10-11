@@ -35,9 +35,9 @@
 	font-size: 0.9rem;
 }
 
-.movie-combobox__input:focus-visible {
-	outline: 0 !important;
-	box-shadow: none !important;
+.movie-combobox__anchor :deep([data-slot='command-input']:focus-visible) {
+	outline: 0;
+	box-shadow: none;
 }
 
 .movie-combobox__list {
