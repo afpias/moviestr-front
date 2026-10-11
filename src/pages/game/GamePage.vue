@@ -14,7 +14,7 @@ import { Alert, Button, Dialog, MovieCombobox, Skeleton } from '@shared/ui'
 const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()
-const { currentFrame, lastError, points, result, status, totalFrames } = storeToRefs(gameStore)
+const { currentFrame, lastError, result, status, totalFrames } = storeToRefs(gameStore)
 const answer = ref<MovieSuggestion | string | null>(null)
 const feedbackMessage = ref<string | null>(null)
 const isSearching = ref(false)
@@ -175,7 +175,7 @@ watch(() => route.params.id, loadCurrentGame, { immediate: true })
 			<div v-if="result" class="game-result">
 				<img :alt="`Постер фильма «${result.title}»`" :src="result.posterUrl" />
 				<div>
-					<p class="eyebrow">{{ status === 'won' ? `+${points} очков` : '0 очков' }}</p>
+					<p class="eyebrow">{{ status === 'won' ? 'Фильм угадан' : 'Фильм раскрыт' }}</p>
 					<h2>{{ result.title }}</h2>
 					<p>{{ result.originalTitle }} · {{ result.releaseYear }}</p>
 					<p class="game-result__message">

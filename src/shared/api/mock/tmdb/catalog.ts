@@ -1,4 +1,5 @@
-import type { MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
+import { getRandomRankForDifficulty } from '@shared/lib/game-difficulty'
+import type { GameDifficulty, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
 
 import type { CatalogMovie } from '../data/catalog'
 
@@ -106,10 +107,11 @@ export function getTmdbCollection(): MovieCollectionSummary {
 	return TMDB_COLLECTION
 }
 
-export async function getRandomTmdbMovie(): Promise<CatalogMovie> {
-	const rank = Math.floor(Math.random() * TOP_MOVIE_COUNT)
-	const page = Math.floor(rank / TOP_RATED_PAGE_SIZE) + 1
-	const pageOffset = rank % TOP_RATED_PAGE_SIZE
+export async function getRandomTmdbMovie(difficulty: GameDifficulty): Promise<CatalogMovie> {
+	const rank = getRandomRankForDifficulty(difficulty)
+	const zeroBasedRank = rank - 1
+	const page = Math.floor(zeroBasedRank / TOP_RATED_PAGE_SIZE) + 1
+	const pageOffset = zeroBasedRank % TOP_RATED_PAGE_SIZE
 	const movies = await getTopRatedMovies(page)
 	const remainingMovieCount = TOP_MOVIE_COUNT - (page - 1) * TOP_RATED_PAGE_SIZE
 	const candidates = orderCandidates(movies.slice(0, Math.min(remainingMovieCount, TOP_RATED_PAGE_SIZE)), pageOffset).slice(

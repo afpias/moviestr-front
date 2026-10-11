@@ -77,7 +77,7 @@ describe('tmdb catalog', () => {
 			})
 		)
 
-		const movie = await getRandomTmdbMovie()
+		const movie = await getRandomTmdbMovie('easy')
 
 		expect(movie.title).toBe('Интерстеллар')
 		expect(movie.aliases).toEqual(expect.arrayContaining(['Интерстеллар', 'Interstellar']))

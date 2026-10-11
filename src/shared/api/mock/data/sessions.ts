@@ -1,16 +1,18 @@
+import { isGameDifficulty } from '@shared/lib/game-difficulty'
 import { isRecord } from '@shared/lib/type-guards'
+import type { GameDifficulty } from '@shared/types/game'
 
 import type { CatalogMovie } from './catalog'
 
 interface MockGameSession {
 	currentFrameIndex: number
+	difficulty: GameDifficulty
 	gameId: string
 	movie: CatalogMovie
-	points: number
 	status: 'lost' | 'playing' | 'won'
 }
 
-const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v2'
+const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v3'
 const sessions = new Map<string, MockGameSession>()
 let gameCounter = 0
 let movieCounter = 0
@@ -22,9 +24,9 @@ function isMockSession(value: unknown): value is MockGameSession {
 
 	return (
 		typeof value.currentFrameIndex === 'number' &&
+		isGameDifficulty(value.difficulty) &&
 		typeof value.gameId === 'string' &&
 		isCatalogMovie(value.movie) &&
-		typeof value.points === 'number' &&
 		(value.status === 'lost' || value.status === 'playing' || value.status === 'won')
 	)
 }
@@ -81,7 +83,7 @@ function isCatalogMovie(value: unknown): value is CatalogMovie {
 	)
 }
 
-export function createMockSession(movies: CatalogMovie[]): MockGameSession {
+export function createMockSession(movies: CatalogMovie[], difficulty: GameDifficulty): MockGameSession {
 	const movie = movies[movieCounter % movies.length]
 
 	if (!movie) {
@@ -91,9 +93,9 @@ export function createMockSession(movies: CatalogMovie[]): MockGameSession {
 	const gameId = `game-${Date.now().toString(36)}-${gameCounter + 1}`
 	const session: MockGameSession = {
 		currentFrameIndex: 0,
+		difficulty,
 		gameId,
 		movie,
-		points: 0,
 		status: 'playing'
 	}
 

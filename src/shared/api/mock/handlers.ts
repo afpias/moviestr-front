@@ -1,6 +1,7 @@
 import { delay, http, HttpResponse } from 'msw'
 
-import { getPointsForFrame, normalizeMovieTitle } from '@shared/lib/game-rules'
+import { isGameDifficulty } from '@shared/lib/game-difficulty'
+import { normalizeMovieTitle } from '@shared/lib/game-rules'
 import { isRecord, isString } from '@shared/lib/type-guards'
 
 import { FIXTURE_COLLECTIONS, FIXTURE_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
@@ -41,8 +42,8 @@ export const handlers = [
 		await mockDelay()
 		const body: unknown = await request.json()
 
-		if (!isRecord(body) || !isString(body.collectionId)) {
-			return apiError(400, 'VALIDATION_ERROR', 'collectionId is required')
+		if (!isRecord(body) || !isString(body.collectionId) || !isGameDifficulty(body.difficulty)) {
+			return apiError(400, 'VALIDATION_ERROR', 'collectionId and difficulty are required')
 		}
 
 		let collections
@@ -58,11 +59,12 @@ export const handlers = [
 		}
 
 		try {
-			const movies = isFixtureMode() ? FIXTURE_MOVIES : [await getRandomTmdbMovie()]
-			const session = createMockSession(movies)
+			const movies = isFixtureMode() ? FIXTURE_MOVIES : [await getRandomTmdbMovie(body.difficulty)]
+			const session = createMockSession(movies, body.difficulty)
 
 			return HttpResponse.json({
 				currentFrame: session.movie.frames[0],
+				difficulty: session.difficulty,
 				gameId: session.gameId,
 				status: 'playing',
 				totalFrames: 6
@@ -83,6 +85,7 @@ export const handlers = [
 		if (session.status === 'playing') {
 			return HttpResponse.json({
 				currentFrame: session.movie.frames[session.currentFrameIndex],
+				difficulty: session.difficulty,
 				gameId,
 				status: 'playing',
 				totalFrames: 6
@@ -90,8 +93,8 @@ export const handlers = [
 		}
 
 		return HttpResponse.json({
+			difficulty: session.difficulty,
 			gameId,
-			points: session.points,
 			result: toMovieResult(session.movie),
 			status: session.status,
 			totalFrames: 6
@@ -148,12 +151,10 @@ export const handlers = [
 
 		if (isCorrect) {
 			session.status = 'won'
-			session.points = getPointsForFrame(session.currentFrameIndex)
 			saveMockSession()
 
 			return HttpResponse.json({
 				correct: true,
-				points: session.points,
 				result: toMovieResult(session.movie),
 				status: 'won'
 			})
@@ -165,7 +166,6 @@ export const handlers = [
 
 			return HttpResponse.json({
 				correct: false,
-				points: 0,
 				result: toMovieResult(session.movie),
 				status: 'lost'
 			})

@@ -12,18 +12,20 @@ describe('game API', () => {
 	})
 
 	it('создаёт игру без раскрытия правильного ответа', async () => {
-		const game = await startGame('top-250')
+		const game = await startGame('top-250', 'hard')
 
 		expect(game.status).toBe('playing')
+		expect(game.difficulty).toBe('hard')
 		expect(game).not.toHaveProperty('result')
 		expect(game).not.toHaveProperty('movieId')
 	})
 
-	it('проверяет нормализованный ответ и начисляет очки', async () => {
-		const game = await startGame('top-250')
+	it('проверяет нормализованный ответ без начисления очков', async () => {
+		const game = await startGame('top-250', 'easy')
 		const response = await submitGuess(game.gameId, '  ИНТЕРСТЕЛЛАР! ')
 
-		expect(response).toEqual(expect.objectContaining({ correct: true, points: 600, status: 'won' }))
+		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
+		expect(response).not.toHaveProperty('points')
 	})
 
 	it('ищет фильмы для автодополнения', async () => {

@@ -1,3 +1,4 @@
+import { isGameDifficulty } from '@shared/lib/game-difficulty'
 import { isNumber, isRecord, isString } from '@shared/lib/type-guards'
 import type {
 	FinishedGameResponse,
@@ -28,6 +29,7 @@ function isPlayingGame(value: unknown): value is PlayingGameResponse {
 	return (
 		isRecord(value) &&
 		isGameFrame(value.currentFrame) &&
+		isGameDifficulty(value.difficulty) &&
 		isString(value.gameId) &&
 		value.status === 'playing' &&
 		value.totalFrames === 6
@@ -37,8 +39,8 @@ function isPlayingGame(value: unknown): value is PlayingGameResponse {
 function isFinishedGame(value: unknown): value is FinishedGameResponse {
 	return (
 		isRecord(value) &&
+		isGameDifficulty(value.difficulty) &&
 		isString(value.gameId) &&
-		isNumber(value.points) &&
 		isGameResult(value.result) &&
 		(value.status === 'lost' || value.status === 'won') &&
 		value.totalFrames === 6
@@ -76,5 +78,5 @@ export function isSubmitGuessResponse(value: unknown): value is SubmitGuessRespo
 		return value.correct === false && isGameFrame(value.currentFrame)
 	}
 
-	return (value.status === 'lost' || value.status === 'won') && isNumber(value.points) && isGameResult(value.result)
+	return (value.status === 'lost' || value.status === 'won') && isGameResult(value.result)
 }

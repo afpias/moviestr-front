@@ -12,7 +12,7 @@ describe('game page', () => {
 		const pinia = createPinia()
 		setActivePinia(pinia)
 		const gameStore = useGameStore()
-		const gameId = await gameStore.startGame('top-250')
+		const gameId = await gameStore.startGame('top-250', 'easy')
 		const router = createRouter({
 			history: createMemoryHistory(),
 			routes: [

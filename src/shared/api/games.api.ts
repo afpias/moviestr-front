@@ -1,13 +1,13 @@
-import type { GameResponse, SubmitGuessResponse } from '@shared/types/game'
+import type { GameDifficulty, GameResponse, SubmitGuessResponse } from '@shared/types/game'
 
 import { requestJson } from './client'
 import { isGameResponse, isSubmitGuessResponse } from './contract-guards'
 
-export function startGame(collectionId: string): Promise<GameResponse> {
+export function startGame(collectionId: string, difficulty: GameDifficulty): Promise<GameResponse> {
 	return requestJson(
 		'/games',
 		{
-			body: JSON.stringify({ collectionId }),
+			body: JSON.stringify({ collectionId, difficulty }),
 			method: 'POST'
 		},
 		isGameResponse

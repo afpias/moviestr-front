@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { ApiError } from '@shared/api/api-error'
 import { getGame, startGame as requestStartGame, submitGuess as requestSubmitGuess } from '@shared/api/games.api'
 import { clearSavedGame, getSavedGameId, saveGameId } from '@shared/lib/game-persistence'
-import type { GameFrame, GameResponse, GameResult, GameStatus } from '@shared/types/game'
+import type { GameDifficulty, GameFrame, GameResponse, GameResult, GameStatus } from '@shared/types/game'
 
 const ERROR_MESSAGES: Record<string, string> = {
 	COLLECTION_NOT_FOUND: 'Подборка не найдена.',
@@ -27,23 +27,23 @@ function getErrorMessage(error: unknown): string {
 
 export const useGameStore = defineStore('game', () => {
 	const currentFrame = ref<GameFrame | null>(null)
+	const difficulty = ref<GameDifficulty>('easy')
 	const gameId = ref<string | null>(null)
 	const lastError = ref<string | null>(null)
 	const persistedGameId = ref<string | null>(getSavedGameId())
-	const points = ref<number | null>(null)
 	const result = ref<GameResult | null>(null)
 	const status = ref<GameStatus>('idle')
 	const totalFrames = ref<6>(6)
 
 	function applyGame(game: GameResponse): void {
 		gameId.value = game.gameId
+		difficulty.value = game.difficulty
 		totalFrames.value = game.totalFrames
 		status.value = game.status
 		lastError.value = null
 
 		if (game.status === 'playing') {
 			currentFrame.value = game.currentFrame
-			points.value = null
 			result.value = null
 			persistedGameId.value = game.gameId
 			saveGameId(game.gameId)
@@ -51,18 +51,17 @@ export const useGameStore = defineStore('game', () => {
 		}
 
 		currentFrame.value = null
-		points.value = game.points
 		result.value = game.result
 		persistedGameId.value = null
 		clearSavedGame()
 	}
 
-	async function startGame(collectionId: string): Promise<string | null> {
+	async function startGame(collectionId: string, selectedDifficulty: GameDifficulty): Promise<string | null> {
 		status.value = 'loading'
 		lastError.value = null
 
 		try {
-			const game = await requestStartGame(collectionId)
+			const game = await requestStartGame(collectionId, selectedDifficulty)
 			applyGame(game)
 			return game.gameId
 		} catch (error: unknown) {
@@ -103,7 +102,6 @@ export const useGameStore = defineStore('game', () => {
 			}
 
 			status.value = response.status
-			points.value = response.points
 			result.value = response.result
 			persistedGameId.value = null
 			clearSavedGame()
@@ -118,11 +116,11 @@ export const useGameStore = defineStore('game', () => {
 
 	return {
 		currentFrame,
+		difficulty,
 		gameId,
 		lastError,
 		loadGame,
 		persistedGameId,
-		points,
 		result,
 		startGame,
 		status,

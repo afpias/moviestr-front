@@ -11,7 +11,7 @@ describe('game store', () => {
 	it('открывает следующий кадр после неверного ответа', async () => {
 		const gameStore = useGameStore()
 
-		await gameStore.startGame('top-250')
+		await gameStore.startGame('top-250', 'medium')
 		const result = await gameStore.submitGuess('не тот фильм')
 
 		expect(result).toBe(false)
@@ -22,11 +22,11 @@ describe('game store', () => {
 	it('завершает игру и очищает сохранённый раунд после верного ответа', async () => {
 		const gameStore = useGameStore()
 
-		await gameStore.startGame('top-250')
+		await gameStore.startGame('top-250', 'expert')
 		await gameStore.submitGuess('Интерстеллар')
 
 		expect(gameStore.status).toBe('won')
-		expect(gameStore.points).toBe(600)
+		expect(gameStore.difficulty).toBe('expert')
 		expect(gameStore.result?.title).toBe('Интерстеллар')
 		expect(window.localStorage.getItem('moviestr:game:v1')).toBeNull()
 	})

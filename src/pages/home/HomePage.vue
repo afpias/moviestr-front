@@ -43,7 +43,7 @@ async function loadCollections(): Promise<void> {
 }
 
 async function startCollection(collectionId: string): Promise<void> {
-	const gameId = await gameStore.startGame(collectionId)
+	const gameId = await gameStore.startGame(collectionId, 'easy')
 
 	if (gameId) {
 		await router.push({ name: ROUTE_NAMES.game, params: { id: gameId } })

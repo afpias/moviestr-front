@@ -24,16 +24,19 @@ export interface MovieSuggestion {
 	title: string
 }
 
+export type GameDifficulty = 'easy' | 'expert' | 'hard' | 'impossible' | 'medium'
+
 export interface PlayingGameResponse {
 	currentFrame: GameFrame
+	difficulty: GameDifficulty
 	gameId: string
 	status: 'playing'
 	totalFrames: 6
 }
 
 export interface FinishedGameResponse {
+	difficulty: GameDifficulty
 	gameId: string
-	points: number
 	result: GameResult
 	status: 'lost' | 'won'
 	totalFrames: 6
@@ -49,7 +52,6 @@ export type SubmitGuessResponse =
 	  }
 	| {
 			correct: boolean
-			points: number
 			result: GameResult
 			status: 'lost' | 'won'
 	  }
