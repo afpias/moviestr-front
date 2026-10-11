@@ -2,17 +2,28 @@
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 
-import { AlertTriangle, CheckCircle2, Clapperboard, Image, RefreshCcw, SkipForward, Sparkles } from '@lucide/vue'
+import {
+	AlertTriangle,
+	CheckCircle2,
+	ChevronDown,
+	Grid2X2,
+	Image,
+	RefreshCcw,
+	RotateCcw,
+	SkipForward,
+	Sparkles
+} from '@lucide/vue'
 
 import { DifficultySelector } from '@features/select-difficulty'
 import { searchMovies } from '@shared/api/movies.api'
 import { getDifficultyOption, getNextDifficulty } from '@shared/lib/game-difficulty'
+import { GAME_GENRE_OPTIONS, isGameGenre } from '@shared/lib/game-genres'
 import { useGameStore } from '@shared/stores/game.store'
 import type { GameDifficulty, MovieSuggestion } from '@shared/types/game'
 import { Alert, Button, MovieCombobox, Skeleton } from '@shared/ui'
 
 const gameStore = useGameStore()
-const { currentFrame, difficulty, lastError, status, totalFrames } = storeToRefs(gameStore)
+const { currentFrame, difficulty, genre, lastError, status, totalFrames } = storeToRefs(gameStore)
 const answer = ref<MovieSuggestion | string | null>(null)
 const feedbackMessage = ref<string | null>(null)
 const isSearching = ref(false)
@@ -79,6 +90,30 @@ async function selectDifficulty(selectedDifficulty: GameDifficulty): Promise<voi
 	clearAnswer()
 	feedbackMessage.value = null
 	await gameStore.switchDifficulty(selectedDifficulty)
+}
+
+async function selectGenre(event: Event): Promise<void> {
+	if (!(event.target instanceof HTMLSelectElement) || !isGameGenre(event.target.value) || isBusy.value) {
+		return
+	}
+
+	clearAnswer()
+	feedbackMessage.value = null
+	await gameStore.switchGenre(event.target.value)
+}
+
+async function restartRound(): Promise<void> {
+	if (isBusy.value) {
+		return
+	}
+
+	clearAnswer()
+	feedbackMessage.value = null
+	await gameStore.restartRound()
+
+	if (!gameStore.lastError) {
+		feedbackMessage.value = 'Раунд перезапущен с режима Easy.'
+	}
 }
 
 async function submitAction(): Promise<void> {
@@ -148,18 +183,20 @@ onMounted(gameStore.initializeGame)
 
 		<div v-else-if="currentFrame" class="game-console">
 			<aside class="game-sidebar">
-				<section>
-					<p class="control-label">Подборка</p>
-					<div class="game-sidebar__collection">
-						<Clapperboard :size="17" />
-						<div>
-							<strong>Топ 250 TMDB</strong>
-							<small>Все жанры</small>
-						</div>
+				<section class="game-sidebar__section">
+					<p class="control-label">Жанр</p>
+					<div class="genre-select">
+						<Grid2X2 :size="16" aria-hidden="true" />
+						<select :disabled="isBusy" :value="genre" aria-label="Жанр фильма" @change="selectGenre">
+							<option v-for="option in GAME_GENRE_OPTIONS" :key="option.value" :value="option.value">
+								{{ option.label }}
+							</option>
+						</select>
+						<ChevronDown :size="15" aria-hidden="true" />
 					</div>
 				</section>
 
-				<section>
+				<section class="game-sidebar__section">
 					<p class="control-label">Сложность</p>
 					<DifficultySelector
 						:model-value="difficulty"
@@ -167,8 +204,11 @@ onMounted(gameStore.initializeGame)
 						variant="list"
 						@update:model-value="selectDifficulty"
 					/>
-					<p class="game-sidebar__hint">Можно сменить режим в любой момент.</p>
 				</section>
+
+				<Button class="game-sidebar__restart" type="button" variant="ghost" @click="restartRound">
+					<RotateCcw :size="16" /> Перезапустить раунд
+				</Button>
 			</aside>
 
 			<div class="game-stage">

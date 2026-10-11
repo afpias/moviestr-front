@@ -12,10 +12,11 @@ describe('game API', () => {
 	})
 
 	it('загружает фильм режима без раскрытия правильного ответа', async () => {
-		const game = await loadChallenge('top-250', 'hard')
+		const game = await loadChallenge('top-250', 'hard', 'thriller')
 
 		expect(game.status).toBe('playing')
 		expect(game.difficulty).toBe('hard')
+		expect(game.genre).toBe('thriller')
 		expect(game).not.toHaveProperty('result')
 		expect(game).not.toHaveProperty('movieId')
 	})

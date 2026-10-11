@@ -160,6 +160,19 @@ export async function getTopRatedMovies(page: number): Promise<TmdbMovie[]> {
 	return parseMovieList(await requestTmdb('/movie/top_rated', { language: 'ru-RU', page }))
 }
 
+export async function getPopularMoviesByGenre(page: number, genreId: number): Promise<TmdbMovie[]> {
+	return parseMovieList(
+		await requestTmdb('/discover/movie', {
+			include_adult: 'false',
+			include_video: 'false',
+			language: 'ru-RU',
+			page,
+			sort_by: 'popularity.desc',
+			with_genres: genreId
+		})
+	)
+}
+
 export async function getMovieDetails(movieId: number, language: 'en-US' | 'ru-RU'): Promise<TmdbMovie> {
 	const movie = parseMovie(await requestTmdb(`/movie/${movieId}`, { language }))
 

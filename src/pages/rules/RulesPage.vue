@@ -36,10 +36,7 @@ import { DIFFICULTY_OPTIONS } from '@shared/lib/game-difficulty'
 			</header>
 			<ul>
 				<li v-for="option in DIFFICULTY_OPTIONS" :key="option.value" :class="`is-${option.value}`">
-					<div>
-						<strong>{{ option.label }}</strong>
-						<span>{{ option.description }}</span>
-					</div>
+					<strong>{{ option.label }}</strong>
 					<small>{{ option.startRank }}–{{ option.endRank }}</small>
 				</li>
 			</ul>

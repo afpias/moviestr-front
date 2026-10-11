@@ -38,6 +38,28 @@ describe('game store', () => {
 		expect(gameStore.currentFrame?.index).toBe(0)
 	})
 
+	it('применяет жанр и сохраняет его вместе с текущим раундом', async () => {
+		const gameStore = useGameStore()
+
+		await gameStore.initializeGame()
+		await gameStore.switchGenre('thriller')
+
+		expect(gameStore.genre).toBe('thriller')
+		expect(window.localStorage.getItem('moviestr:game:v2')).toContain('"genre":"thriller"')
+	})
+
+	it('перезапускает раунд с easy и сохраняет выбранный жанр', async () => {
+		const gameStore = useGameStore()
+
+		await gameStore.switchGenre('horror')
+		await gameStore.switchDifficulty('hard')
+		await gameStore.restartRound()
+
+		expect(gameStore.difficulty).toBe('easy')
+		expect(gameStore.genre).toBe('horror')
+		expect(gameStore.currentFrame?.index).toBe(0)
+	})
+
 	it('повышает сложность после верного ответа', async () => {
 		const gameStore = useGameStore()
 
@@ -53,12 +75,28 @@ describe('game store', () => {
 	it('начинает цикл с easy после верного ответа в impossible', async () => {
 		const gameStore = useGameStore()
 
+		await gameStore.switchGenre('horror')
 		await gameStore.switchDifficulty('impossible')
-		await gameStore.submitGuess('Интерстеллар')
+		await gameStore.submitGuess('Матрица')
 
 		expect(gameStore.status).toBe('playing')
 		expect(gameStore.difficulty).toBe('easy')
+		expect(gameStore.genre).toBe('horror')
 		expect(gameStore.currentFrame?.index).toBe(0)
+	})
+
+	it('восстанавливает текущий кадр и жанр из сохранённого раунда', async () => {
+		const firstStore = useGameStore()
+		await firstStore.switchGenre('drama')
+		await firstStore.skipFrame()
+
+		setActivePinia(createPinia())
+		const restoredStore = useGameStore()
+		await restoredStore.initializeGame()
+
+		expect(restoredStore.status).toBe('playing')
+		expect(restoredStore.genre).toBe('drama')
+		expect(restoredStore.currentFrame?.index).toBe(1)
 	})
 
 	it('заменяет фильм после пропуска последнего кадра', async () => {

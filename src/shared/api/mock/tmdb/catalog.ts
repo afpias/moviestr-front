@@ -1,5 +1,6 @@
 import { getRandomRankForDifficulty } from '@shared/lib/game-difficulty'
-import type { GameDifficulty, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
+import { getGameGenreOption } from '@shared/lib/game-genres'
+import type { GameDifficulty, GameGenre, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
 
 import type { CatalogMovie } from '../data/catalog'
 
@@ -8,6 +9,7 @@ import {
 	getAlternativeTitles,
 	getMovieDetails,
 	getMovieImages,
+	getPopularMoviesByGenre,
 	getTopRatedMovies,
 	searchTmdbMovies,
 	type TmdbImage,
@@ -107,12 +109,13 @@ export function getTmdbCollection(): MovieCollectionSummary {
 	return TMDB_COLLECTION
 }
 
-export async function getRandomTmdbMovie(difficulty: GameDifficulty): Promise<CatalogMovie> {
+export async function getRandomTmdbMovie(difficulty: GameDifficulty, genre: GameGenre = 'all'): Promise<CatalogMovie> {
 	const rank = getRandomRankForDifficulty(difficulty)
 	const zeroBasedRank = rank - 1
 	const page = Math.floor(zeroBasedRank / TOP_RATED_PAGE_SIZE) + 1
 	const pageOffset = zeroBasedRank % TOP_RATED_PAGE_SIZE
-	const movies = await getTopRatedMovies(page)
+	const genreId = getGameGenreOption(genre).tmdbId
+	const movies = genreId === null ? await getTopRatedMovies(page) : await getPopularMoviesByGenre(page, genreId)
 	const remainingMovieCount = TOP_MOVIE_COUNT - (page - 1) * TOP_RATED_PAGE_SIZE
 	const candidates = orderCandidates(movies.slice(0, Math.min(remainingMovieCount, TOP_RATED_PAGE_SIZE)), pageOffset).slice(
 		0,
@@ -127,7 +130,7 @@ export async function getRandomTmdbMovie(difficulty: GameDifficulty): Promise<Ca
 		}
 	}
 
-	throw new Error('TMDB top-rated page does not contain a movie with six backdrops')
+	throw new Error('TMDB movie page does not contain a movie with six backdrops')
 }
 
 export async function searchTmdbCatalog(query: string): Promise<MovieSuggestion[]> {

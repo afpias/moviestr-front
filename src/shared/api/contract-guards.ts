@@ -1,4 +1,5 @@
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
+import { isGameGenre } from '@shared/lib/game-genres'
 import { isNumber, isRecord, isString } from '@shared/lib/type-guards'
 import type {
 	FinishedGameResponse,
@@ -32,6 +33,7 @@ function isPlayingGame(value: unknown): value is PlayingGameResponse {
 		isGameFrame(value.currentFrame) &&
 		isGameDifficulty(value.difficulty) &&
 		isString(value.gameId) &&
+		isGameGenre(value.genre) &&
 		value.status === 'playing' &&
 		value.totalFrames === 6
 	)
@@ -42,6 +44,7 @@ function isFinishedGame(value: unknown): value is FinishedGameResponse {
 		isRecord(value) &&
 		isGameDifficulty(value.difficulty) &&
 		isString(value.gameId) &&
+		isGameGenre(value.genre) &&
 		isGameResult(value.result) &&
 		(value.status === 'lost' || value.status === 'won') &&
 		value.totalFrames === 6

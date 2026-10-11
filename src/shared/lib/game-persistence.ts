@@ -1,25 +1,32 @@
+import type { GameGenre } from '@shared/types/game'
+
 import { readStorage, writeStorage } from './browser-storage'
+import { isGameGenre } from './game-genres'
 import { isNumber, isRecord, isString } from './type-guards'
 
-const GAME_STORAGE_KEY = 'moviestr:game:v1'
+const GAME_STORAGE_KEY = 'moviestr:game:v2'
+const LEGACY_GAME_STORAGE_KEY = 'moviestr:game:v1'
 
-interface SavedGame {
+export interface SavedGame {
 	gameId: string
-	version: 1
+	genre: GameGenre
+	version: 2
 }
 
 function isSavedGame(value: unknown): value is SavedGame {
-	return isRecord(value) && isString(value.gameId) && isNumber(value.version) && value.version === 1
+	return isRecord(value) && isString(value.gameId) && isGameGenre(value.genre) && isNumber(value.version) && value.version === 2
 }
 
-export function getSavedGameId(): string | null {
-	return readStorage(GAME_STORAGE_KEY, isSavedGame)?.gameId ?? null
+export function getSavedGame(): SavedGame | null {
+	return readStorage(GAME_STORAGE_KEY, isSavedGame)
 }
 
-export function saveGameId(gameId: string): void {
-	writeStorage<SavedGame>(GAME_STORAGE_KEY, { gameId, version: 1 })
+export function saveGame(gameId: string, genre: GameGenre): void {
+	writeStorage<SavedGame>(GAME_STORAGE_KEY, { gameId, genre, version: 2 })
+	window.localStorage.removeItem(LEGACY_GAME_STORAGE_KEY)
 }
 
 export function clearSavedGame(): void {
 	window.localStorage.removeItem(GAME_STORAGE_KEY)
+	window.localStorage.removeItem(LEGACY_GAME_STORAGE_KEY)
 }

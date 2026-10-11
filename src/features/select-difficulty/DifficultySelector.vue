@@ -45,7 +45,6 @@ function selectDifficulty(difficulty: GameDifficulty): void {
 			@click="selectDifficulty(option.value)"
 		>
 			<span>{{ option.label }}</span>
-			<small v-if="props.variant === 'list'">{{ option.description }}</small>
 		</button>
 	</div>
 </template>

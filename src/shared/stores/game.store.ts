@@ -9,8 +9,8 @@ import {
 	submitGuess as requestSubmitGuess
 } from '@shared/api/games.api'
 import { getNextDifficulty } from '@shared/lib/game-difficulty'
-import { clearSavedGame, getSavedGameId, saveGameId } from '@shared/lib/game-persistence'
-import type { GameDifficulty, GameFrame, GameResponse, GameStatus } from '@shared/types/game'
+import { clearSavedGame, getSavedGame, saveGame } from '@shared/lib/game-persistence'
+import type { GameDifficulty, GameFrame, GameGenre, GameResponse, GameStatus } from '@shared/types/game'
 
 const ERROR_MESSAGES: Record<string, string> = {
 	COLLECTION_NOT_FOUND: 'Подборка не найдена.',
@@ -35,6 +35,7 @@ export const useGameStore = defineStore('game', () => {
 	const currentFrame = ref<GameFrame | null>(null)
 	const difficulty = ref<GameDifficulty>('easy')
 	const gameId = ref<string | null>(null)
+	const genre = ref<GameGenre>('all')
 	const lastError = ref<string | null>(null)
 	const status = ref<GameStatus>('idle')
 	const totalFrames = ref<6>(6)
@@ -42,13 +43,14 @@ export const useGameStore = defineStore('game', () => {
 	function applyGame(game: GameResponse): void {
 		gameId.value = game.gameId
 		difficulty.value = game.difficulty
+		genre.value = game.genre
 		totalFrames.value = game.totalFrames
 		status.value = game.status
 		lastError.value = null
 
 		if (game.status === 'playing') {
 			currentFrame.value = game.currentFrame
-			saveGameId(game.gameId)
+			saveGame(game.gameId, game.genre)
 			return
 		}
 
@@ -56,12 +58,12 @@ export const useGameStore = defineStore('game', () => {
 		clearSavedGame()
 	}
 
-	async function loadChallenge(selectedDifficulty: GameDifficulty): Promise<void> {
+	async function loadChallenge(selectedDifficulty: GameDifficulty, selectedGenre = genre.value): Promise<void> {
 		status.value = 'loading'
 		lastError.value = null
 
 		try {
-			const game = await requestChallenge('top-250', selectedDifficulty)
+			const game = await requestChallenge('top-250', selectedDifficulty, selectedGenre)
 			applyGame(game)
 		} catch (error: unknown) {
 			status.value = 'error'
@@ -69,7 +71,7 @@ export const useGameStore = defineStore('game', () => {
 		}
 	}
 
-	async function loadSavedGame(id: string): Promise<void> {
+	async function loadSavedGame(id: string, savedGenre: GameGenre): Promise<void> {
 		status.value = 'loading'
 		lastError.value = null
 
@@ -85,7 +87,7 @@ export const useGameStore = defineStore('game', () => {
 		} catch (error: unknown) {
 			if (error instanceof ApiError && error.code === 'GAME_NOT_FOUND') {
 				clearSavedGame()
-				await loadChallenge('easy')
+				await loadChallenge('easy', savedGenre)
 				return
 			}
 
@@ -100,10 +102,10 @@ export const useGameStore = defineStore('game', () => {
 			return
 		}
 
-		const savedGameId = getSavedGameId()
+		const savedGame = getSavedGame()
 
-		if (savedGameId) {
-			await loadSavedGame(savedGameId)
+		if (savedGame) {
+			await loadSavedGame(savedGame.gameId, savedGame.genre)
 			return
 		}
 
@@ -116,6 +118,18 @@ export const useGameStore = defineStore('game', () => {
 		}
 
 		await loadChallenge(selectedDifficulty)
+	}
+
+	async function switchGenre(selectedGenre: GameGenre): Promise<void> {
+		if (selectedGenre === genre.value && status.value === 'playing') {
+			return
+		}
+
+		await loadChallenge(difficulty.value, selectedGenre)
+	}
+
+	async function restartRound(): Promise<void> {
+		await loadChallenge('easy')
 	}
 
 	async function skipFrame(): Promise<void> {
@@ -177,12 +191,15 @@ export const useGameStore = defineStore('game', () => {
 	return {
 		currentFrame,
 		difficulty,
+		genre,
 		initializeGame,
 		lastError,
+		restartRound,
 		skipFrame,
 		status,
 		submitGuess,
 		switchDifficulty,
+		switchGenre,
 		totalFrames
 	}
 })

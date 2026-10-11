@@ -85,4 +85,44 @@ describe('tmdb catalog', () => {
 		expect(movie.frames.every((frame) => frame.url.startsWith('https://image.tmdb.org/t/p/w1280/'))).toBe(true)
 		expect(movie.posterUrl).toBe('https://image.tmdb.org/t/p/w500/poster.jpg')
 	})
+
+	it('запрашивает популярные фильмы выбранного жанра через discover', async () => {
+		vi.spyOn(Math, 'random').mockReturnValue(0)
+		const requestedUrls: URL[] = []
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (input: URL) => {
+				const url = new URL(input)
+				requestedUrls.push(url)
+
+				if (url.pathname.endsWith('/discover/movie')) {
+					return jsonResponse({ results: [createMovieResponse('Интерстеллар')] })
+				}
+
+				if (url.pathname.endsWith('/images')) {
+					return jsonResponse({
+						backdrops: Array.from({ length: 6 }, (_, index) => ({
+							file_path: `/genre-frame-${index + 1}.jpg`,
+							height: 720,
+							vote_average: 8,
+							vote_count: 100,
+							width: 1280
+						}))
+					})
+				}
+
+				if (url.pathname.endsWith('/alternative_titles')) {
+					return jsonResponse({ titles: [] })
+				}
+
+				return jsonResponse(createMovieResponse('Интерстеллар'))
+			})
+		)
+
+		await getRandomTmdbMovie('easy', 'science-fiction')
+
+		const discoverUrl = requestedUrls.find((url) => url.pathname.endsWith('/discover/movie'))
+		expect(discoverUrl?.searchParams.get('with_genres')).toBe('878')
+		expect(discoverUrl?.searchParams.get('sort_by')).toBe('popularity.desc')
+	})
 })

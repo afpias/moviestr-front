@@ -1,13 +1,13 @@
-import type { GameDifficulty, GameResponse, SkipFrameResponse, SubmitGuessResponse } from '@shared/types/game'
+import type { GameDifficulty, GameGenre, GameResponse, SkipFrameResponse, SubmitGuessResponse } from '@shared/types/game'
 
 import { requestJson } from './client'
 import { isGameResponse, isSkipFrameResponse, isSubmitGuessResponse } from './contract-guards'
 
-export function loadChallenge(collectionId: string, difficulty: GameDifficulty): Promise<GameResponse> {
+export function loadChallenge(collectionId: string, difficulty: GameDifficulty, genre: GameGenre = 'all'): Promise<GameResponse> {
 	return requestJson(
 		'/games',
 		{
-			body: JSON.stringify({ collectionId, difficulty }),
+			body: JSON.stringify({ collectionId, difficulty, genre }),
 			method: 'POST'
 		},
 		isGameResponse

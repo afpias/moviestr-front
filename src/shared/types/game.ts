@@ -25,11 +25,13 @@ export interface MovieSuggestion {
 }
 
 export type GameDifficulty = 'easy' | 'expert' | 'hard' | 'impossible' | 'medium'
+export type GameGenre = 'action' | 'all' | 'animation' | 'comedy' | 'drama' | 'horror' | 'science-fiction' | 'thriller'
 
 export interface PlayingGameResponse {
 	currentFrame: GameFrame
 	difficulty: GameDifficulty
 	gameId: string
+	genre: GameGenre
 	status: 'playing'
 	totalFrames: 6
 }
@@ -37,6 +39,7 @@ export interface PlayingGameResponse {
 export interface FinishedGameResponse {
 	difficulty: GameDifficulty
 	gameId: string
+	genre: GameGenre
 	result: GameResult
 	status: 'lost' | 'won'
 	totalFrames: 6

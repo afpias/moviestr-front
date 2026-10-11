@@ -15,6 +15,7 @@
 
 .difficulty-selector--list {
 	flex-direction: column;
+	gap: 0.55rem;
 }
 
 .difficulty-selector__option {
@@ -72,18 +73,18 @@
 }
 
 .difficulty-selector--list .difficulty-selector__option {
-	min-height: 4.1rem;
-	display: grid;
-	align-content: center;
-	gap: 0.12rem;
+	min-height: 3.05rem;
+	padding: 0.55rem 0.9rem;
 	border-radius: 0.75rem;
+	background: var(--app-color-surface-raised);
+	color: var(--app-color-text-muted);
 }
 
-.difficulty-selector__option small {
-	color: inherit;
-	font-size: 0.68rem;
-	font-weight: 550;
-	opacity: 0.62;
+.difficulty-selector--list .difficulty-selector__option.is-active {
+	border-color: color-mix(in srgb, var(--difficulty-color) 18%, transparent);
+	background: color-mix(in srgb, var(--difficulty-color) 12%, var(--app-color-surface-raised));
+	color: var(--difficulty-color);
+	box-shadow: none;
 }
 
 @media (max-width: 720px) {

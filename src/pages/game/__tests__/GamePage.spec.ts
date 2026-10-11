@@ -79,4 +79,25 @@ describe('game page', () => {
 			expect(gameStore.difficulty).toBe('medium')
 		})
 	})
+
+	it('выбирает жанр и перезапускает раунд через левую панель', async () => {
+		const { gameStore, wrapper } = mountGamePage()
+
+		await vi.waitFor(() => {
+			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+		})
+
+		await wrapper.get('select[aria-label="Жанр фильма"]').setValue('horror')
+		await vi.waitFor(() => {
+			expect(gameStore.genre).toBe('horror')
+		})
+
+		await gameStore.switchDifficulty('hard')
+		await wrapper.get('.game-sidebar__restart').trigger('click')
+
+		await vi.waitFor(() => {
+			expect(gameStore.difficulty).toBe('easy')
+		})
+		expect(gameStore.genre).toBe('horror')
+	})
 })

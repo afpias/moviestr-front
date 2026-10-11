@@ -1,6 +1,7 @@
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
+import { isGameGenre } from '@shared/lib/game-genres'
 import { isRecord } from '@shared/lib/type-guards'
-import type { GameDifficulty } from '@shared/types/game'
+import type { GameDifficulty, GameGenre } from '@shared/types/game'
 
 import type { CatalogMovie } from './catalog'
 
@@ -8,11 +9,12 @@ interface MockGameSession {
 	currentFrameIndex: number
 	difficulty: GameDifficulty
 	gameId: string
+	genre: GameGenre
 	movie: CatalogMovie
 	status: 'lost' | 'playing' | 'won'
 }
 
-const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v3'
+const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v4'
 const sessions = new Map<string, MockGameSession>()
 let gameCounter = 0
 let movieCounter = 0
@@ -26,6 +28,7 @@ function isMockSession(value: unknown): value is MockGameSession {
 		typeof value.currentFrameIndex === 'number' &&
 		isGameDifficulty(value.difficulty) &&
 		typeof value.gameId === 'string' &&
+		isGameGenre(value.genre) &&
 		isCatalogMovie(value.movie) &&
 		(value.status === 'lost' || value.status === 'playing' || value.status === 'won')
 	)
@@ -83,7 +86,7 @@ function isCatalogMovie(value: unknown): value is CatalogMovie {
 	)
 }
 
-export function createMockSession(movies: CatalogMovie[], difficulty: GameDifficulty): MockGameSession {
+export function createMockSession(movies: CatalogMovie[], difficulty: GameDifficulty, genre: GameGenre): MockGameSession {
 	const movie = movies[movieCounter % movies.length]
 
 	if (!movie) {
@@ -95,6 +98,7 @@ export function createMockSession(movies: CatalogMovie[], difficulty: GameDiffic
 		currentFrameIndex: 0,
 		difficulty,
 		gameId,
+		genre,
 		movie,
 		status: 'playing'
 	}

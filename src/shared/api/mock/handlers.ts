@@ -1,6 +1,7 @@
 import { delay, http, HttpResponse } from 'msw'
 
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
+import { isGameGenre } from '@shared/lib/game-genres'
 import { normalizeMovieTitle } from '@shared/lib/game-rules'
 import { isRecord, isString } from '@shared/lib/type-guards'
 
@@ -42,8 +43,8 @@ export const handlers = [
 		await mockDelay()
 		const body: unknown = await request.json()
 
-		if (!isRecord(body) || !isString(body.collectionId) || !isGameDifficulty(body.difficulty)) {
-			return apiError(400, 'VALIDATION_ERROR', 'collectionId and difficulty are required')
+		if (!isRecord(body) || !isString(body.collectionId) || !isGameDifficulty(body.difficulty) || !isGameGenre(body.genre)) {
+			return apiError(400, 'VALIDATION_ERROR', 'collectionId, difficulty and genre are required')
 		}
 
 		let collections
@@ -59,13 +60,14 @@ export const handlers = [
 		}
 
 		try {
-			const movies = isFixtureMode() ? FIXTURE_MOVIES : [await getRandomTmdbMovie(body.difficulty)]
-			const session = createMockSession(movies, body.difficulty)
+			const movies = isFixtureMode() ? FIXTURE_MOVIES : [await getRandomTmdbMovie(body.difficulty, body.genre)]
+			const session = createMockSession(movies, body.difficulty, body.genre)
 
 			return HttpResponse.json({
 				currentFrame: session.movie.frames[0],
 				difficulty: session.difficulty,
 				gameId: session.gameId,
+				genre: session.genre,
 				status: 'playing',
 				totalFrames: 6
 			})
@@ -87,6 +89,7 @@ export const handlers = [
 				currentFrame: session.movie.frames[session.currentFrameIndex],
 				difficulty: session.difficulty,
 				gameId,
+				genre: session.genre,
 				status: 'playing',
 				totalFrames: 6
 			})
@@ -95,6 +98,7 @@ export const handlers = [
 		return HttpResponse.json({
 			difficulty: session.difficulty,
 			gameId,
+			genre: session.genre,
 			result: toMovieResult(session.movie),
 			status: session.status,
 			totalFrames: 6
