@@ -2,9 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 export const ROUTE_NAMES = {
 	home: 'home',
-	notFound: 'not-found',
-	rules: 'rules',
-	statistics: 'statistics'
+	notFound: 'not-found'
 } as const
 
 const router = createRouter({
@@ -15,18 +13,6 @@ const router = createRouter({
 			meta: { title: 'Угадай фильм по кадру' },
 			name: 'home',
 			path: '/'
-		},
-		{
-			component: () => import('@pages/rules/RulesPage.vue'),
-			meta: { title: 'Правила' },
-			name: 'rules',
-			path: '/rules'
-		},
-		{
-			component: () => import('@pages/statistics/StatisticsPage.vue'),
-			meta: { title: 'Статистика' },
-			name: 'statistics',
-			path: '/statistics'
 		},
 		{
 			component: () => import('@pages/not-found/NotFoundPage.vue'),

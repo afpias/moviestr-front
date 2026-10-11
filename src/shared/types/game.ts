@@ -19,6 +19,7 @@ export interface GameResult {
 }
 
 export interface MovieSuggestion {
+	englishTitle: string
 	id: string
 	releaseYear: number
 	title: string
@@ -33,7 +34,7 @@ export interface PlayingGameResponse {
 	gameId: string
 	genre: GameGenre
 	status: 'playing'
-	totalFrames: 6
+	totalFrames: 5
 }
 
 export interface FinishedGameResponse {
@@ -42,7 +43,7 @@ export interface FinishedGameResponse {
 	genre: GameGenre
 	result: GameResult
 	status: 'lost' | 'won'
-	totalFrames: 6
+	totalFrames: 5
 }
 
 export type GameResponse = FinishedGameResponse | PlayingGameResponse

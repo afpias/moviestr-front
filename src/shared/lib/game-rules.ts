@@ -1,3 +1,5 @@
+export const GAME_FRAME_COUNT = 5
+
 export function normalizeMovieTitle(title: string): string {
 	return title
 		.toLocaleLowerCase('ru-RU')

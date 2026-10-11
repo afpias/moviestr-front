@@ -1,15 +1,22 @@
 :root {
 	--background: 140 18% 95%;
 	--foreground: 150 22% 8%;
+	--card: 0 0% 100%;
+	--card-foreground: 150 22% 8%;
+	--popover: 0 0% 100%;
+	--popover-foreground: 150 22% 8%;
 	--primary: 153 84% 48%;
 	--primary-foreground: 150 50% 4%;
 	--secondary: 0 0% 100%;
 	--secondary-foreground: 231 19% 11%;
 	--muted: 36 12% 88%;
 	--muted-foreground: 235 6% 43%;
+	--accent: 140 12% 90%;
+	--accent-foreground: 150 22% 8%;
 	--destructive: 0 72% 51%;
 	--destructive-foreground: 0 0% 100%;
 	--border: 231 19% 11% / 12%;
+	--input: 231 19% 11% / 12%;
 	--ring: 153 84% 48%;
 	--radius: 0.85rem;
 	--app-color-accent: #14e17a;
@@ -18,6 +25,7 @@
 	--app-color-background: #edf4ef;
 	--app-color-border: rgb(7 31 18 / 12%);
 	--app-color-on-accent: #03120a;
+	--app-color-popover: #ffffff;
 	--app-color-surface: rgb(255 255 255 / 66%);
 	--app-color-surface-raised: #ffffff;
 	--app-color-stage: #e3ebe5;
@@ -31,19 +39,67 @@
 :root.app-dark {
 	--background: 150 36% 2%;
 	--foreground: 140 18% 94%;
+	--card: 150 24% 5%;
+	--card-foreground: 140 18% 94%;
+	--popover: 150 30% 5%;
+	--popover-foreground: 140 18% 94%;
 	--secondary: 150 20% 7%;
 	--secondary-foreground: 140 18% 94%;
 	--muted: 150 12% 11%;
 	--muted-foreground: 145 6% 58%;
+	--accent: 150 12% 11%;
+	--accent-foreground: 140 18% 94%;
 	--border: 0 0% 100% / 10%;
+	--input: 0 0% 100% / 12%;
 	--app-color-background: #020704;
 	--app-color-border: rgb(225 255 237 / 9%);
+	--app-color-popover: #07100b;
 	--app-color-surface: rgb(18 39 27 / 52%);
 	--app-color-surface-raised: #0a110d;
 	--app-color-stage: #000402;
 	--app-color-text: #eef7f1;
 	--app-color-text-muted: #849087;
 	--app-shadow-large: 0 32px 110px rgb(0 0 0 / 58%);
+}
+
+:root[data-game-difficulty='easy'] {
+	--primary: 153 84% 48%;
+	--ring: 153 84% 48%;
+	--app-color-accent: #14e17a;
+	--app-color-accent-hover: #12c96d;
+	--app-color-accent-shadow: rgb(20 225 122 / 22%);
+}
+
+:root[data-game-difficulty='medium'] {
+	--primary: 48 86% 56%;
+	--ring: 48 86% 56%;
+	--app-color-accent: #f0c62e;
+	--app-color-accent-hover: #d9af1f;
+	--app-color-accent-shadow: rgb(240 198 46 / 22%);
+}
+
+:root[data-game-difficulty='hard'] {
+	--primary: 22 100% 61%;
+	--ring: 22 100% 61%;
+	--app-color-accent: #ff8139;
+	--app-color-accent-hover: #e96f29;
+	--app-color-accent-shadow: rgb(255 129 57 / 22%);
+}
+
+:root[data-game-difficulty='expert'] {
+	--primary: 358 100% 68%;
+	--ring: 358 100% 68%;
+	--app-color-accent: #ff5a5f;
+	--app-color-accent-hover: #e7494e;
+	--app-color-accent-shadow: rgb(255 90 95 / 22%);
+}
+
+:root[data-game-difficulty='impossible'] {
+	--primary: 265 100% 71%;
+	--ring: 265 100% 71%;
+	--app-color-accent: #a66cff;
+	--app-color-accent-hover: #9058e8;
+	--app-color-accent-shadow: rgb(166 108 255 / 22%);
 }
 
 *,
@@ -107,5 +163,29 @@ a {
 		transition-duration: 0.01ms !important;
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
+	}
+}
+
+@media (min-width: 1120px) {
+	:root[data-game-difficulty],
+	:root[data-game-difficulty] body,
+	:root[data-game-difficulty] #app {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	:root[data-game-difficulty] .app-shell {
+		min-height: 0;
+		height: 100dvh;
+	}
+
+	:root[data-game-difficulty] .app-main {
+		min-height: 0;
+		overflow: hidden;
+		padding-block: 0.85rem;
+	}
+
+	:root[data-game-difficulty] .game-page {
+		max-height: 100%;
 	}
 }

@@ -1,4 +1,14 @@
 {
+	"compilerOptions": {
+		"paths": {
+			"@/*": ["./src/*"],
+			"@app/*": ["./src/app/*"],
+			"@assets/*": ["./src/shared/assets/*"],
+			"@features/*": ["./src/features/*"],
+			"@pages/*": ["./src/pages/*"],
+			"@shared/*": ["./src/shared/*"]
+		}
+	},
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

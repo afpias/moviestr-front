@@ -2,7 +2,7 @@ import { delay, http, HttpResponse } from 'msw'
 
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
 import { isGameGenre } from '@shared/lib/game-genres'
-import { normalizeMovieTitle } from '@shared/lib/game-rules'
+import { GAME_FRAME_COUNT, normalizeMovieTitle } from '@shared/lib/game-rules'
 import { isRecord, isString } from '@shared/lib/type-guards'
 
 import { FIXTURE_COLLECTIONS, FIXTURE_MOVIES, toMovieResult, toMovieSuggestion } from './data/catalog'
@@ -69,7 +69,7 @@ export const handlers = [
 				gameId: session.gameId,
 				genre: session.genre,
 				status: 'playing',
-				totalFrames: 6
+				totalFrames: GAME_FRAME_COUNT
 			})
 		} catch (error: unknown) {
 			return upstreamError(error)
@@ -91,7 +91,7 @@ export const handlers = [
 				gameId,
 				genre: session.genre,
 				status: 'playing',
-				totalFrames: 6
+				totalFrames: GAME_FRAME_COUNT
 			})
 		}
 
@@ -101,7 +101,7 @@ export const handlers = [
 			genre: session.genre,
 			result: toMovieResult(session.movie),
 			status: session.status,
-			totalFrames: 6
+			totalFrames: GAME_FRAME_COUNT
 		})
 	}),
 	http.get('/api/v1/movies/suggestions', async ({ request }) => {

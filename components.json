@@ -1,18 +1,25 @@
 {
 	"$schema": "https://shadcn-vue.com/schema.json",
 	"style": "new-york",
+	"font": "inter",
 	"typescript": true,
 	"tailwind": {
+		"config": "",
 		"css": "src/shared/assets/main.css",
 		"baseColor": "neutral",
-		"cssVariables": true
+		"cssVariables": true,
+		"prefix": ""
 	},
+	"iconLibrary": "lucide",
+	"rtl": false,
+	"pointer": false,
 	"aliases": {
 		"components": "@shared/ui",
 		"composables": "@shared/lib",
 		"ui": "@shared/ui",
 		"lib": "@shared/lib",
-		"utils": "@shared/lib/utils"
+		"utils": "@shared/lib/utils",
+		"hooks": "@shared/lib"
 	},
-	"iconLibrary": "lucide"
+	"registries": {}
 }

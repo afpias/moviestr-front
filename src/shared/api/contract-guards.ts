@@ -1,5 +1,6 @@
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
 import { isGameGenre } from '@shared/lib/game-genres'
+import { GAME_FRAME_COUNT } from '@shared/lib/game-rules'
 import { isNumber, isRecord, isString } from '@shared/lib/type-guards'
 import type {
 	FinishedGameResponse,
@@ -35,7 +36,7 @@ function isPlayingGame(value: unknown): value is PlayingGameResponse {
 		isString(value.gameId) &&
 		isGameGenre(value.genre) &&
 		value.status === 'playing' &&
-		value.totalFrames === 6
+		value.totalFrames === GAME_FRAME_COUNT
 	)
 }
 
@@ -47,7 +48,7 @@ function isFinishedGame(value: unknown): value is FinishedGameResponse {
 		isGameGenre(value.genre) &&
 		isGameResult(value.result) &&
 		(value.status === 'lost' || value.status === 'won') &&
-		value.totalFrames === 6
+		value.totalFrames === GAME_FRAME_COUNT
 	)
 }
 
@@ -66,7 +67,9 @@ export function isCollectionsResponse(value: unknown): value is { items: MovieCo
 }
 
 function isSuggestion(value: unknown): value is MovieSuggestion {
-	return isRecord(value) && isString(value.id) && isNumber(value.releaseYear) && isString(value.title)
+	return (
+		isRecord(value) && isString(value.englishTitle) && isString(value.id) && isNumber(value.releaseYear) && isString(value.title)
+	)
 }
 
 export function isSuggestionsResponse(value: unknown): value is { items: MovieSuggestion[] } {

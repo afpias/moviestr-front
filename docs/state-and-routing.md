@@ -50,7 +50,7 @@ interface ActiveGameState {
 	genre: GameGenre
 	lastError: string | null
 	status: GameStatus
-	totalFrames: 6
+	totalFrames: 5
 }
 
 type GameStatus = 'idle' | 'loading' | 'playing' | 'submitting' | 'error'
@@ -65,9 +65,9 @@ playing -> submitting -> loading -> playing
 loading|submitting -> error -> предыдущее восстанавливаемое состояние
 ```
 
-Двойная отправка во время `submitting` блокируется. Store автоматически выбирает следующий уровень после правильного
-ответа, возвращает `impossible` к `easy` и загружает новый фильм текущего режима после последнего кадра. Явный рестарт
-также возвращает сложность к `easy`, но не изменяет жанр.
+Двойная отправка во время `submitting` блокируется. После завершения store сохраняет результат и переходит в `won` или
+`lost`. Продолжение из `won` выбирает следующий уровень и возвращает `impossible` к `easy`; повтор из `lost` загружает
+новый фильм той же сложности. Явный рестарт возвращает сложность к `easy`, но не изменяет жанр.
 
 ### Theme store
 

@@ -1,5 +1,6 @@
 import { isGameDifficulty } from '@shared/lib/game-difficulty'
 import { isGameGenre } from '@shared/lib/game-genres'
+import { GAME_FRAME_COUNT } from '@shared/lib/game-rules'
 import { isRecord } from '@shared/lib/type-guards'
 import type { GameDifficulty, GameGenre } from '@shared/types/game'
 
@@ -14,7 +15,7 @@ interface MockGameSession {
 	status: 'lost' | 'playing' | 'won'
 }
 
-const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v4'
+const MOCK_SESSIONS_KEY = 'moviestr:mock-sessions:v5'
 const sessions = new Map<string, MockGameSession>()
 let gameCounter = 0
 let movieCounter = 0
@@ -73,7 +74,7 @@ function isCatalogMovie(value: unknown): value is CatalogMovie {
 		Array.isArray(value.aliases) &&
 		value.aliases.every((alias) => typeof alias === 'string') &&
 		Array.isArray(value.frames) &&
-		value.frames.length === 6 &&
+		value.frames.length === GAME_FRAME_COUNT &&
 		value.frames.every(
 			(frame) =>
 				isRecord(frame) && typeof frame.alt === 'string' && typeof frame.index === 'number' && typeof frame.url === 'string'
