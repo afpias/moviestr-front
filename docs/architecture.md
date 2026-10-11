@@ -48,9 +48,6 @@ src/
 │   ├── App.vue
 │   └── router.ts
 ├── pages/
-│   ├── home/
-│   │   ├── HomePage.vue
-│   │   └── HomePage.css
 │   ├── game/
 │   │   ├── GamePage.vue
 │   │   └── GamePage.css

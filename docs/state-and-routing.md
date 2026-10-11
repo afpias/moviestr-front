@@ -11,7 +11,7 @@
 
 В MVP в localStorage сохраняются только:
 
-- текущая незавершённая игра;
+- текущее состояние непрерывной игры;
 - выбранная светлая или тёмная тема.
 
 Результаты прошлых игр, победы, серии и глобальная статистика пока не сохраняются.
@@ -26,13 +26,13 @@
 export const useGameStore = defineStore('game', () => {
 	const status = ref<GameStatus>('idle')
 
-	function startGame(): void {
+	function initializeGame(): void {
 		status.value = 'loading'
 	}
 
 	return {
-		status,
-		startGame
+		initializeGame,
+		status
 	}
 })
 ```
@@ -47,13 +47,12 @@ Store обязан экспортировать только состояние 
 interface ActiveGameState {
 	currentFrameIndex: number
 	difficulty: Difficulty
-	gameId: string
 	lastError: string | null
 	status: GameStatus
 	totalFrames: 6
 }
 
-type GameStatus = 'idle' | 'loading' | 'playing' | 'submitting' | 'won' | 'lost' | 'error'
+type GameStatus = 'idle' | 'loading' | 'playing' | 'submitting' | 'error'
 ```
 
 Разрешённые основные переходы:
@@ -61,12 +60,12 @@ type GameStatus = 'idle' | 'loading' | 'playing' | 'submitting' | 'won' | 'lost'
 ```text
 idle -> loading -> playing
 playing -> submitting -> playing
-playing -> submitting -> won
-playing -> submitting -> lost
+playing -> submitting -> loading -> playing
 loading|submitting -> error -> предыдущее восстанавливаемое состояние
 ```
 
-Двойная отправка ответа во время `submitting` блокируется.
+Двойная отправка во время `submitting` блокируется. Store автоматически выбирает следующий уровень после правильного
+ответа, возвращает `impossible` к `easy` и загружает новый фильм текущего режима после последнего кадра.
 
 ### Theme store
 
@@ -110,7 +109,6 @@ Router располагается в `app/router.ts`. Папка `app/router/` �
 
 ```ts
 export const ROUTE_NAMES = {
-	game: 'game-round',
 	home: 'home',
 	notFound: 'not-found',
 	rules: 'rules',
@@ -128,13 +126,8 @@ Meta типизируется через расширение `RouteMeta`. Ми�
 
 Navigation guards отвечают только за навигационные правила. Они не загружают весь раунд и не заменяют feature-actions.
 
-## Восстановление игры
+## Игровой маршрут и восстановление
 
-При открытии `/game/:id`:
-
-1. Проверяется сохранённая игра с тем же `gameId`.
-2. Выполняется запрос состояния через API-клиент.
-3. Ответ API является источником истины для статуса и номера кадра.
-4. При отсутствии раунда показывается контролируемое состояние «Игра не найдена» с переходом на главную.
-
-Пока используется frontend mock, пункт 3 имитируется MSW. Контракт сохраняется для будущего backend.
+Игра находится непосредственно на `/`. Публичный маршрут вида `/game/:id` не используется. При открытии страницы store
+восстанавливает внутреннее состояние, если оно валидно, или автоматически загружает новый фильм сложности `easy`.
+Внутренний идентификатор mock-сессии не отображается пользователю и не является частью URL.

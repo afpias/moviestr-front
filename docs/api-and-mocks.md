@@ -27,7 +27,8 @@ src/shared/api/
 - `mock/server.ts` — `setupServer` для тестов.
 - `mock/data` — фильмы, коллекции и внутреннее состояние mock-сессий.
 - `mock/tmdb` — runtime-валидация и адаптация ответов TMDB к внутренней модели.
-- конкретные функции `startGame`, `submitGuess`, `searchMovies` находятся в API-сегменте соответствующей feature.
+- конкретные функции загрузки фильма, пропуска кадра, проверки ответа и поиска находятся в API-сегменте соответствующей
+  feature.
 
 ## Общий формат ошибки
 
@@ -88,7 +89,7 @@ interface GetCollectionsResponse {
 
 В development `movieCount` равен 250. В тестах значение отражает количество fixture-фильмов.
 
-### Начать игру
+### Загрузить фильм для режима
 
 ```http
 POST /api/v1/games
@@ -96,12 +97,12 @@ Content-Type: application/json
 ```
 
 ```ts
-interface StartGameRequest {
+interface LoadChallengeRequest {
 	collectionId: string
 	difficulty: 'easy' | 'medium' | 'hard' | 'expert' | 'impossible'
 }
 
-type Difficulty = StartGameRequest['difficulty']
+type Difficulty = LoadChallengeRequest['difficulty']
 
 interface GameFrame {
 	alt: string
@@ -109,7 +110,7 @@ interface GameFrame {
 	url: string
 }
 
-interface StartGameResponse {
+interface LoadChallengeResponse {
 	currentFrame: GameFrame
 	difficulty: Difficulty
 	gameId: string
@@ -118,9 +119,11 @@ interface StartGameResponse {
 }
 ```
 
-Ответ не содержит `movieId`, правильное название, aliases или URL будущих кадров.
+Запрос выполняется автоматически при первом открытии `/`, смене режима и замене фильма после последнего кадра. Внутренний
+`gameId` нужен только mock/backend для проверки ответа: он не отображается, не попадает в URL и не создаёт отдельную
+пользовательскую «игру». Ответ не содержит `movieId`, правильное название, aliases или URL будущих кадров.
 
-### Получить состояние игры
+### Получить сохранённое состояние
 
 ```http
 GET /api/v1/games/:gameId
@@ -185,6 +188,18 @@ interface GameResult {
 	title: string
 }
 ```
+
+UI вызывает проверку только для объекта фильма, выбранного из автодополнения. Произвольная строка и пустое поле не
+отправляются как ответ.
+
+### Пропустить кадр
+
+```http
+POST /api/v1/games/:gameId/skip
+```
+
+Пропуск не требует body. До шестого кадра возвращается следующий `GameFrame`. На шестом кадре возвращается завершённое
+состояние; UI сразу загружает новый фильм того же режима и не показывает экран поражения.
 
 ## Нормализация ответа
 
