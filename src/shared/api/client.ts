@@ -3,7 +3,7 @@ import { isRecord, isString } from '@shared/lib/type-guards'
 import { ApiError } from './api-error'
 
 const API_BASE_URL = '/api/v1'
-const REQUEST_TIMEOUT_MS = 8_000
+const REQUEST_TIMEOUT_MS = 15_000
 
 function isApiErrorBody(value: unknown): value is { code: string; message: string; requestId?: string } {
 	return isRecord(value) && isString(value.code) && isString(value.message)

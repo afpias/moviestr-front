@@ -5,14 +5,17 @@ const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
 export interface TmdbMovie {
 	id: number
 	originalTitle: string
+	popularity: number
 	posterPath: string | null
 	releaseDate: string
 	title: string
+	voteCount: number
 }
 
 export interface TmdbImage {
 	filePath: string
 	height: number
+	language: string | null
 	voteAverage: number
 	voteCount: number
 	width: number
@@ -48,9 +51,11 @@ function parseMovie(value: unknown): TmdbMovie | null {
 		!isRecord(value) ||
 		!isNumber(value.id) ||
 		!isString(value.original_title) ||
+		!isNumber(value.popularity) ||
 		!isNullableString(value.poster_path) ||
 		!isString(value.release_date) ||
-		!isString(value.title)
+		!isString(value.title) ||
+		!isNumber(value.vote_count)
 	) {
 		return null
 	}
@@ -58,9 +63,11 @@ function parseMovie(value: unknown): TmdbMovie | null {
 	return {
 		id: value.id,
 		originalTitle: value.original_title,
+		popularity: value.popularity,
 		posterPath: value.poster_path,
 		releaseDate: value.release_date,
-		title: value.title
+		title: value.title,
+		voteCount: value.vote_count
 	}
 }
 
@@ -94,6 +101,7 @@ function parseImages(value: unknown): TmdbImage[] {
 			isRecord(backdrop) &&
 			isString(backdrop.file_path) &&
 			isNumber(backdrop.height) &&
+			isNullableString(backdrop.iso_639_1) &&
 			isNumber(backdrop.vote_average) &&
 			isNumber(backdrop.vote_count) &&
 			isNumber(backdrop.width)
@@ -101,6 +109,7 @@ function parseImages(value: unknown): TmdbImage[] {
 			images.push({
 				filePath: backdrop.file_path,
 				height: backdrop.height,
+				language: backdrop.iso_639_1,
 				voteAverage: backdrop.vote_average,
 				voteCount: backdrop.vote_count,
 				width: backdrop.width
@@ -156,21 +165,20 @@ export function assertTmdbConfigured(): void {
 	getReadToken()
 }
 
-export async function getTopRatedMovies(page: number): Promise<TmdbMovie[]> {
-	return parseMovieList(await requestTmdb('/movie/top_rated', { language: 'ru-RU', page }))
-}
+export async function getPopularMovies(page: number, genreId: number | null): Promise<TmdbMovie[]> {
+	const searchParams: Record<string, number | string> = {
+		include_adult: 'false',
+		include_video: 'false',
+		language: 'ru-RU',
+		page,
+		sort_by: 'popularity.desc'
+	}
 
-export async function getPopularMoviesByGenre(page: number, genreId: number): Promise<TmdbMovie[]> {
-	return parseMovieList(
-		await requestTmdb('/discover/movie', {
-			include_adult: 'false',
-			include_video: 'false',
-			language: 'ru-RU',
-			page,
-			sort_by: 'popularity.desc',
-			with_genres: genreId
-		})
-	)
+	if (genreId !== null) {
+		searchParams.with_genres = genreId
+	}
+
+	return parseMovieList(await requestTmdb('/discover/movie', searchParams))
 }
 
 export async function getMovieDetails(movieId: number, language: 'en-US' | 'ru-RU'): Promise<TmdbMovie> {

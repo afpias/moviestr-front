@@ -1,3 +1,4 @@
+import { GAME_FRAME_COUNT } from '@shared/lib/game-rules'
 import type { GameFrame, GameResult, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
 
 export interface CatalogMovie {
@@ -42,7 +43,7 @@ function createMovie(
 ): CatalogMovie {
 	return {
 		aliases,
-		frames: scenes.map((scene, index) => ({
+		frames: scenes.slice(0, GAME_FRAME_COUNT).map((scene, index) => ({
 			alt: `Атмосферный кадр ${index + 1}: ${scene.toLocaleLowerCase('ru-RU')}`,
 			index,
 			url: createImage(scene, palette, index)
@@ -108,10 +109,10 @@ export const FIXTURE_MOVIES: CatalogMovie[] = [
 
 export const FIXTURE_COLLECTIONS: MovieCollectionSummary[] = [
 	{
-		description: 'Знаковые фильмы разных жанров и эпох',
+		description: 'Фильмы, ранжированные по известности',
 		id: 'top-250',
 		movieCount: FIXTURE_MOVIES.length,
-		title: 'Топ 250'
+		title: 'Известные фильмы'
 	}
 ]
 
@@ -126,6 +127,7 @@ export function toMovieResult(movie: CatalogMovie): GameResult {
 
 export function toMovieSuggestion(movie: CatalogMovie): MovieSuggestion {
 	return {
+		englishTitle: movie.originalTitle,
 		id: movie.id,
 		releaseYear: movie.releaseYear,
 		title: movie.title

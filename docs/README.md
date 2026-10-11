@@ -7,9 +7,10 @@ Moviestr — непрерывная Vue-игра, которая сразу пр
 ## Стек
 
 - Vue 3, TypeScript, Pinia и Vue Router.
-- shadcn-vue, Reka UI и Tailwind CSS 4 для локальных UI-компонентов.
+- компоненты из официального реестра shadcn-vue, Tailwind CSS 4 и штатные примитивы Reka UI.
 - MSW для mock API.
 - TMDB как источник каталога и изображений в development-режиме.
+- Tesseract.js как браузерный OCR-фильтр кадров с названием фильма.
 - Vitest и Vue Test Utils.
 - ESLint и Prettier из пакетов Afpia.
 
