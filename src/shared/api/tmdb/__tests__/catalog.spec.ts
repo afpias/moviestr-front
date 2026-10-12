@@ -121,7 +121,7 @@ describe('tmdb catalog', () => {
 		expect(movie.title).toBe('Интерстеллар')
 		expect(movie.aliases).toEqual(expect.arrayContaining(['Интерстеллар', 'Interstellar']))
 		expect(movie.frames).toHaveLength(5)
-		expect(movie.frames.every((frame) => frame.url.startsWith('https://image.tmdb.org/t/p/w780/'))).toBe(true)
+		expect(movie.frames.every((frame) => frame.url.startsWith('https://image.tmdb.org/t/p/w1280/'))).toBe(true)
 		expect(movie.posterUrl).toBe('https://image.tmdb.org/t/p/w500/poster.jpg')
 	})
 

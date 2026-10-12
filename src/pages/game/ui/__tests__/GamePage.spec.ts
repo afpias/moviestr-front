@@ -91,7 +91,7 @@ describe('game page', () => {
 
 		await image.trigger('load')
 
-		expect(image.attributes('alt')).toContain('кадр 1')
+		expect(image.attributes('alt')?.toLocaleLowerCase('ru-RU')).toContain('кадр 1')
 		expect(image.classes()).toContain('is-loaded')
 	})
 

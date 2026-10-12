@@ -1,7 +1,6 @@
-import { afterAll, afterEach, beforeAll } from 'vitest'
+import { afterEach, vi } from 'vitest'
 
-import { resetMockState } from '@shared/api/mock/data/sessions'
-import { server } from '@shared/api/mock/server'
+import { fetchTmdbFixture } from './tmdb-fixture'
 
 Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
 	configurable: true,
@@ -20,17 +19,10 @@ Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', {
 	value: () => undefined
 })
 
-beforeAll(() => {
-	server.listen({ onUnhandledFrame: 'error' })
-})
+vi.stubEnv('VITE_TMDB_READ_TOKEN', 'test-token')
+vi.stubGlobal('fetch', vi.fn(fetchTmdbFixture))
 
 afterEach(() => {
-	server.resetHandlers()
-	resetMockState()
 	window.localStorage.clear()
 	window.sessionStorage.clear()
-})
-
-afterAll(() => {
-	server.close()
 })

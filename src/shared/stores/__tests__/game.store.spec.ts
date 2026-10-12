@@ -83,7 +83,7 @@ describe('game store', () => {
 
 		await gameStore.switchGenre('horror')
 		await gameStore.switchDifficulty('impossible')
-		await gameStore.submitGuess('Матрица')
+		await gameStore.submitGuess('Интерстеллар')
 
 		expect(gameStore.status).toBe('won')
 		expect(gameStore.difficulty).toBe('impossible')

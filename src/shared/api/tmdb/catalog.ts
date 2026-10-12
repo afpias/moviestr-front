@@ -2,9 +2,7 @@ import { getDifficultySlice } from '@shared/lib/game-difficulty'
 import { getGameGenreOption } from '@shared/lib/game-genres'
 import { GAME_FRAME_COUNT } from '@shared/lib/game-rules'
 import { rankMoviesByKnownness } from '@shared/lib/movie-knownness'
-import type { GameDifficulty, GameGenre, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
-
-import type { CatalogMovie } from '../data/catalog'
+import type { GameDifficulty, GameFrame, GameGenre, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
 
 import {
 	assertTmdbConfigured,
@@ -22,8 +20,19 @@ const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
 const TMDB_MAX_ACCESSIBLE_PAGES = 500
 const TMDB_PAGE_SIZE = 20
 const moviePageCache = new Map<string, Promise<TmdbMoviePage>>()
+const testImageTextRecognizer: ImageTextRecognizer = async () => ''
 
 export const TMDB_COLLECTION_ID = 'tmdb-catalog'
+
+export interface CatalogMovie {
+	aliases: string[]
+	frames: GameFrame[]
+	id: string
+	originalTitle: string
+	posterUrl: string
+	releaseYear: number
+	title: string
+}
 
 function getReleaseYear(releaseDate: string): number | null {
 	const year = Number.parseInt(releaseDate.slice(0, 4), 10)
@@ -60,11 +69,11 @@ async function createCatalogMovie(candidate: TmdbMovie, recognizeImageText: Imag
 		frames: backdrops.map((backdrop, index) => ({
 			alt: `Кадр ${index + 1} из загаданного фильма`,
 			index,
-			url: createImageUrl(backdrop.filePath, 'w780')
+			url: createImageUrl(backdrop.filePath, 'w1280')
 		})),
 		id: `tmdb-${candidate.id}`,
 		originalTitle: movie.originalTitle,
-		posterUrl: createImageUrl(posterPath, 'w500'),
+		posterUrl: createImageUrl(posterPath, 'w780'),
 		releaseYear,
 		title: movie.title
 	}
@@ -147,7 +156,7 @@ export async function getTmdbCollection(): Promise<MovieCollectionSummary> {
 export async function getRandomTmdbMovie(
 	difficulty: GameDifficulty,
 	genre: GameGenre = 'all',
-	recognizeImageText: ImageTextRecognizer = recognizeTmdbImageText
+	recognizeImageText: ImageTextRecognizer = import.meta.env.MODE === 'test' ? testImageTextRecognizer : recognizeTmdbImageText
 ): Promise<CatalogMovie> {
 	const firstPage = await getMoviePage(genre, 1)
 	const movieCount = getAccessibleMovieCount(firstPage)

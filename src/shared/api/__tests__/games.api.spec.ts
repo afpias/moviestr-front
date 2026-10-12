@@ -4,10 +4,10 @@ import { getCollections } from '@shared/api/collections.api'
 import { loadChallenge, skipFrame, submitGuess } from '@shared/api/games.api'
 
 describe('game API', () => {
-	it('возвращает фактический размер mock-подборки', async () => {
+	it('возвращает фактический размер каталога TMDB', async () => {
 		const collections = await getCollections()
 
-		expect(collections).toEqual([expect.objectContaining({ id: 'tmdb-catalog', movieCount: 3, title: 'Каталог TMDB' })])
+		expect(collections).toEqual([expect.objectContaining({ id: 'tmdb-catalog', movieCount: 10_000, title: 'Каталог TMDB' })])
 	})
 
 	it('загружает фильм режима без раскрытия правильного ответа', async () => {

@@ -59,7 +59,7 @@ export async function selectSafeBackdrops(
 	recognizeImageText: ImageTextRecognizer
 ): Promise<TmdbImage[]> {
 	const candidates = images
-		.filter((image) => image.width >= 780 && image.width > image.height && image.language === null)
+		.filter((image) => image.width >= 1280 && image.width > image.height && image.language === null)
 		.sort((first, second) => second.voteCount - first.voteCount || second.width - first.width)
 		.slice(0, BACKDROP_CANDIDATE_LIMIT)
 		.sort((first, second) => getRecognitionScore(first) - getRecognitionScore(second))

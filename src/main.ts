@@ -2,16 +2,13 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
 import router from '@app/router'
-import { enableBrowserMocks } from '@shared/api/mock/enable-browser-mocks'
 import { useThemeStore } from '@shared/stores/theme.store'
 
 import App from './App.vue'
 
 import '@assets/main.css'
 
-async function bootstrap(): Promise<void> {
-	await enableBrowserMocks()
-
+function bootstrap(): void {
 	const app = createApp(App)
 	const pinia = createPinia()
 
@@ -22,4 +19,4 @@ async function bootstrap(): Promise<void> {
 	app.mount('#app')
 }
 
-void bootstrap()
+bootstrap()

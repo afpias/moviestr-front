@@ -1,6 +1,6 @@
 import { isNumber, isRecord, isString } from '@shared/lib/type-guards'
 
-import { ApiError } from '../../api-error'
+import { ApiError } from '../api-error'
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
 const TMDB_REQUEST_TIMEOUT_MS = 10_000

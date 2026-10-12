@@ -1,10 +1,7 @@
 import type { MovieCollectionSummary } from '@shared/types/game'
 
-import { requestJson } from './client'
-import { isCollectionsResponse } from './contract-guards'
+import { getTmdbCollection } from './tmdb'
 
 export async function getCollections(): Promise<MovieCollectionSummary[]> {
-	const response = await requestJson('/collections', { method: 'GET' }, isCollectionsResponse)
-
-	return response.items
+	return [await getTmdbCollection()]
 }
