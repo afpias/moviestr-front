@@ -71,7 +71,7 @@ new movie -> empty without attempted IDs
 ## Доступность
 
 - Поле имеет доступное имя и управляется клавиатурой.
-- Список использует семантику combobox/listbox из shadcn-vue и Reka UI.
+- Список использует семантику combobox/listbox из shadcn-vue.
 - Disabled-вариант обозначается не только цветом, но и текстовой подписью.
 
 ## Трассировка
