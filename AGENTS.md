@@ -1,31 +1,181 @@
-# Moviestr project instructions
+# Правила работы с проектом Moviestr
 
-Before changing application code, read `docs/README.md` and the linked specification for the area being changed.
+Этот файл действует на весь репозиторий. Вложенный `AGENTS.md` может уточнять правила только для своей директории и не
+должен ослаблять требования корневого файла без прямого решения владельца проекта.
 
-## Required conventions
+## Обзор проекта
 
-- Use Vue 3, TypeScript, Composition API, and `<script setup lang="ts">`.
-- Keep TypeScript strict. Do not introduce `any`; validate unknown external data before use.
-- Follow the FSD dependency direction: `app -> pages -> widgets -> features -> entities -> shared`.
-- Use Setup Stores for Pinia. Keep local UI state in the component or its composable.
-- Keep Pinia stores in `shared/stores`, the router in `app`, and static application assets in `shared/assets`.
-- Keep component CSS in a neighboring file with the same PascalCase basename and connect it with `<style scoped src="./ComponentName.css"></style>`.
-- Put shared HTTP infrastructure in `shared/api` and feature-specific API calls inside the feature slice.
-- Use named exports except where a framework requires a default export.
-- Use the configured aliases for cross-slice imports and relative imports inside one module.
-- Follow `@afpia/eslint` and `@afpia/prettier`; do not add competing formatters or linters.
-- Add or update Vitest tests for business logic and Vue Test Utils tests for component behavior.
-- Run `yarn validate` and `yarn build` before considering implementation work complete.
+Moviestr — браузерная игра на Vue, в которой пользователь угадывает фильм по пяти последовательно открывающимся кадрам.
+Текущая реализованная версия содержит одиночный режим, получает каталог и изображения из TMDB и хранит активный раунд
+локально в браузере. Мультиплеер, авторизация и production backend пока не реализованы.
 
-Product behavior, API contracts, naming rules, and acceptance criteria are documented in `docs/` and are normative.
+Наблюдаемое поведение разрабатывается по SDD. `docs/README.md` — входная точка в документацию, а `docs/specs/` — основной
+источник функциональных требований и критериев приёмки.
+
+## Приоритет источников
+
+При противоречии использовать следующий порядок:
+
+1. Последнее явное решение владельца проекта.
+2. Утверждённая функциональная спецификация `docs/specs/SPEC-*.md`.
+3. Инженерные стандарты из `docs/` и этот файл.
+4. Архитектурные решения из `docs/decisions.md`.
+5. Существующий код и тесты.
+
+Перед изменением приложения обязательно прочитать `docs/README.md`, связанную функциональную спецификацию и инженерный
+стандарт затрагиваемой области. Если документация и код расходятся, нельзя молча выбрать удобный вариант — нужно
+обозначить расхождение и привести источник требований в актуальное состояние.
+
+## Технологический стек
+
+- Vue 3, Composition API и `<script setup lang="ts">`.
+- TypeScript в строгом режиме.
+- Vite, Pinia Setup Stores и Vue Router.
+- shadcn-vue с локальными компонентами на штатных примитивах Reka UI.
+- Tailwind CSS только внутри `shared/ui`; обычный scoped CSS в остальном приложении.
+- TMDB API и Tesseract.js для каталога и ограниченной OCR-проверки.
+- Vitest, Vue Test Utils и jsdom.
+- Yarn 1, `@afpia/eslint`, `@afpia/prettier` и `@afpia/commitlint`.
+
+## Архитектура
+
+Соблюдать направление зависимостей FSD:
+
+```text
+app -> pages -> widgets -> features -> entities -> shared
+```
+
+- `app` — инициализация приложения, providers и Vue Router.
+- `pages` — композиция маршрута и координация крупных сценариев.
+- `widgets` — самостоятельные крупные области страницы.
+- `features` — пользовательские действия и сценарии.
+- `entities` — предметные модели и их пассивное отображение.
+- `shared` — переиспользуемая инфраструктура, типы, библиотеки, stores, assets и UI primitives.
+
+Обязательное размещение:
+
+- Pinia stores — `src/shared/stores`;
+- Vue Router — `src/app/router.ts`, пока его не требуется декомпозировать;
+- глобальные стили и статические ресурсы — `src/shared/assets`;
+- общая HTTP/TMDB-инфраструктура — `src/shared/api`;
+- feature-specific API — сегмент `api` соответствующей feature;
+- локальная логика slice — сегменты `model`, `api`, `lib`, `ui` по назначению.
+
+Между slices использовать их публичный `index.ts`. Внутри одного модуля использовать относительные импорты. Не создавать
+пустые FSD-слои, бессодержательные папки и barrel-файлы без публичной границы.
+
+## SDD workflow
+
+Перед добавлением или изменением пользовательского поведения:
+
+1. Найти связанную `SPEC-*` и requirement ID.
+2. Если требования нет, создать спецификацию по `docs/specs/_template.md` со статусом `черновик`.
+3. Зафиксировать границы, состояния, ошибки, сценарии Given/When/Then и критерии приёмки.
+4. После согласования реализовать минимальный объём без неподтверждённых будущих возможностей.
+5. Добавить или изменить тесты и таблицу трассировки `требование -> код -> тест`.
+6. Выполнить проверки и только после этого поставить статус `реализовано`.
+
+Исправление дефекта не требует новой спеки, если ожидаемое поведение уже однозначно задано. Для исследования без
+изменения поведения спецификация также не создаётся.
+
+## Правила написания кода
+
+- Не использовать `any`; неизвестные внешние данные принимать как `unknown` и проверять на границе.
+- Не скрывать ошибку модели через необоснованный `as` или non-null assertion.
+- Использовать строковые unions и `as const` вместо TypeScript `enum`.
+- Публичные функции, props, emits и API-контракты типизировать явно.
+- Использовать именованные экспорты, кроме случаев, где framework требует default export.
+- Для импортов между слоями использовать настроенные алиасы; типы импортировать через `import type`.
+- Компонент не содержит raw `fetch`, сериализацию storage или тяжёлую бизнес-логику.
+- Setup Store экспортирует только состояние и действия, нужные потребителям.
+- Локальное UI-состояние оставлять в компоненте или его composable.
+- Функции делать небольшими, использовать guard clauses и явные состояния ошибок.
+- Не использовать `console.log` в рабочем коде.
+- Код и идентификаторы писать на английском, документацию и UI — на русском.
+
+## Vue и CSS
+
+Порядок SFC фиксирован:
+
+```vue
+<script setup lang="ts"></script>
+
+<template></template>
+
+<style scoped src="./ComponentName.css"></style>
+```
+
+- CSS компонента хранить рядом в файле с тем же PascalCase basename.
+- Inline `<style>` с правилами не использовать.
+- Vue-компоненты именовать в PascalCase, TypeScript-файлы — в kebab-case по роли.
+- Существующие controls брать из shadcn-vue; не писать параллельный аналог Select, Combobox, Button и других доступных
+  компонентов.
+- Tailwind utility-классы не использовать за пределами `shared/ui`.
+- Повторяемые значения брать из design tokens, а не добавлять случайные hex-цвета.
+- Интерфейс проектировать mobile-first от ширины 360 px и сохранять клавиатурную доступность.
+
+## Тестирование
+
+- Бизнес-логику покрывать unit-тестами Vitest.
+- Поведение Vue-компонентов проверять через Vue Test Utils.
+- Тест располагать рядом с модулем в `__tests__` и называть `*.spec.ts`.
+- Проверять публичное и наблюдаемое поведение, а не внутренние `ref` и классы стороннего UI primitive.
+- Внешние ответы TMDB валидировать и тестировать как неизвестные данные.
+- Для значимого требования обновлять тест и таблицу трассировки соответствующей спецификации.
+- Большие snapshot-тесты страниц не использовать.
+- Формальный процент покрытия не установлен, но критические переходы и ошибки обязаны иметь проверку.
+
+## Основные команды
+
+```sh
+yarn dev              # локальная разработка
+yarn test:unit        # полный запуск Vitest
+yarn test:unit:watch  # Vitest в watch-режиме
+yarn type-check       # строгая проверка TypeScript/Vue
+yarn lint             # ESLint
+yarn format:check     # проверка Prettier
+yarn validate         # type-check + lint + tests + format check
+yarn build            # production-сборка
+yarn commit           # интерактивный commitizen
+```
+
+Для изменения только документации выполнить минимум `yarn format:check` и `yarn lint`. Для кода или tooling выполнить
+`yarn validate`; перед завершением значимой реализации дополнительно выполнить `yarn build`.
+
+## Ограничения и запреты
+
+- Не начинать реализацию нового поведения без актуальной спецификации или явно зафиксированного решения владельца.
+- Не добавлять backend, realtime-сервис, авторизацию или стороннюю платформу как скрытое расширение задачи.
+- Не считать frontend-only имитацию настоящим мультиплеером.
+- Не помещать секреты и TMDB token в отслеживаемые Git-файлы.
+- Не добавлять второй линтер, форматтер или конкурирующий сортировщик импортов; `oxlint` и `oxfmt` запрещены.
+- Не редактировать generated или lock-файлы вручную, если изменение должен выполнить официальный инструмент.
+- Не изменять и не коммитить посторонние пользовательские файлы из грязного worktree.
+- Не выполнять разрушительные Git-команды, не переписывать историю и не использовать `--no-verify` без прямого запроса.
+- Не удалять существующее поведение или зависимость только ради упрощения текущей задачи без проверки использования.
+- Не объявлять задачу завершённой при падающих обязательных проверках; внешнюю блокировку проверки явно описать.
+
+## Рабочий процесс агента
+
+1. Проверить `git status` и сохранить все несвязанные изменения пользователя.
+2. Прочитать требования, связанные стандарты и затронутый код.
+3. Составить короткий план для многошаговой задачи и обозначить существенные допущения.
+4. Обновить спецификацию до кода, если меняется контракт или пользовательское поведение.
+5. Реализовать минимальное связное изменение в правильном FSD-слое.
+6. Добавить тесты и выполнить проверки, пропорциональные риску.
+7. Просмотреть diff и исключить посторонние файлы.
+8. Создать отдельный атомарный коммит для каждого законченного смыслового изменения.
+9. В результате сообщить, что изменено, какие проверки выполнены и какие ограничения остались.
+
+Не останавливать работу после одного локального исправления, если безопасный следующий шаг в рамках запроса очевиден.
+Если для продолжения требуется выбор технологии, новая внешняя система или расширение области работ, остановиться и
+запросить решение владельца.
 
 ## Git workflow
 
-- After every complete, meaningful unit of work, stage only the related files and create a commit.
-- Do not combine unrelated features, fixes, documentation, and tooling changes in one commit.
-- Do not commit investigation-only changes or a knowingly broken intermediate state.
-- Commit messages must pass `@afpia/commitlint` and follow `docs/git-workflow.md`.
-- Keep `type` and `scope` technical, but write the commit subject in Russian as a genitive noun phrase.
-- Use `yarn commit` for an interactive valid message, or write the valid message directly.
-- Run checks proportional to the change before committing; run `yarn validate` for application or tooling changes.
-- Do not amend, squash, rewrite, or remove existing commits unless the user explicitly requests it.
+- После каждого завершённого самостоятельного действия добавлять в index только связанные файлы и создавать коммит.
+- Не смешивать feature, fix, docs, tests и tooling без общей атомарной цели.
+- Не коммитить исследовательские или заведомо сломанные промежуточные изменения.
+- Сообщение должно проходить `@afpia/commitlint` и соответствовать `docs/git-workflow.md`.
+- `type` и `scope` писать техническими латинскими идентификаторами, subject — по-русски в форме родительного падежа.
+- Не выполнять amend, squash, rebase опубликованной истории или удаление коммитов без прямого запроса владельца.
