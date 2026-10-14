@@ -1,0 +1,21 @@
+.join-lobby {
+	display: grid;
+	gap: 0.65rem;
+	padding: 1.5rem;
+	border: 1px solid var(--app-color-border);
+	border-radius: var(--app-radius-large);
+	background: var(--app-color-surface-raised);
+}
+.join-lobby h2 {
+	margin-bottom: 0.5rem;
+	font-size: 1.4rem;
+	font-weight: 800;
+}
+.join-lobby label {
+	font-size: 0.8rem;
+	font-weight: 650;
+}
+.join-lobby label span {
+	color: var(--app-color-text-muted);
+	font-size: 0.75rem;
+}

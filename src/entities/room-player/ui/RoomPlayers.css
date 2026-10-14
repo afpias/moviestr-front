@@ -1,0 +1,70 @@
+.room-players {
+	min-width: 0;
+}
+.room-players__heading {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+.room-players h2 {
+	font-size: 1rem;
+	font-weight: 750;
+}
+.room-players__heading > span {
+	color: var(--app-color-text-muted);
+	font-size: 0.75rem;
+}
+.room-players ul {
+	display: grid;
+	gap: 0.6rem;
+	padding: 0;
+	list-style: none;
+}
+.room-players li {
+	display: flex;
+	align-items: center;
+	gap: 0.7rem;
+	padding: 0.8rem;
+	border: 1px solid var(--app-color-border);
+	border-radius: var(--app-radius-medium);
+	background: var(--app-color-surface-raised);
+}
+.room-players li.is-me {
+	border-color: color-mix(in srgb, var(--app-color-accent) 35%, transparent);
+}
+.room-players li.is-winner {
+	color: var(--app-color-accent);
+}
+.room-players__avatar {
+	width: 2rem;
+	flex-shrink: 0;
+	aspect-ratio: 1;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--app-color-accent) 12%, transparent);
+	color: var(--app-color-accent);
+	font-size: 0.8rem;
+	font-weight: 800;
+}
+.room-players__name {
+	flex: 1;
+	min-width: 0;
+}
+.room-players__name strong {
+	display: block;
+	overflow-wrap: anywhere;
+	font-size: 0.85rem;
+}
+.room-players__name strong span,
+.room-players__name p {
+	color: var(--app-color-text-muted);
+	font-size: 0.7rem;
+	font-weight: 500;
+}
+.room-players__score {
+	font-variant-numeric: tabular-nums;
+	font-size: 1rem;
+}

@@ -1,0 +1,45 @@
+.create-lobby {
+	display: grid;
+	gap: 0.65rem;
+	padding: 1.5rem;
+	border: 1px solid var(--app-color-border);
+	border-radius: var(--app-radius-large);
+	background: var(--app-color-surface-raised);
+}
+.create-lobby h2 {
+	font-size: 1.5rem;
+	font-weight: 800;
+}
+.create-lobby__heading {
+	margin-bottom: 0.5rem;
+}
+.create-lobby label,
+.create-lobby__field > p {
+	font-size: 0.8rem;
+	font-weight: 650;
+}
+.create-lobby label span,
+.create-lobby__rules {
+	color: var(--app-color-text-muted);
+	font-size: 0.75rem;
+}
+.create-lobby__row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+.create-lobby__row > div,
+.create-lobby__field {
+	display: grid;
+	gap: 0.5rem;
+}
+.create-lobby__field {
+	margin-top: 0.5rem;
+}
+.create-lobby :deep(.difficulty-selector) {
+	flex-wrap: wrap;
+}
+.create-lobby :deep(.difficulty-selector__option) {
+	padding: 0.6rem 0.75rem;
+	font-size: 0.75rem;
+}

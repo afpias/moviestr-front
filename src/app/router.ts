@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 export const ROUTE_NAMES = {
 	home: 'home',
+	lobby: 'lobby',
+	room: 'room',
 	notFound: 'not-found'
 } as const
 
@@ -13,6 +15,18 @@ const router = createRouter({
 			meta: { title: 'Угадай фильм по кадру' },
 			name: 'home',
 			path: '/'
+		},
+		{
+			component: () => import('@pages/lobby').then(({ LobbyPage }) => LobbyPage),
+			meta: { title: 'Мультиплеер' },
+			name: 'lobby',
+			path: '/lobby'
+		},
+		{
+			component: () => import('@pages/room').then(({ RoomPage }) => RoomPage),
+			meta: { title: 'Комната' },
+			name: 'room',
+			path: '/lobby/:roomId'
 		},
 		{
 			component: () => import('@pages/not-found/NotFoundPage.vue'),

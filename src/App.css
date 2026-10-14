@@ -87,10 +87,21 @@
 @media (max-width: 680px) {
 	.app-header {
 		min-height: 64px;
+		gap: 0.5rem;
+	}
+
+	.brand {
+		gap: 0.4rem;
+		font-size: 0.8rem;
+	}
+
+	.brand__mark {
+		width: 1.75rem;
 	}
 
 	.app-nav a {
-		display: none;
+		padding: 0.5rem;
+		font-size: 0.75rem;
 	}
 
 	.app-nav a:first-child {

@@ -62,7 +62,8 @@
 	--app-shadow-large: 0 32px 110px rgb(0 0 0 / 58%);
 }
 
-:root[data-game-difficulty='easy'] {
+:root[data-game-difficulty='easy'],
+:root[data-room-difficulty='easy'] {
 	--primary: 153 84% 48%;
 	--ring: 153 84% 48%;
 	--app-color-accent: #14e17a;
@@ -70,7 +71,8 @@
 	--app-color-accent-shadow: rgb(20 225 122 / 22%);
 }
 
-:root[data-game-difficulty='medium'] {
+:root[data-game-difficulty='medium'],
+:root[data-room-difficulty='medium'] {
 	--primary: 48 86% 56%;
 	--ring: 48 86% 56%;
 	--app-color-accent: #f0c62e;
@@ -78,7 +80,8 @@
 	--app-color-accent-shadow: rgb(240 198 46 / 22%);
 }
 
-:root[data-game-difficulty='hard'] {
+:root[data-game-difficulty='hard'],
+:root[data-room-difficulty='hard'] {
 	--primary: 22 100% 61%;
 	--ring: 22 100% 61%;
 	--app-color-accent: #ff8139;
@@ -86,7 +89,8 @@
 	--app-color-accent-shadow: rgb(255 129 57 / 22%);
 }
 
-:root[data-game-difficulty='expert'] {
+:root[data-game-difficulty='expert'],
+:root[data-room-difficulty='expert'] {
 	--primary: 358 100% 68%;
 	--ring: 358 100% 68%;
 	--app-color-accent: #ff5a5f;
@@ -94,7 +98,8 @@
 	--app-color-accent-shadow: rgb(255 90 95 / 22%);
 }
 
-:root[data-game-difficulty='impossible'] {
+:root[data-game-difficulty='impossible'],
+:root[data-room-difficulty='impossible'] {
 	--primary: 265 100% 71%;
 	--ring: 265 100% 71%;
 	--app-color-accent: #a66cff;
@@ -110,13 +115,13 @@
 }
 
 html {
-	min-width: 360px;
+	min-width: min(360px, 100%);
 	background: var(--app-color-background);
 	scroll-behavior: smooth;
 }
 
 body {
-	min-width: 360px;
+	min-width: min(360px, 100%);
 	min-height: 100vh;
 	color: var(--app-color-text);
 	background:
