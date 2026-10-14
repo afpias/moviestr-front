@@ -122,7 +122,7 @@ describe('tmdb catalog', () => {
 		expect(movie.aliases).toEqual(expect.arrayContaining(['Интерстеллар', 'Interstellar']))
 		expect(movie.frames).toHaveLength(5)
 		expect(movie.frames.every((frame) => frame.url.startsWith('https://image.tmdb.org/t/p/w1280/'))).toBe(true)
-		expect(movie.posterUrl).toBe('https://image.tmdb.org/t/p/w500/poster.jpg')
+		expect(movie.posterUrl).toBe('https://image.tmdb.org/t/p/w780/poster.jpg')
 	})
 
 	it('выбирает impossible из нижних 20% всего доступного каталога жанра', async () => {
