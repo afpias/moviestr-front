@@ -1,4 +1,7 @@
-# API и TMDB-интеграция
+# Технический контракт: API и TMDB-интеграция
+
+Пользовательские требования к каталогу и поиску заданы в
+[SPEC-002](./specs/SPEC-002-movie-catalog.md) и [SPEC-003](./specs/SPEC-003-movie-search.md).
 
 ## Принцип
 
@@ -35,7 +38,7 @@ src/shared/api/
 - `TIMEOUT` — TMDB не ответил вовремя;
 - `UPSTREAM_ERROR` — сеть, некорректный ответ или ошибка TMDB.
 
-## Игровые контракты
+## Игровые контракты frontend-прототипа
 
 `loadChallenge(collectionId, difficulty, genre)` создаёт локальную сессию и возвращает только первый кадр:
 
@@ -102,7 +105,7 @@ interface MovieSuggestion {
 TMDB token, правильные ответы и локальные сессии доступны в браузере. Это допустимо только для frontend-прототипа.
 Перед публичным запуском TMDB-интеграция, выбор фильма и проверка ответа переносятся на backend.
 
-## Официальные ссылки
+## Внешние ссылки
 
 - [TMDB movie details](https://developer.themoviedb.org/reference/movie-details)
 - [TMDB movie search](https://developer.themoviedb.org/reference/search-movie)
