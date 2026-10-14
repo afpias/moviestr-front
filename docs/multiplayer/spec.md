@@ -2,7 +2,7 @@
 
 | Поле                 | Значение                                                                          |
 | -------------------- | --------------------------------------------------------------------------------- |
-| Статус               | утверждено; реализация локального демо                                            |
+| Статус               | реализовано (локальное демо)                                                      |
 | Последнее обновление | 2026-10-14                                                                        |
 | Зависимости          | [Каталог TMDB](../movie-catalog/spec.md), [Поиск фильма](../movie-search/spec.md) |
 
@@ -145,3 +145,16 @@ waiting / loading / playing / error / finished -> closed
 - Это демонстрационный адаптер. Правильные ответы доступны в browser storage; пароль не является production-защитой.
 - Пока все вкладки закрыты, фонового сервера и таймера нет; при возврате состояние пересчитывается по времени.
 - Контракт реального backend, deployment и постоянное хранение будут определены отдельной задачей.
+
+## Трассировка и проверка
+
+| Требования    | Реализация                                                                                                           | Проверка                                                                                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| MP-001–MP-008 | `pages/lobby`, `features/create-lobby`, `features/join-lobby`, `entities/lobby`, `app/router.ts`                     | `CreateLobbyForm.spec.ts`, `JoinLobbyForm.spec.ts`, `room-model.spec.ts`, `demo-adapter.spec.ts` |
+| MP-009–MP-020 | `shared/api/multiplayer/room-model.ts`, `widgets/room-console`, `features/play-multiplayer`, `entities/room-player`  | `room-model.spec.ts`, `demo-adapter.spec.ts`, `RoomConsole.spec.ts`                              |
+| MP-021–MP-025 | `shared/api/multiplayer/demo-adapter.ts`, `shared/stores/multiplayer.store.ts`, `features/manage-room`, `pages/room` | тесты reconnect, deadline, передачи хоста, выхода и ошибки подготовки                            |
+| MP-026–MP-029 | `shared/types/multiplayer.ts`, `shared/api/multiplayer`, `pages/lobby`, `pages/room`                                 | гонка последнего места, единичная подготовка фильма; ручной матч в двух вкладках                 |
+
+Ручная проверка 2026-10-14: создание и вход, старт двух участников при лимите четыре, одинаковый фильм, неверный ответ
+−50 с переходом только личного кадра, английский правильный ответ +100, ожидание других, автоматический переход по
+таймеру, итоговая победа и ничья. На viewport 360 px исправлен горизонтальный overflow из-за ширины scrollbar.
