@@ -2,7 +2,7 @@ import { GAME_FRAME_COUNT, normalizeMovieTitle } from '@shared/lib/game-rules'
 import type { GameDifficulty, GameGenre, GameResponse, SkipFrameResponse, SubmitGuessResponse } from '@shared/types/game'
 
 import { ApiError } from './api-error'
-import { createGameSession, getGameSession, saveGameSession, toGameResult, type GameSession } from './game-session'
+import { createGameSession, type GameSession, getGameSession, saveGameSession, toGameResult } from './game-session'
 import { getRandomTmdbMovie, TMDB_COLLECTION_ID } from './tmdb'
 
 function toGameResponse(session: GameSession): GameResponse {

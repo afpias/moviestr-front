@@ -12,7 +12,7 @@ import {
 	type TmdbMovie,
 	type TmdbMoviePage
 } from './client'
-import { selectSafeBackdrops, type ImageTextRecognizer } from './frame-selection'
+import { type ImageTextRecognizer, selectSafeBackdrops } from './frame-selection'
 import { recognizeTmdbImageText } from './ocr'
 
 const MAX_MOVIE_ATTEMPTS = 8

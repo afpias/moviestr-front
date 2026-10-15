@@ -56,7 +56,7 @@
 - Pinia Setup Stores и Vue Router.
 - shadcn-vue; Tailwind CSS разрешён только внутри `shared/ui`, в приложении используется обычный scoped CSS.
 - Vitest, Vue Test Utils и jsdom.
-- Yarn 1, `@afpia/eslint`, `@afpia/prettier`, `@afpia/commitlint`; `oxlint` и `oxfmt` запрещены.
+- Yarn 1, `@afpia/eslint`, `@afpia/prettier`, `@afpia/commitlint`.
 
 Соблюдать направление зависимостей FSD:
 

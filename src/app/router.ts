@@ -29,7 +29,7 @@ const router = createRouter({
 			path: '/lobby/:roomId'
 		},
 		{
-			component: () => import('@pages/not-found/NotFoundPage.vue'),
+			component: () => import('@pages/not-found').then(({ NotFoundPage }) => NotFoundPage),
 			meta: { title: 'Страница не найдена' },
 			name: 'not-found',
 			path: '/:pathMatch(.*)*'

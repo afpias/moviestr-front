@@ -6,15 +6,15 @@ import {
 	applyGuess,
 	applySkip,
 	createPlayer,
+	type DemoRoom,
 	joinPlayer,
 	leavePlayer,
 	publishMovie,
+	type RoomMovie,
 	startMatch,
 	tickRoom,
 	toRoomSnapshot,
-	validateSettings,
-	type DemoRoom,
-	type RoomMovie
+	validateSettings
 } from '../room-model'
 import { parseRegistry } from '../storage-schema'
 

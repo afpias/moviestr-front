@@ -4,20 +4,20 @@ import {
 	applyGuess,
 	applySkip,
 	createPlayer,
+	type DemoRoom,
 	joinPlayer,
 	leavePlayer,
 	publishMovie,
 	requireHost,
 	requirePlayer,
+	type RoomMovie,
 	startMatch,
 	tickRoom,
 	toLobbySummary,
 	toRoomSnapshot,
-	validateSettings,
-	type DemoRoom,
-	type RoomMovie
+	validateSettings
 } from './room-model'
-import { parseRegistry, type DemoRegistry } from './storage-schema'
+import { type DemoRegistry, parseRegistry } from './storage-schema'
 
 export const DEMO_STORAGE_KEY = 'moviestr:multiplayer:demo:v1'
 const DEMO_CHANGE_EVENT = 'moviestr:multiplayer-changed'

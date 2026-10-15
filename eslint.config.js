@@ -2,7 +2,8 @@ import { eslint } from '@afpia/eslint'
 
 export default eslint(
 	{
-		typescript: true
+		typescript: true,
+		import: true
 	},
 	{
 		name: 'moviestr/ignores',

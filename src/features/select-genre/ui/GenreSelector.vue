@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { type Component, computed } from 'vue'
 
 import { Eye, Ghost, Grid2X2, Heart, Orbit, Smile, Sparkles, Zap } from '@lucide/vue'
 
