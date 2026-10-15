@@ -34,11 +34,11 @@
 
 ## Проектные скиллы
 
-Инструкции находятся в `.agents/skills`. Перед соответствующим этапом прочитать нужный `SKILL.md`:
+Инструкции находятся в `.codex/skills`. Перед соответствующим этапом прочитать нужный `SKILL.md`:
 
-- [`sdd-feature`](.agents/skills/sdd-feature/SKILL.md) — создание или изменение функциональности: Spec → Plan → Tasks → Implement.
-- [`verify-changes`](.agents/skills/verify-changes/SKILL.md) — проверка реализации, тесты, линтеры и сверка с требованиями.
-- [`commit-changes`](.agents/skills/commit-changes/SKILL.md) — атомарный коммит завершённой и проверенной части работы.
+- [`sdd-feature`](.codex/skills/sdd-feature/SKILL.md) — создание или изменение функциональности: Spec → Plan → Tasks → Implement.
+- [`verify-changes`](.codex/skills/verify-changes/SKILL.md) — проверка реализации, тесты, линтеры и сверка с требованиями.
+- [`commit-changes`](.codex/skills/commit-changes/SKILL.md) — атомарный коммит завершённой и проверенной части работы.
 
 Обычная последовательность: `sdd-feature` → `verify-changes` → `commit-changes`. Для технического исправления начинать
 с реализации, затем проверки и коммита. Запрос только на анализ или проверку не разрешает менять код или создавать коммит.
