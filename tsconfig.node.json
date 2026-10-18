@@ -24,8 +24,7 @@
 		"playwright.config.*",
 		"eslint.config.*",
 		"server/**/*.ts",
-		"api/**/*.ts",
-		"scripts/**/*.ts"
+		"api/**/*.ts"
 	],
-	"exclude": ["server/**/__tests__/**", "scripts/**/__tests__/**"]
+	"exclude": ["server/**/__tests__/**"]
 }
