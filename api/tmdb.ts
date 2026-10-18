@@ -1,6 +1,6 @@
 import { env } from 'node:process'
 
-import { handleTmdbRequest } from '../server/tmdb-proxy'
+import { handleTmdbRequest } from '../server/tmdb-proxy.ts'
 
 export default {
 	fetch(request: Request): Promise<Response> {
