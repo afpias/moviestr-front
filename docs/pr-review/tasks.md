@@ -17,7 +17,7 @@
 
 - [x] Проверить валидатор, статусы, SHA, приоритеты и недопустимые строки: 30 новых тестов.
 - [x] Выполнить yarn validate (142 теста), yarn build и разбор YAML. Четыре существующих warning ESLint.
-- [ ] Открыть PR в dev и дождаться реальных CI-проверок.
+- [x] Открыть [PR №2](https://github.com/afpias/moviestr-front/pull/2) в dev: Validate и Build прошли на GitHub.
 - [ ] Владелец: создать App, добавить Secrets и модель; вручную слить установочный PR.
 - [ ] После подключения: проверить реальное Approve / Request changes и отказоустойчивость.
 - [ ] После проверки: включить App-bound AI review и один approval в защите целевых веток.

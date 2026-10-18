@@ -78,3 +78,7 @@ REV-001–003,009–010: проверка workflow и затем реальны�
 к GitHub Actions App; strict up-to-date, enforce administrators и разрешение только PR включены.
 Force push и удаление запрещены. AI review и один обязательный approval пока не включены: нужны установка workflow,
 GitHub App, секреты и реальный пробный запуск. Ни один PR автоматически не сливается.
+
+Установочный [PR №2](https://github.com/afpias/moviestr-front/pull/2) открыт в `dev`; на коммите `6601ed5`
+оба GitHub jobs Validate и Build завершились успешно. Локально проверены 142 теста и production-сборка.
+Реальный вызов OpenAI и публикация review от App ещё не проверены: credentials добавляет владелец.
