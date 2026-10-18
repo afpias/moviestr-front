@@ -26,8 +26,8 @@ Tailwind CSS применяется внутри `shared/ui`.
 Нужны Node.js `^22.18.0` или `>=24.12.0` и Yarn Classic `1.22.22`.
 
 ```sh
-git clone https://github.com/afpias/frontend-moviestr.git
-cd frontend-moviestr
+git clone https://github.com/afpias/moviestr-front.git
+cd moviestr-front
 yarn install --frozen-lockfile
 ```
 
