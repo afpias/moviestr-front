@@ -19,7 +19,6 @@ Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', {
 	value: () => undefined
 })
 
-vi.stubEnv('VITE_TMDB_READ_TOKEN', 'test-token')
 vi.stubGlobal('fetch', vi.fn(fetchTmdbFixture))
 
 afterEach(() => {

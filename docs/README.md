@@ -34,3 +34,4 @@ feature-name/
 | SPEC-004 | [Игровой интерфейс](./game-interface/spec.md)          | реализовано    |
 | SPEC-005 | [Сохранение игры и тема](./persistence-theme/spec.md)  | реализовано    |
 | SPEC-006 | [Лобби и соревнование по очкам](./multiplayer/spec.md) | локальное демо |
+| SPEC-007 | [Публикация и серверный TMDB](./deployment/spec.md)    | в работе       |

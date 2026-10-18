@@ -18,7 +18,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 	GAME_FINISHED: 'Этот фильм уже заменён. Обновите игровую доску.',
 	GAME_NOT_FOUND: 'Сохранённое состояние не найдено.',
 	NETWORK_ERROR: 'Не удалось связаться с сервером. Проверьте соединение.',
-	SERVICE_NOT_CONFIGURED: 'Добавьте VITE_TMDB_READ_TOKEN в .env.local и перезапустите dev-сервер.',
+	SERVICE_NOT_CONFIGURED: 'Каталог временно недоступен. Попробуйте позже.',
 	TIMEOUT: 'Сервер отвечает слишком долго. Попробуйте ещё раз.',
 	UPSTREAM_ERROR: 'TMDB сейчас недоступен. Попробуйте ещё раз.',
 	VALIDATION_ERROR: 'Проверьте введённые данные.'

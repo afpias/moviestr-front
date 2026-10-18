@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { getRandomTmdbMovie, getTmdbCollection, searchTmdbCatalog } from '../catalog'
 
@@ -38,8 +38,14 @@ function createDiscoverPage(page: number) {
 }
 
 describe('tmdb catalog', () => {
-	beforeEach(() => {
-		vi.stubEnv('VITE_TMDB_READ_TOKEN', 'test-token')
+	it('использует same-origin API без токена в браузерных заголовках', async () => {
+		const fetchMock = vi.fn(async () => jsonResponse(createDiscoverPage(1)))
+		vi.stubGlobal('fetch', fetchMock)
+		await getTmdbCollection()
+		const [url, options] = vi.mocked(fetch).mock.calls[0] ?? []
+		expect(new URL(String(url)).origin).toBe(window.location.origin)
+		expect(new URL(String(url)).pathname).toBe('/api/tmdb/discover/movie')
+		expect(new Headers(options?.headers).has('Authorization')).toBe(false)
 	})
 
 	afterEach(() => {
@@ -163,12 +169,12 @@ describe('tmdb catalog', () => {
 
 		const discoverUrls = requestedUrls.filter((url) => url.pathname.endsWith('/discover/movie'))
 		const selectedPageUrl = discoverUrls.find((url) => url.searchParams.get('page') === '401')
-		const movieBundleUrls = requestedUrls.filter((url) => /^\/3\/movie\/\d+$/.test(url.pathname))
+		const movieBundleUrls = requestedUrls.filter((url) => /^\/api\/tmdb\/movie\/\d+$/.test(url.pathname))
 		expect(discoverUrls).toHaveLength(2)
 		expect(selectedPageUrl?.searchParams.get('with_genres')).toBe('878')
 		expect(selectedPageUrl?.searchParams.get('sort_by')).toBe('vote_count.desc')
 		expect(movieBundleUrls).toHaveLength(1)
-		expect(movieBundleUrls[0]?.pathname).toBe('/3/movie/8001')
+		expect(movieBundleUrls[0]?.pathname).toBe('/api/tmdb/movie/8001')
 		expect(movieBundleUrls[0]?.searchParams.get('append_to_response')).toBe('images,alternative_titles')
 	})
 })

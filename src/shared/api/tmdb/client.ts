@@ -2,7 +2,7 @@ import { isNumber, isRecord, isString } from '@shared/lib/type-guards'
 
 import { ApiError } from '../api-error'
 
-const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
+const TMDB_API_BASE_PATH = '/api/tmdb'
 const TMDB_REQUEST_TIMEOUT_MS = 10_000
 const requestCache = new Map<string, Promise<unknown>>()
 
@@ -37,16 +37,6 @@ export interface TmdbImage {
 	voteAverage: number
 	voteCount: number
 	width: number
-}
-
-function getReadToken(): string {
-	const token = import.meta.env.VITE_TMDB_READ_TOKEN?.trim()
-
-	if (!token) {
-		throw new ApiError(503, { code: 'SERVICE_NOT_CONFIGURED', message: 'VITE_TMDB_READ_TOKEN is not configured' })
-	}
-
-	return token
 }
 
 function isNullableString(value: unknown): value is null | string {
@@ -170,14 +160,14 @@ async function fetchTmdb(url: URL): Promise<unknown> {
 	try {
 		const response = await fetch(url, {
 			cache: 'force-cache',
-			headers: {
-				Accept: 'application/json',
-				Authorization: `Bearer ${getReadToken()}`
-			},
+			headers: { Accept: 'application/json' },
 			signal: controller.signal
 		})
 
 		if (!response.ok) {
+			if (response.status === 503)
+				throw new ApiError(503, { code: 'SERVICE_NOT_CONFIGURED', message: 'Catalog is not configured' })
+			if (response.status === 504) throw new ApiError(408, { code: 'TIMEOUT', message: 'Catalog request timeout' })
 			throw new ApiError(502, { code: 'UPSTREAM_ERROR', message: `TMDB responded with status ${response.status}` })
 		}
 
@@ -202,7 +192,7 @@ async function fetchTmdb(url: URL): Promise<unknown> {
 }
 
 async function requestTmdb(path: string, searchParams: Record<string, number | string> = {}): Promise<unknown> {
-	const url = new URL(`${TMDB_API_BASE_URL}${path}`)
+	const url = new URL(`${TMDB_API_BASE_PATH}${path}`, window.location.origin)
 
 	for (const [name, value] of Object.entries(searchParams)) {
 		url.searchParams.set(name, String(value))
@@ -226,10 +216,6 @@ async function requestTmdb(path: string, searchParams: Record<string, number | s
 	requestCache.set(cacheKey, request)
 
 	return request
-}
-
-export function assertTmdbConfigured(): void {
-	getReadToken()
 }
 
 export async function getKnownMoviesPage(page: number, genreId: number | null): Promise<TmdbMoviePage> {

@@ -1,13 +1,16 @@
+import { cwd } from 'node:process'
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
-export default defineConfig({
-	plugins: [vue(), vueJsx(), tailwindcss(), vueDevTools()],
+import { tmdbProxyPlugin } from './server/vite-tmdb-plugin.ts'
+
+export default defineConfig(({ mode }) => ({
+	plugins: [vue(), vueJsx(), tailwindcss(), vueDevTools(), tmdbProxyPlugin(loadEnv(mode, cwd(), 'TMDB_').TMDB_READ_TOKEN)],
 	resolve: {
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -20,4 +23,4 @@ export default defineConfig({
 			'@widgets': fileURLToPath(new URL('./src/widgets', import.meta.url))
 		}
 	}
-})
+}))

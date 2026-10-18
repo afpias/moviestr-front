@@ -4,14 +4,7 @@ import { GAME_FRAME_COUNT } from '@shared/lib/game-rules'
 import { rankMoviesByKnownness } from '@shared/lib/movie-knownness'
 import type { GameDifficulty, GameFrame, GameGenre, MovieCollectionSummary, MovieSuggestion } from '@shared/types/game'
 
-import {
-	assertTmdbConfigured,
-	getKnownMoviesPage,
-	getMovieBundle,
-	searchTmdbMovies,
-	type TmdbMovie,
-	type TmdbMoviePage
-} from './client'
+import { getKnownMoviesPage, getMovieBundle, searchTmdbMovies, type TmdbMovie, type TmdbMoviePage } from './client'
 import { type ImageTextRecognizer, selectSafeBackdrops } from './frame-selection'
 import { recognizeTmdbImageText } from './ocr'
 
@@ -142,7 +135,6 @@ function getDifficultyCandidates(moviePage: TmdbMoviePage, difficulty: GameDiffi
 }
 
 export async function getTmdbCollection(): Promise<MovieCollectionSummary> {
-	assertTmdbConfigured()
 	const firstPage = await getMoviePage('all', 1)
 
 	return {
