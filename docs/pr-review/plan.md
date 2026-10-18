@@ -6,6 +6,7 @@
 
 Инфраструктура вне FSD: `.github/workflows`, `scripts/pr-review`. Игровые slices не меняются.
 `ci.yml` работает на `pull_request` в `dev` и `main`, запускает Validate и Build на merge commit без секретов.
+CI использует актуальную Node.js 24 LTS: ранняя 24.12 несовместима с engine текущей транзитивной зависимости nopt.
 `pr-review.yml` работает на `pull_request_target`; checkout выполняется только для точного base SHA.
 Head скачивается через git fetch, но никогда не checkout и не выполняется.
 
