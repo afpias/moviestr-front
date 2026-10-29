@@ -4,7 +4,7 @@ import type { GameDifficulty } from '@shared/types/game'
 
 interface DifficultySelectorProps {
 	ariaLabel?: string
-	modelValue: GameDifficulty
+	modelValue: GameDifficulty | null
 	readonly?: boolean
 	variant?: 'list' | 'pills'
 }

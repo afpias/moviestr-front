@@ -1,6 +1,6 @@
 import type { GameGenre } from '@shared/types/game'
 
-import { readStorage, writeStorage } from './browser-storage'
+import { readStorage, removeStorage, writeStorage } from './browser-storage'
 import { isGameGenre } from './game-genres'
 import { isNumber, isRecord, isString } from './type-guards'
 
@@ -23,10 +23,10 @@ export function getSavedGame(): SavedGame | null {
 
 export function saveGame(gameId: string, genre: GameGenre): void {
 	writeStorage<SavedGame>(GAME_STORAGE_KEY, { gameId, genre, version: 2 })
-	window.localStorage.removeItem(LEGACY_GAME_STORAGE_KEY)
+	removeStorage(LEGACY_GAME_STORAGE_KEY)
 }
 
 export function clearSavedGame(): void {
-	window.localStorage.removeItem(GAME_STORAGE_KEY)
-	window.localStorage.removeItem(LEGACY_GAME_STORAGE_KEY)
+	removeStorage(GAME_STORAGE_KEY)
+	removeStorage(LEGACY_GAME_STORAGE_KEY)
 }

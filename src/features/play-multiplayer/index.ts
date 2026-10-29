@@ -1,1 +1,1 @@
-export { skipRoomFrame, submitRoomGuess } from './api/play.api'
+export { readyRoomRound, skipRoomFrame, submitRoomGuess } from './api/play.api'

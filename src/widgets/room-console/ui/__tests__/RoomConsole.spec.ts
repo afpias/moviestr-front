@@ -12,7 +12,7 @@ import type { RoomSnapshot } from '@shared/types/multiplayer'
 import RoomConsole from '../RoomConsole.vue'
 
 vi.mock('@features/manage-room', () => ({ startRoom: vi.fn(), retryRoom: vi.fn() }))
-vi.mock('@features/play-multiplayer', () => ({ submitRoomGuess: vi.fn(), skipRoomFrame: vi.fn() }))
+vi.mock('@features/play-multiplayer', () => ({ submitRoomGuess: vi.fn(), skipRoomFrame: vi.fn(), readyRoomRound: vi.fn() }))
 
 const wrappers: VueWrapper[] = []
 
@@ -21,7 +21,11 @@ function mountConsole(status: RoomSnapshot['status'] = 'playing') {
 	setActivePinia(pinia)
 	const store = useMultiplayerStore()
 	store.participantId = 'alice'
+	store.connection = 'connected'
 	store.room = {
+		view: 'member',
+		version: 1,
+		serverTime: Date.now(),
 		id: 'room',
 		settings: {
 			name: 'Кино',
@@ -45,7 +49,8 @@ function mountConsole(status: RoomSnapshot['status'] = 'playing') {
 		attemptedMovieIds: [],
 		winnerIds: [],
 		error: null,
-		result: null
+		result: null,
+		roundResult: null
 	}
 	const wrapper = mount(RoomConsole, { global: { plugins: [pinia] } })
 	wrappers.push(wrapper)

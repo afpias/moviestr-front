@@ -1,7 +1,5 @@
 import { afterEach, vi } from 'vitest'
 
-import { fetchTmdbFixture } from './tmdb-fixture'
-
 Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
 	configurable: true,
 	value: () => undefined
@@ -19,9 +17,8 @@ Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', {
 	value: () => undefined
 })
 
-vi.stubGlobal('fetch', vi.fn(fetchTmdbFixture))
-
 afterEach(() => {
+	vi.unstubAllGlobals()
 	window.localStorage.clear()
 	window.sessionStorage.clear()
 })

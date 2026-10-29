@@ -2,7 +2,7 @@
 import { Image } from '@lucide/vue'
 
 interface GameInfoProps {
-	currentAttempt: number
+	currentAttempt: number | null
 	totalFrames: number
 }
 
@@ -13,7 +13,7 @@ defineProps<GameInfoProps>()
 	<aside class="game-info" aria-label="Информация о текущем фильме">
 		<section>
 			<p class="control-label">Кадр</p>
-			<strong>{{ String(currentAttempt).padStart(2, '0') }}</strong>
+			<strong>{{ currentAttempt === null ? '—' : String(currentAttempt).padStart(2, '0') }}</strong>
 			<span>/ {{ String(totalFrames).padStart(2, '0') }}</span>
 		</section>
 		<section>

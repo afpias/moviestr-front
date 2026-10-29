@@ -5,6 +5,7 @@ on:
     branches: [dev, main]
   push:
     branches: [dev, main]
+    tags: ['dev/**', 'v*']
 
 permissions:
   contents: read
@@ -14,6 +15,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  context:
+    name: Ref channel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Classify branch or tag
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/tags/dev/*) echo 'Channel: development checkpoint' ;;
+            refs/tags/v*)
+              VERSION="${REF#refs/tags/v}"
+              if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+                echo 'Invalid SemVer release tag'; exit 1
+              fi
+              echo 'Channel: versioned release' ;;
+            *) echo 'Channel: branch or pull request' ;;
+          esac
+
   validate:
     name: Validate
     runs-on: ubuntu-latest

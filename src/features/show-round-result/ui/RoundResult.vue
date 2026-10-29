@@ -9,6 +9,8 @@ import { Button } from '@shared/ui'
 interface RoundResultProps {
 	result: GameResult
 	status: 'lost' | 'won'
+	action?: 'continue' | 'retry'
+	actionDisabled?: boolean
 }
 
 const props = defineProps<RoundResultProps>()
@@ -19,6 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const isWin = computed(() => props.status === 'won')
+const isContinue = computed(() => (props.action ? props.action === 'continue' : isWin.value))
 </script>
 
 <template>
@@ -40,10 +43,10 @@ const isWin = computed(() => props.status === 'won')
 			{{ isWin ? 'Победа' : 'Не угадано' }}
 		</div>
 
-		<Button v-if="isWin" class="round-result__action" size="lg" @click="emit('continue')">
+		<Button v-if="isContinue" class="round-result__action" size="lg" :disabled="props.actionDisabled" @click="emit('continue')">
 			Далее <ArrowRight :size="18" aria-hidden="true" />
 		</Button>
-		<Button v-else class="round-result__action" size="lg" @click="emit('retry')">
+		<Button v-else class="round-result__action" size="lg" :disabled="props.actionDisabled" @click="emit('retry')">
 			<RotateCcw :size="18" aria-hidden="true" /> Повторить
 		</Button>
 	</section>

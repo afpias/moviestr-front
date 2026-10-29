@@ -1,109 +1,120 @@
 # Moviestr
 
-Браузерная игра: угадай фильм по пяти кадрам. Frontend на Vue 3 и TypeScript, каталог и изображения — из TMDB.
-
-Поиграть: [moviestr-front.vercel.app](https://moviestr-front.vercel.app).
+Браузерная игра: угадай фильм по пяти кадрам. Vue 3 + TypeScript — клиент; NestJS + PostgreSQL — отдельный backend.
+HTTP `/api/v1` и native WebSocket `/ws` работают на одном origin через nginx.
 
 ## Возможности
 
-- Одиночная игра без регистрации, свободное переключение сложности и жанра.
-- Пять кадров на фильм, поиск ответа по русскому или английскому названию.
-- Пять уровней сложности: Easy, Medium, Hard, Expert и Impossible.
-- Фильтрация изображений с текстом через OCR и последовательность кадров от менее узнаваемых к более очевидным.
-- Сохранение текущего раунда в localStorage, светлая и тёмная темы, акцентный цвет по сложности.
-- Лобби на 2–4 участников, общий фильм, личные кадры, очки и таймер — в локальном демо мультиплеера.
+- Соло без регистрации: пять кадров, RU/EN-поиск, сложность, жанр, победа/поражение, восстановление раунда.
+- Комнаты на 2–4 человека с никнеймом, публичностью и необязательным паролем.
+- Общий фильм, личные кадры, 1000 на старте, +100/−50, 90 секунд, общий итог.
+- HttpOnly гостевая сессия, reconnect и серверные snapshots; две вкладки с одной cookie — один игрок.
+- Тема и UI preferences сохраняются локально. Ответы, закрытые кадры и token браузер не хранит.
 
-Мультиплеер сейчас синхронизирует вкладки одного браузера на одном origin. Общего backend и подключения с разных
-устройств пока нет. Для демо используйте localhost или HTTPS с поддержкой Web Locks API.
+TMDB, OCR, подготовка кадров, проверка ответа, очки и таймеры выполняются исключительно backend.
+Изображения загружаются с публичного CDN TMDB; полного предотвращения внешнего распознавания кадра не обещаем.
 
-## Стек
+## Docker — полный локальный запуск
 
-Vue 3 · TypeScript · Vite · Pinia · Vue Router · shadcn-vue · Tesseract.js · Vitest · Vue Test Utils.
+Репозитории должны лежать рядом:
 
-Приложение организовано по Feature-Sliced Design. Компоненты приложения используют обычный scoped CSS;
-Tailwind CSS применяется внутри `shared/ui`.
+```text
+moviestr/
+  moviestr-front/
+  moviestr-back/
+```
 
-## Локальный запуск
-
-Нужны Node.js `^22.18.0` или `>=24.12.0` и Yarn Classic `1.22.22`.
+Настройте backend `.env` по его `.env.example`, включая серверный `TMDB_READ_TOKEN`, затем из `moviestr-back`:
 
 ```sh
-git clone https://github.com/afpias/moviestr-front.git
-cd moviestr-front
-git switch dev
+docker compose up --build -d
+```
+
+Открыть [localhost:8080](http://localhost:8080). Compose поднимает PostgreSQL, API и frontend.
+Frontend image: Node.js 24 build → nginx:80 со статическим `dist`; Vite внутри контейнера не запускается.
+nginx проксирует `/api/v1` и `/ws` на `api:3000`, поддерживает WebSocket Upgrade. API не должен попадать в SPA fallback.
+
+В frontend нет секретов, build args с TMDB и runtime server-функций. `.dockerignore` исключает `.env*`,
+`.git`, `node_modules`, `dist` и локальные файлы. Не используйте `docker compose down -v` для обычного перезапуска:
+это уничтожит данные PostgreSQL.
+
+## Разработка без Docker frontend
+
+Нужны Node.js `^22.18.0 || >=24.12.0`, Yarn Classic 1.22.22 и уже запущенный backend на 127.0.0.1:3000.
+
+```sh
 yarn install --frozen-lockfile
+yarn dev --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Скопируйте `.env.example` в `.env` и укажите TMDB API Read Access Token из настроек своего аккаунта TMDB:
+Vite dev/preview проксирует `/api/v1` и `/ws` в backend. Укажите origin 5173 в backend ALLOWED_ORIGINS.
+Frontend `.env` не требуется; `.env.example` не содержит token. Секреты не добавлять с префиксом VITE_.
 
-```dotenv
-TMDB_READ_TOKEN=your_tmdb_read_access_token
-```
+### Диагностика TMDB на backend
 
-```sh
+Сохранённая памятка ниже относится к Node-процессу **backend**, не к frontend. Если системный Windows proxy необходим
+для TMDB, задавайте его только backend-процессу либо через документированные backend Docker proxy variables.
+Frontend больше не обращается к TMDB API.
+
+#### Windows proxy (исторически проверенный рецепт)
+
+Если API отвечает `502 UPSTREAM_ERROR`, а запрос к TMDB из PowerShell проходит, Node может не использовать системный
+прокси Windows. Для Node.js 24 запустите сервер в PowerShell с настройками прокси только для текущего процесса:
+
+```powershell
+$configuredProxy = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer
+if ($configuredProxy -match '(^|;)https=([^;]+)') {
+    $tmdbProxy = $Matches[2]
+} elseif ($configuredProxy -and $configuredProxy -notmatch '=') {
+    $tmdbProxy = $configuredProxy
+} else {
+    throw 'Системный HTTPS-прокси не настроен'
+}
+if ($tmdbProxy -notmatch '^https?://') { $tmdbProxy = 'http://' + $tmdbProxy }
+$env:HTTP_PROXY = $tmdbProxy
+$env:HTTPS_PROXY = $tmdbProxy
+$env:NODE_USE_ENV_PROXY = '1'
+$env:NO_PROXY = 'localhost,127.0.0.1,::1'
 yarn dev
 ```
 
-Адрес приложения появится в терминале Vite. Без настройки TMDB игровой каталог недоступен.
+Проверено на Node.js 24.21.0. Системные настройки не меняются; после закрытия этой PowerShell-сессии переменные исчезнут.
+Проверка TLS-сертификатов остаётся включённой. Без настроенного системного прокси этот способ не применяется.
 
-`.env` исключён из Git. Токен читает только серверный прокси; не используйте префикс `VITE_` для секретов.
-Браузер обращается к `/api/tmdb/*`, а dev- и preview-серверы Vite обслуживают этот API локально.
+## Hosting / Vercel
 
-## Публикация на Vercel
+Старый frontend адрес: [moviestr-front.vercel.app](https://moviestr-front.vercel.app). Текущий production deploy
+не менялся этой миграцией. Самостоятельный статический Vercel deploy теперь требует отдельно выбранного публичного
+backend и same-origin reverse proxy для HTTP/WS. Его адрес не выдуман и в `vercel.json` не зашит.
+Старый TMDB rewrite удалён; API/WS исключены из SPA fallback. До настройки hosting используйте Docker8080.
 
-Импортируйте `afpias/moviestr-front` в Vercel. Настройки сборки и SPA-маршрутов находятся в `vercel.json`.
-Добавьте серверную переменную `TMDB_READ_TOKEN` в Production и Preview, затем выполните деплой.
-Сборка: `yarn build`, результат: `dist`. Серверная функция `api/tmdb.ts` добавляет токен к запросам TMDB.
-После изменения переменной окружения требуется новый деплой. Клиентская сборка не содержит TMDB-токен.
+## Команды и архитектура
 
-Изображения загружаются с публичного CDN TMDB. Токен скрыт, однако read-only API сайта остаётся публичным.
-Мультиплеер по-прежнему работает только между вкладками одного браузера.
+`yarn validate` — типы, ESLint, Vitest и Prettier; `yarn build` — production dist; `yarn test:unit` — клиентские тесты.
+Тестовые HTTP fixtures находятся только в testing и не импортируются приложением.
 
-## Команды
+FSD: app → pages → widgets → features → entities → shared. `src/shared/api` — только клиентский transport,
+HTTP/WS adapters и DTO validation; root `api/`, `server/`, локальный игровой движок и browser OCR удалены.
+Компоненты shadcn-vue используют Tailwind внутри shared/ui, остальные — обычный scoped CSS.
 
-| Команда                | Назначение                           |
-| ---------------------- | ------------------------------------ |
-| `yarn dev`             | Локальный сервер разработки          |
-| `yarn test:unit`       | Unit- и component-тесты              |
-| `yarn test:unit:watch` | Тесты в watch-режиме                 |
-| `yarn type-check`      | Проверка TypeScript                  |
-| `yarn lint`            | ESLint                               |
-| `yarn format:check`    | Проверка форматирования              |
-| `yarn validate`        | Типы, ESLint, тесты и форматирование |
-| `yarn build`           | Production-сборка в `dist`           |
-| `yarn preview`         | Локальный просмотр сборки            |
+## Git workflow
 
-## Структура
+`main` и `dev` постоянные. `feature/*` / `fix/*` от dev → checks → PR/merge в dev → annotated
+`dev/<feature>-<uniquePRorDate>` на merge commit → публикация только этого тега → удаление слитой рабочей ветки.
 
-```text
-src/
-├── app/       # запуск и маршрутизация
-├── pages/     # композиция страниц
-├── widgets/   # самостоятельные области интерфейса
-├── features/  # пользовательские действия
-├── entities/  # предметные модели и отображение
-└── shared/    # API, stores, типы, UI и инфраструктура
-docs/          # функциональные SDD-пакеты
-.codex/        # проектные скиллы и агент reviewer
-```
+Релиз обычным merge dev → main с сохранением ancestry → checks → annotated `v<SemVer>` → успешная публикация →
+удаление локально и remote только `dev/*`, достижимых из exact version commit. Невошедшие dev-теги, v-теги, main/dev
+не удалять. CI различает dev/version tags, но не публикует и не удаляет refs. Merge выполняет владелец.
+Принятый владельцем merge/release уже разрешает следующие предусмотренные шаги тегирования и очистки;
+повторное разрешение на каждый из этих шагов не требуется, но все проверки и условия сохраняются.
 
-Спецификации, планы и задачи находятся в [docs](docs/README.md). Правила разработки и Git — в [AGENTS.md](AGENTS.md).
+Подробности и ограничения: [Git workflow](docs/git-workflow.md), [AGENTS.md](AGENTS.md).
+В текущей задаче remote-операции и production deploy не выполняются.
 
-## Разработка и pull requests
+## Документация и данные
 
-`main` содержит стабильную версию, `dev` — текущую разработку. Фичи и крупные задачи начинаются в `feature/<name>`
-от актуальной `dev`: сначала SDD-пакет, затем реализация, проверки и атомарные коммиты. Завершённая фича поступает
-в `dev` через pull request. PR остаётся открытым на проверку; владелец нажимает Merge вручную.
-Небольшие технические исправления не требуют отдельного SDD-пакета. Релиз `dev` → `main` выполняется отдельно.
+[SDD-пакеты](docs/README.md), [интеграция frontend](docs/backend-integration/frontend-plan.md).
+Контракты находятся в соседнем moviestr-back/docs/api: handoff, OpenAPI, WS schemas.
 
-## Проверки pull requests
-
-PR в `dev` и `main` запускают `Validate` и `Build` без секретов и обращений к платному AI API.
-Защита веток запрещает слияние при проваленных проверках. Слияние выполняется владельцем вручную.
-
-Подробнее: [проверки PR и защита веток](docs/ci/spec.md).
-
-## Данные и изображения
-
-Данные о фильмах и изображения предоставлены TMDB. Проект использует TMDB API, но не одобрен и не сертифицирован TMDB.
+Данные о фильмах и изображения предоставлены TMDB. Проект не одобрен и не сертифицирован TMDB.
 Права на изображения принадлежат соответствующим правообладателям.

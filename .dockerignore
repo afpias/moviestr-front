@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.github
+.codex
+.agents
+.vercel
+.env*
+*.local
+*.log
+coverage
+.eslintcache
+**/*.tsbuildinfo
+docs

@@ -1,10 +1,11 @@
 import { createPinia, setActivePinia } from 'pinia'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DOMWrapper, mount, type VueWrapper } from '@vue/test-utils'
 
 import { GenreSelector } from '@features/select-genre'
 import { useGameStore } from '@shared/stores/game.store'
+import { installApiFixture } from '@shared/testing/api-fixture'
 
 import GamePage from '../GamePage.vue'
 
@@ -27,6 +28,7 @@ function mountGamePage() {
 }
 
 describe('game page', () => {
+	beforeEach(installApiFixture)
 	afterEach(() => {
 		for (const wrapper of mountedWrappers.splice(0)) {
 			wrapper.unmount()
@@ -38,7 +40,7 @@ describe('game page', () => {
 		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		expect(wrapper.get('.answer-form button').text()).toContain('Пропустить')
@@ -58,7 +60,7 @@ describe('game page', () => {
 			[...document.querySelectorAll<HTMLElement>('[role="option"]')].find((option) => option.textContent?.includes('Матрица'))
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		await wrapper.get('#movie-answer').trigger('focus')
@@ -99,7 +101,7 @@ describe('game page', () => {
 		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		await wrapper.get('#movie-answer').trigger('focus')
@@ -136,7 +138,7 @@ describe('game page', () => {
 		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		const mediumButton = wrapper.findAll('[role="radio"]').find((button) => button.text().includes('Medium'))
@@ -153,7 +155,7 @@ describe('game page', () => {
 		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		wrapper.getComponent(GenreSelector).vm.$emit('update:modelValue', 'horror')
@@ -174,7 +176,7 @@ describe('game page', () => {
 		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		for (let frame = 1; frame < 5; frame += 1) {
@@ -207,7 +209,7 @@ describe('game page', () => {
 		const { gameStore, wrapper } = mountGamePage()
 
 		await vi.waitFor(() => {
-			expect(wrapper.find('#movie-answer').exists()).toBe(true)
+			expect(wrapper.get<HTMLInputElement>('#movie-answer').element.disabled).toBe(false)
 		})
 
 		gameStore.status = 'loading'
@@ -215,7 +217,7 @@ describe('game page', () => {
 
 		expect(wrapper.find('.game-page__layout').exists()).toBe(true)
 		expect(wrapper.find('.game-loading').exists()).toBe(false)
-		expect(wrapper.find('.movie-frame__loading').exists()).toBe(true)
+		expect(wrapper.find('.game-stage__loading').exists()).toBe(true)
 		expect(wrapper.text()).not.toContain('Назови этот фильм')
 		expect(wrapper.find('.answer-form__hint').exists()).toBe(false)
 		expect(wrapper.get('.game-info').text()).not.toContain('Режим')

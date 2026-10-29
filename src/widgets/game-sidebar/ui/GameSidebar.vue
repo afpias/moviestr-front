@@ -7,7 +7,7 @@ import type { GameDifficulty, GameGenre } from '@shared/types/game'
 import { Button } from '@shared/ui'
 
 interface GameSidebarProps {
-	difficulty: GameDifficulty
+	difficulty: GameDifficulty | null
 	disabled: boolean
 	genre: GameGenre
 }

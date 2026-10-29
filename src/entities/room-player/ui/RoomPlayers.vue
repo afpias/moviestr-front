@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import { Crown, Trophy } from '@lucide/vue'
 
-import type { RoomPlayer } from '@shared/types/multiplayer'
+import type { RoomPlayer, RoomRoundResult } from '@shared/types/multiplayer'
 
 const props = defineProps<{
 	players: RoomPlayer[]
@@ -12,6 +12,7 @@ const props = defineProps<{
 	winnerIds: string[]
 	finished: boolean
 	waiting: boolean
+	roundResult?: RoomRoundResult | null
 }>()
 const rankedPlayers = computed(() =>
 	props.finished ? [...props.players].sort((first, second) => second.score - first.score) : props.players
@@ -56,6 +57,9 @@ function playerLabel(player: RoomPlayer): string {
 				<div class="room-players__name">
 					<strong>{{ player.nickname }} <span v-if="player.id === participantId">(ты)</span></strong>
 					<p>{{ playerLabel(player) }}</p>
+					<small v-if="roundResult?.requiredPlayerIds.includes(player.id)">
+						{{ roundResult.readyPlayerIds.includes(player.id) ? 'Готов' : 'Ждёт «Далее»' }}
+					</small>
 				</div>
 				<Crown v-if="player.id === hostId && !finished" :size="15" aria-label="Хост" />
 				<Trophy v-if="winnerIds.includes(player.id)" :size="18" aria-label="Победитель" />
