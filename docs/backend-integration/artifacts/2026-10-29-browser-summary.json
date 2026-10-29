@@ -1,0 +1,44 @@
+{
+	"date": "2026-10-29",
+	"origin": "http://localhost:8080",
+	"frontendImage": "sha256:47f3987f3a4bae64ef7074fe5fea7182f63456fc8898317d65e6c3d9118a6970",
+	"checks": {
+		"validate": "pass",
+		"testFiles": 26,
+		"tests": 96,
+		"build": "pass",
+		"soloStabilityE2E": "pass",
+		"multiplayerResultsE2E": "pass",
+		"repeatWithSoloNextRetryDOMIdentity": "pass"
+	},
+	"solo": {
+		"removedLayoutSidebarInfoNodes": [],
+		"frameHeightBeforeAndDuringLoading": "unchanged",
+		"hardRefreshStyledDifficulty": ["hard"],
+		"hardRefreshTheme": ["dark"],
+		"lightRefreshTheme": ["light"],
+		"legacyAndCorruptPrefsDifficulty": ["loading", "hard"],
+		"legacyAndCorruptPrefsMainPadding": "13.6px",
+		"legacyAndCorruptPrefsFrameHeight": "497.25px",
+		"rejectedPostReloadDifficulty": ["hard"],
+		"blockedStorageBootstrap": "pass",
+		"mobileWidth": 360,
+		"horizontalPageOverflow": false
+	},
+	"multiplayer": {
+		"independentGuests": 2,
+		"filmCount": 2,
+		"personalWinAndLoss": "pass",
+		"firstAndLastAllReadyBarrier": "pass",
+		"readyRestoredOnReload": "pass",
+		"readyRestoredOnFreshTicketReconnect": "pass",
+		"finalScores": [1200, 1000],
+		"auditedSnapshotsLatestRun": 90,
+		"browserErrors": [],
+		"auditViolations": [],
+		"expectedNegativeResponses": ["403 WRONG_PASSWORD", "401 SESSION_REQUIRED"]
+	},
+	"runtimeChangedAfterImage": false,
+	"productionChanged": false,
+	"gitRefsChanged": false
+}

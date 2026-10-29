@@ -71,6 +71,14 @@
 	--app-color-accent-shadow: rgb(20 225 122 / 22%);
 }
 
+:root[data-game-difficulty='loading'] {
+	--primary: 215 10% 58%;
+	--ring: 215 10% 58%;
+	--app-color-accent: #8b949e;
+	--app-color-accent-hover: #a0a8b0;
+	--app-color-accent-shadow: rgb(139 148 158 / 16%);
+}
+
 :root[data-game-difficulty='medium'],
 :root[data-room-difficulty='medium'] {
 	--primary: 48 86% 56%;

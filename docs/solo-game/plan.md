@@ -2,6 +2,21 @@
 
 Статус: реализовано. Спецификация: [`spec.md`](./spec.md).
 
+## Исправление стабильности UI — 28 октября
+
+Подход: безусловная трёхколоночная композиция страницы и постоянный GameStage shell. Loading/error/result находятся
+внутри центральной сцены, а не заменяют маршрут. Store очищает старый кадр сразу при новом запросе, применяет выбранные
+UI preferences сразу, но server snapshot остаётся единственным источником игрового состояния.
+
+Файлы: GamePage.vue, GameStage.vue/CSS, game.store.ts, game-persistence.ts, browser-storage.ts, legacy-state.ts,
+ранний безопасный appearance bootstrap в index.html/public; тесты страницы/store/storage и browser paint/DOM trace.
+Отдельный безопасный preference-key сложности не меняет v2 opaque gameId/genre контракт и позволяет миграцию старого storage.
+Theme/difficulty bootstrap синхронный до CSS/основного bundle; дублирования полного store или скрытых данных нет.
+
+Проверки RED→GREEN: реальные POST202/loading GET через HTTP fixture, identity layout/sidebar/info при сменах и ошибках,
+non-easy resume до завершения GET, blocked/corrupt storage, initial paint на Docker1440/360. Новая multiplayer-фаза
+подключается только по готовому backend контракту, без самостоятельного перехода/подготовки фильма на клиенте.
+
 ## Подход
 
 Страница координирует игровой сценарий через composable, а состояние раунда и переходы остаются в Setup Store. Запросы

@@ -1,5 +1,12 @@
 # Задачи SPEC-006
 
+## MP-030–032: reveal/readiness — в работе
+
+- [x] Получить точный backend handoff phase/DTO/next API; описать строгие parsers/types и UI projection в плане.
+- [x] RED→GREEN: результат фильма/личный исход/готовность, запрет раннего reveal и client transitions.
+- [x] Подключить UI «Далее», disabled после server ack, versioned restore.
+- [x] Docker E2E: два contexts, все ready для обоих раундов/последнего, refresh/reconnect.
+
 Статус: выполнено для локального демо. Документы: [`spec.md`](./spec.md), [`plan.md`](./plan.md).
 
 ## Spec и Plan

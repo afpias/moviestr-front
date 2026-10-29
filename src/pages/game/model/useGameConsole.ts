@@ -7,21 +7,12 @@ import type { GameDifficulty, GameGenre } from '@shared/types/game'
 
 export function useGameConsole() {
 	const gameStore = useGameStore()
-	const { currentFrame, difficulty, genre, lastError, roundResult, status, totalFrames } = storeToRefs(gameStore)
-	const {
-		answer,
-		attemptedMovieIds,
-		clearSearch,
-		completeSearch,
-		isSearching,
-		markMovieAttempted,
-		resetSearch,
-		selectedMovie,
-		suggestions
-	} = useMovieSearch()
+	const { attemptedMovieIds, currentFrame, genre, lastError, roundResult, status, totalFrames } = storeToRefs(gameStore)
+	const difficulty = computed(() => (gameStore.preferencesReady ? gameStore.difficulty : null))
+	const { answer, clearSearch, completeSearch, isSearching, resetSearch, selectedMovie, suggestions } = useMovieSearch()
 
-	const currentAttempt = computed(() => (currentFrame.value?.index ?? 0) + 1)
-	const isBusy = computed(() => status.value === 'loading' || status.value === 'submitting')
+	const currentAttempt = computed(() => (currentFrame.value ? currentFrame.value.index + 1 : null))
+	const isBusy = computed(() => status.value === 'idle' || status.value === 'loading' || status.value === 'submitting')
 	const actionLabel = computed(() => {
 		if (status.value === 'submitting') {
 			return selectedMovie.value ? 'Проверяем…' : currentAttempt.value === totalFrames.value ? 'Сдаёмся…' : 'Открываем…'
@@ -70,13 +61,7 @@ export function useGameConsole() {
 			return
 		}
 
-		const isCorrect = await gameStore.submitGuess(movie.title)
-
-		if (isCorrect === false) {
-			markMovieAttempted(movie.id)
-		}
-
-		clearSearch()
+		if ((await gameStore.submitGuess(movie.id)) !== null) clearSearch()
 	}
 
 	async function continueRound(): Promise<void> {
@@ -90,13 +75,14 @@ export function useGameConsole() {
 	}
 
 	async function retryLoading(): Promise<void> {
-		await gameStore.switchDifficulty(difficulty.value)
+		await gameStore.retryLoading()
 	}
 
 	watch(
 		difficulty,
 		(value) => {
-			document.documentElement.dataset.gameDifficulty = value
+			if (value) document.documentElement.dataset.gameDifficulty = value
+			else document.documentElement.dataset.gameDifficulty = 'loading'
 		},
 		{ immediate: true }
 	)

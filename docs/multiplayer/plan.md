@@ -1,6 +1,24 @@
 # План реализации SPEC-006
 
-Статус: реализовано (локальное демо). Спецификация: [`spec.md`](./spec.md).
+## Reveal и общий «Далее» — изменение 28 октября
+
+Сервер владеет новой persisted фазой результата каждого фильма и readiness. Frontend получает объявленный backend
+контракт и проецирует его в RoomConsole: постер/название/год, личный исход, список готовности, idempotent «Далее».
+HTTP/WS parsers обновляются одновременно с DTO; старые active phases по-прежнему не принимают скрытый answer.
+Handoff получен: `round-result`, nullable `roundResult`, POST `/rooms/:id/ready` с `{roundId}` и Idempotency-Key.
+UI не начисляет ready локально и не двигает фильм сам; серверные required/ready IDs определяют отображение участников.
+Использовать существующий RoundResult с opt-in действием continue для проигравшего в комнате; соло retry не менять.
+Кнопка блокируется при busy/offline/isReady/!canContinue. Ошибка команды делает resync, но не отмечает готовность оптимистично.
+Ожидаемые файлы: shared/types/multiplayer, shared/api/contracts/realtime/multiplayer, shared/stores/multiplayer,
+widgets/room-console и entities/room-player. Соло исправляется независимо.
+
+Проверки: преждевременное раскрытие отклоняется; первое ack не двигает раунд, второе серверное подтверждение двигает;
+duplicate ack/stale round не повторяет эффект; последний reveal → все ready → итог; reload/reconnect сохраняют фазу.
+Browser E2E — два независимых contexts, реальный Docker backend.
+
+Статус нижних разделов: исторический план локального демо, удалённого при HTTP/WS миграции. Не восстанавливать
+storage engine/heartbeat/browser TMDB. Актуальная архитектура — [frontend-plan](../backend-integration/frontend-plan.md).
+Спецификация: [`spec.md`](./spec.md).
 
 ## Подход
 

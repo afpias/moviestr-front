@@ -10,7 +10,14 @@
 ## Implement
 
 - [x] Сохранять минимальную ссылку на игру в `localStorage`.
-- [x] Хранить полную игровую сессию в `sessionStorage`.
+- [x] Хранить полную игровую сессию только на backend, в браузере — opaque ID и безопасные UI preferences.
+
+## Стабильный refresh — 28 октября
+
+- [x] Безопасный storage при SecurityError/corrupt JSON, совместимость v2 и preference hint без скрытых данных.
+- [x] Ранняя theme/difficulty инициализация и non-easy resume без промежуточного easy/light.
+- [x] Preferences новой игры сохраняются только после принятого POST вместе с pointer; отказ не портит прежний resume.
+- [x] Реальный browser paint/DOM trace на финальном Docker image.
 - [x] Валидировать данные и безопасно удалять повреждённые значения.
 - [x] Восстанавливать активный раунд или запускать новый при потере сессии.
 - [x] Сохранять тему и синхронизировать класс и `color-scheme`.
