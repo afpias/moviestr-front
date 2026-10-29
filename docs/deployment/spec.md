@@ -1,3 +1,24 @@
+# SPEC-007: Развёртывание frontend
+
+Актуально с 28 октября 2026: локальный запуск полного приложения — Docker Compose из moviestr-back.
+Frontend — статический nginx runtime, backend — NestJS HTTP/WS, PostgreSQL отдельно. Production cutover не выполнялся.
+
+## Действующие требования (заменяют DEP-001–008 прежней Vercel topology)
+
+- **DEP-001.** Docker frontend доступен на localhost:8080, SPA поддерживает прямые маршруты.
+- **DEP-002.** Браузер использует same-origin /api/v1 и /ws; guest cookie HttpOnly, без TMDB Authorization/token.
+- **DEP-003.** TMDB_READ_TOKEN находится только в backend env; frontend image/build context/dist не получают его.
+- **DEP-004.** nginx /api/v1 → api:3000, /ws поддерживает Upgrade/таймаут более heartbeat; API не получает HTML fallback.
+- **DEP-005.** Ошибки API безопасно отображаются, не считаются проигрышем и не включают fallback на demo.
+- **DEP-006.** Node 24 multi-stage build создаёт dist, nginx runtime не содержит Node server/backend implementation.
+- **DEP-007.** Vite dev/preview proxy направляет HTTP/WS на 127.0.0.1:3000; frontend env не содержит секретов.
+- **DEP-008.** Новый production backend/domain/hosting подключается только отдельным запросом. Старый Vercel deploy не менялся.
+
+Проверки: Docker health/HTTP/native WS, frontend validate/build, browser E2E независимых sessions, secret/answer scan.
+См. README, Dockerfile, nginx.conf, .dockerignore и SPEC-009.
+
+## История Vercel-публикации 18 октября (не инструкция текущего запуска)
+
 # SPEC-007: Публикация и серверный доступ к TMDB
 
 Статус: реализовано и опубликовано 2026-10-18. Решение владельца: скрыть TMDB-токен и опубликовать приложение на Vercel.

@@ -13,6 +13,33 @@
 	justify-content: center;
 }
 
+.game-stage__loading,
+.game-stage__error {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1rem;
+	color: var(--app-color-text-muted);
+}
+
+.game-stage__loading {
+	text-align: center;
+}
+
+.game-stage__skeleton {
+	position: absolute;
+	inset: 0;
+	opacity: 0.35;
+}
+
+.game-stage__loading span {
+	z-index: 1;
+}
+
 .game-stage__toolbar :deep(.difficulty-selector) {
 	justify-content: center;
 }

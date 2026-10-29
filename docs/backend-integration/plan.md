@@ -1,7 +1,10 @@
 # План реализации SPEC-009: backend Moviestr
 
 > Для другого агента: сначала прочитать [`spec.md`](./spec.md) и [`tasks.md`](./tasks.md).
-> Это план, не выполненная реализация. До начала кода подтвердить открытые технические решения из спецификации.
+> Исходный handoff backend от 27 октября сохранён как история проектирования. Инвентаризация ниже описывает состояние
+> **до миграции**; старые пути runtime не являются инструкцией восстановить удалённый код.
+> Актуальный этап от 28 октября: [`frontend-plan.md`](./frontend-plan.md), контракт соседнего moviestr-back/docs/api.
+> Frontend теперь клиент HTTP/WS; локальный запуск — Docker nginx/API/PostgreSQL. Production hosting не переключён.
 
 **Goal:** заменить браузерную серверную логику настоящим backend и подключить существующий Vue-интерфейс без редизайна.
 **Architecture:** отдельный NestJS API, PostgreSQL, server-authoritative игровые модели; HTTP-команды и персональные WS snapshots.
@@ -23,7 +26,8 @@
 | `src/shared/stores/game.store.ts`, `multiplayer.store.ts`                                               | клиентское состояние и координация                                | оставить на фронте, адаптировать к HTTP/WS                         |
 
 Сейчас `/api/v1/games` и `/api/v1/rooms` **не существуют**: функции вызываются локально. Пути ниже — проект нового API.
-Frontend находится в `C:/Users/nikip/Documents/Projects/vue`; пути backend ниже отсчитываются от будущего отдельного проекта.
+Frontend находится в `C:/Users/nikip/Documents/Projects/moviestr/moviestr-front`, backend — в соседнем
+`C:/Users/nikip/Documents/Projects/moviestr/moviestr-back`; пути backend ниже отсчитываются от его корня.
 
 ## 2. Глобальные ограничения
 

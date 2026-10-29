@@ -1,19 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { GAME_GENRE_OPTIONS, getGameGenreOption, isGameGenre } from '@shared/lib/game-genres'
+import { getGameGenreOption, isGameGenre } from '@shared/lib/game-genres'
 
-describe('game genres', () => {
-	it('содержит восемь доступных вариантов', () => {
-		expect(GAME_GENRE_OPTIONS).toHaveLength(8)
-		expect(GAME_GENRE_OPTIONS[0]).toEqual({ label: 'Все жанры', tmdbId: null, value: 'all' })
+describe('genre UI options', () => {
+	it('shows a readable label for server values', () => {
+		expect(getGameGenreOption('science-fiction').label).toBe('Фантастика')
 	})
-
-	it('связывает жанр с идентификатором TMDB', () => {
-		expect(getGameGenreOption('science-fiction').tmdbId).toBe(878)
-		expect(getGameGenreOption('animation').tmdbId).toBe(16)
-	})
-
-	it('проверяет значение жанра', () => {
+	it('rejects unsupported stored values', () => {
 		expect(isGameGenre('thriller')).toBe(true)
 		expect(isGameGenre('western')).toBe(false)
 	})

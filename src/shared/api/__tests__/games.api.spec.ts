@@ -1,59 +1,40 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getCollections } from '@shared/api/collections.api'
-import { loadChallenge, skipFrame, submitGuess } from '@shared/api/games.api'
+import { installApiFixture, playingGame } from '@shared/testing/api-fixture'
 
-describe('game API', () => {
-	it('возвращает фактический размер каталога TMDB', async () => {
-		const collections = await getCollections()
+import { getChallenge, loadChallenge, skipFrame, submitGuess } from '../games.api'
+import { resetHttpSession } from '../http'
 
-		expect(collections).toEqual([expect.objectContaining({ id: 'tmdb-catalog', movieCount: 10_000, title: 'Каталог TMDB' })])
+describe('solo network API', () => {
+	beforeEach(installApiFixture)
+	it('creates a pending server operation without a frame or answer', async () => {
+		const pending = await loadChallenge('tmdb-catalog', 'easy')
+		expect(pending.status).toBe('loading')
+		expect(pending).not.toHaveProperty('movieId')
+		expect(pending).not.toHaveProperty('currentFrame')
+		expect((await getChallenge(pending.gameId)).status).toBe('playing')
 	})
-
-	it('загружает фильм режима без раскрытия правильного ответа', async () => {
-		const game = await loadChallenge('tmdb-catalog', 'hard', 'thriller')
-
-		expect(game.status).toBe('playing')
-		expect(game.difficulty).toBe('hard')
-		expect(game.genre).toBe('thriller')
-		expect(game.totalFrames).toBe(5)
-		expect(game).not.toHaveProperty('result')
-		expect(game).not.toHaveProperty('movieId')
+	it('sends the selected ID and expected frame, never a trusted title or score', async () => {
+		const pending = await loadChallenge('tmdb-catalog', 'easy')
+		const response = await submitGuess(pending.gameId, 'tmdb-603', 0)
+		expect(response.correct).toBe(false)
+		expect(response.attemptedMovieIds).toEqual(['tmdb-603'])
+		const fetcher = vi.mocked(fetch)
+		expect(JSON.parse(String(fetcher.mock.lastCall?.[1]?.body))).toEqual({ movieId: 'tmdb-603', expectedFrameIndex: 0 })
 	})
-
-	it('проверяет нормализованный ответ без начисления очков', async () => {
-		const game = await loadChallenge('tmdb-catalog', 'easy')
-		const response = await submitGuess(game.gameId, '  ИНТЕРСТЕЛЛАР! ')
-
-		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
-		expect(response).not.toHaveProperty('points')
+	it('uses server skip snapshot including personal attempts and version', async () => {
+		const pending = await loadChallenge('tmdb-catalog', 'easy')
+		expect(await skipFrame(pending.gameId, 0)).toMatchObject({ status: 'playing', version: 2, currentFrame: { index: 1 } })
 	})
-
-	it('принимает английское название как правильный ответ', async () => {
-		const game = await loadChallenge('tmdb-catalog', 'easy')
-		const response = await submitGuess(game.gameId, '  INTERSTELLAR  ')
-
-		expect(response).toEqual(expect.objectContaining({ correct: true, status: 'won' }))
-	})
-
-	it('пропускает ответ и открывает следующий кадр', async () => {
-		const game = await loadChallenge('tmdb-catalog', 'easy')
-		const response = await skipFrame(game.gameId)
-
-		expect(response).toEqual(expect.objectContaining({ currentFrame: expect.objectContaining({ index: 1 }), status: 'playing' }))
-	})
-
-	it('возвращает правильный ответ при сдаче на пятом кадре', async () => {
-		const game = await loadChallenge('tmdb-catalog', 'easy')
-
-		for (let frame = 1; frame < 5; frame += 1) {
-			await skipFrame(game.gameId)
-		}
-
-		const response = await skipFrame(game.gameId)
-
-		expect(response).toEqual(
-			expect.objectContaining({ result: expect.objectContaining({ title: 'Интерстеллар' }), status: 'lost' })
+	it('does not turn HTTP failures into a wrong answer', async () => {
+		resetHttpSession()
+		vi.stubGlobal(
+			'fetch',
+			vi
+				.fn()
+				.mockResolvedValueOnce(Response.json({ participantId: 'guest', expiresAt: Date.now() + 60000 }))
+				.mockResolvedValueOnce(Response.json({ code: 'FRAME_CONFLICT', message: 'stale' }, { status: 409 }))
 		)
+		await expect(submitGuess(playingGame().gameId, 'tmdb-603', 0)).rejects.toMatchObject({ code: 'FRAME_CONFLICT' })
 	})
 })

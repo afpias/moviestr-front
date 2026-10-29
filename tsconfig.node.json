@@ -17,14 +17,5 @@
 		// Disable emitting output during `vue-tsc --build`, which is used for type-checking only.
 		"noEmit": true
 	},
-	"include": [
-		"vite.config.*",
-		"vitest.config.*",
-		"cypress.config.*",
-		"playwright.config.*",
-		"eslint.config.*",
-		"server/**/*.ts",
-		"api/**/*.ts"
-	],
-	"exclude": ["server/**/__tests__/**"]
+	"include": ["vite.config.*", "vitest.config.*", "cypress.config.*", "playwright.config.*", "eslint.config.*"]
 }

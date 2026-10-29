@@ -98,6 +98,13 @@
 	overflow: hidden;
 	clip-path: inset(50%);
 }
+.room-console__readiness {
+	display: grid;
+	justify-items: center;
+	gap: 0.35rem;
+	margin-top: 1rem;
+	text-align: center;
+}
 @media (max-width: 900px) {
 	.room-console {
 		grid-template-columns: minmax(0, 1fr);

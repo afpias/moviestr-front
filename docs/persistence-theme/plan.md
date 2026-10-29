@@ -4,13 +4,16 @@
 
 ## Подход
 
-В `localStorage` хранится только проверяемая ссылка на активную игру и тема. Полная локальная игровая сессия находится в
-`sessionStorage`; оба формата версионированы и валидируются до использования.
+В `localStorage` хранится проверяемая ссылка на активную игру, тема и безопасная UI-подсказка сложности/жанра.
+Полная игровая сессия находится только на backend; в sessionStorage нет ответа или кадров.
+Форматы версионированы и валидируются до использования. Parser-blocking public/appearance.js до CSS применяет тему
+и акцент; при legacy gameId без валидных preferences сохраняет нейтральный loading marker и постоянную layout geometry.
+Чтение pointer и preferences изолировано: битый JSON одного ключа не отменяет восстановление другого.
 
 ## Архитектура и данные
 
 - `shared/lib/game-persistence.ts` — безопасное чтение и запись ссылки на игру.
-- `shared/api/game-session.ts` — sessionStorage-адаптер полной игровой сессии.
+- `shared/lib/game-preferences.ts`, `public/appearance.js` — safe preference hint и pre-paint appearance.
 - `shared/stores/game.store.ts` — восстановление и очистка активного раунда.
 - `shared/stores/theme.store.ts` — тема и синхронизация корневого класса.
 

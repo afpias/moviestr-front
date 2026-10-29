@@ -7,13 +7,15 @@ import { MovieFrame } from '@entities/movie-frame'
 import { RoomPlayers } from '@entities/room-player'
 import { retryRoom, startRoom } from '@features/manage-room'
 import { MovieCombobox } from '@features/search-movie'
+import { RoundResult } from '@features/show-round-result'
 import { getDifficultyOption } from '@shared/lib/game-difficulty'
 import { getGameGenreOption } from '@shared/lib/game-genres'
 import { Button } from '@shared/ui'
 
 import { useRoomConsole } from '../model/useRoomConsole'
 
-const { store, answer, completeSearch, isSearching, suggestions, canAnswer, actionLabel, submit } = useRoomConsole()
+const { store, answer, completeSearch, isSearching, suggestions, canAnswer, actionLabel, submit, canContinue, continueRound } =
+	useRoomConsole()
 const room = computed(() => store.room)
 const canStart = computed(() => (room.value?.players.filter((player) => player.connected).length ?? 0) >= 2)
 const winnerNames = computed(() =>
@@ -33,6 +35,7 @@ const winnerNames = computed(() =>
 			:winner-ids="room.winnerIds"
 			:finished="room.status === 'finished'"
 			:waiting="room.status === 'waiting'"
+			:round-result="room.roundResult"
 		/>
 		<section class="room-console__stage" aria-label="Игра">
 			<template v-if="room.status === 'waiting'">
@@ -48,7 +51,13 @@ const winnerNames = computed(() =>
 						<span><strong>+100 / −50</strong><span>за ответ</span></span>
 						<span><strong>90 сек.</strong><span>на фильм</span></span>
 					</div>
-					<Button v-if="store.isHost" :disabled="store.busy || !canStart" @click="startRoom(room.id)">Начать игру</Button>
+					<Button
+						v-if="store.isHost"
+						:disabled="store.busy || !canStart || store.connection !== 'connected'"
+						@click="startRoom(room.id)"
+					>
+						Начать игру
+					</Button>
 					<p v-if="!canStart">Для старта нужен ещё один участник.</p>
 					<p v-else-if="!store.isHost">Хост начнёт игру, когда компания будет готова.</p>
 				</div>
@@ -63,6 +72,33 @@ const winnerNames = computed(() =>
 				<p role="alert">{{ room.error }}</p>
 				<Button v-if="store.isHost" :disabled="store.busy" @click="retryRoom(room.id)">Повторить загрузку</Button>
 				<p v-else>Хост может повторить загрузку.</p>
+			</div>
+			<div v-else-if="room.status === 'round-result' && room.result && room.roundResult" class="room-console__result">
+				<div class="room-console__toolbar">
+					<span
+						>Фильм <strong>{{ room.roundNumber }} / {{ room.settings.filmCount }}</strong></span
+					>
+					<span v-if="room.roundResult.isLastRound">Последний фильм</span>
+				</div>
+				<RoundResult
+					:result="room.result"
+					:status="room.roundResult.outcome"
+					action="continue"
+					:action-disabled="!canContinue"
+					@continue="continueRound"
+				/>
+				<div class="room-console__readiness" role="status" aria-live="polite">
+					<p>Готовы: {{ room.roundResult.readyPlayerIds.length }} / {{ room.roundResult.requiredPlayerIds.length }}</p>
+					<p>
+						{{
+							room.roundResult.isReady
+								? 'Ждём остальных участников.'
+								: room.roundResult.canContinue
+									? 'Нажми «Далее», когда будешь готов.'
+									: 'Ждём готовности участников.'
+						}}
+					</p>
+				</div>
 			</div>
 			<div v-else-if="room.status === 'finished'" class="room-console__state">
 				<Trophy :size="48" aria-hidden="true" />
@@ -108,7 +144,7 @@ const winnerNames = computed(() =>
 				<div v-else class="room-console__state" role="status">
 					<CheckCircle2 v-if="store.me?.status === 'won'" :size="40" aria-hidden="true" />
 					<h2>{{ store.me?.status === 'won' ? 'Угадано! +100' : 'Фильм завершён' }}</h2>
-					<p>Ждём остальных. Следующий фильм начнётся автоматически.</p>
+					<p>Ждём остальных. Правильный ответ появится после завершения фильма всеми.</p>
 				</div>
 			</template>
 		</section>
